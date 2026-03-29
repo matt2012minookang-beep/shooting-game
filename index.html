@@ -136,11 +136,13 @@
     }
     .hint.ok { color: var(--green); }
     .hint.bad { color: #ff9a9a; }
+
     .row {
       display: flex;
       gap: 10px;
       flex-wrap: wrap;
     }
+
     .btn {
       border: none;
       border-radius: 16px;
@@ -156,11 +158,6 @@
     .btn.secondary {
       background: linear-gradient(180deg, #4d556d, #2a3041);
       box-shadow: 0 8px 20px rgba(0,0,0,0.25);
-    }
-    .btn.gold {
-      color: #2f2200;
-      background: linear-gradient(180deg, #ffe38a, #d7a92e);
-      box-shadow: 0 10px 22px rgba(215,169,46,0.35);
     }
 
     .opening-overlay {
@@ -256,6 +253,7 @@
       position: relative;
       filter: drop-shadow(0 18px 40px rgba(0,0,0,0.5));
     }
+
     .play-btn-wrap {
       position: absolute;
       left: 0;
@@ -337,6 +335,65 @@
       pointer-events: none;
     }
 
+    .gameover-menu {
+      position: absolute;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 40;
+      background: rgba(0,0,0,0.45);
+      padding: 20px;
+    }
+    .gameover-menu.show {
+      display: flex;
+    }
+    .gameover-card {
+      width: min(92vw, 420px);
+      border-radius: 24px;
+      background: linear-gradient(180deg, rgba(20,24,36,0.96), rgba(10,12,20,0.96));
+      border: 1px solid rgba(255,255,255,0.12);
+      box-shadow: var(--shadow);
+      padding: 24px;
+      text-align: center;
+    }
+    .gameover-title {
+      font-size: clamp(30px, 7vw, 44px);
+      font-weight: 900;
+      margin-bottom: 10px;
+      color: #fff3f3;
+    }
+    .gameover-sub {
+      font-size: 16px;
+      color: #cfdcff;
+      margin-bottom: 18px;
+      line-height: 1.6;
+    }
+    .gameover-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .go-btn {
+      min-width: 150px;
+      height: 56px;
+      border: none;
+      border-radius: 18px;
+      font-size: 18px;
+      font-weight: 900;
+      cursor: pointer;
+      color: white;
+    }
+    .go-restart {
+      background: linear-gradient(180deg, #3f7dff, #234db5);
+      box-shadow: 0 10px 20px rgba(35,77,181,0.35);
+    }
+    .go-exit {
+      background: linear-gradient(180deg, #666f86, #31384a);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.28);
+    }
+
     @media (max-width: 720px) {
       .left-menu {
         top: auto;
@@ -354,6 +411,10 @@
         border-radius: 20px;
       }
       .play-btn { height: 62px; }
+      .go-btn {
+        width: 100%;
+        min-width: 0;
+      }
     }
   </style>
 </head>
@@ -427,6 +488,17 @@
       </div>
 
       <div class="pause-tip">화면을 누르고 드래그하면 시간이 흐릅니다. 떼면 즉시 멈춥니다.</div>
+
+      <div id="gameoverMenu" class="gameover-menu">
+        <div class="gameover-card">
+          <div class="gameover-title">GAME OVER</div>
+          <div id="gameoverInfo" class="gameover-sub">최종 기록</div>
+          <div class="gameover-actions">
+            <button id="restartBtn" class="go-btn go-restart">다시시작</button>
+            <button id="exitBtn" class="go-btn go-exit">나가기</button>
+          </div>
+        </div>
+      </div>
     </section>
   </div>
 
@@ -448,6 +520,10 @@
     const playBtn = document.getElementById("playBtn");
     const openingPlane = document.getElementById("openingPlane");
     const heroPlane = document.getElementById("heroPlane");
+    const gameoverMenu = document.getElementById("gameoverMenu");
+    const gameoverInfo = document.getElementById("gameoverInfo");
+    const restartBtn = document.getElementById("restartBtn");
+    const exitBtn = document.getElementById("exitBtn");
 
     function showScreen(el) {
       [nicknameScreen, mainScreen, battleScreen].forEach(s => s.classList.remove("active"));
@@ -535,6 +611,7 @@
       nickChip.textContent = playerProfile.nickname;
       hudNick.textContent = playerProfile.nickname;
       showScreen(mainScreen);
+      hideGameoverMenu();
     }
 
     function planeSVG({ propFast = true, glow = false, small = false } = {}) {
@@ -570,8 +647,6 @@
           <path d="M ${s*0.72} ${s*0.26} L ${s*0.79} ${s*0.09} L ${s*0.85} ${s*0.1} L ${s*0.8} ${s*0.29} Z" fill="${wing}" stroke="#2d3447" stroke-width="${small ? 3 : 4}"/>
           <rect x="${s*0.2}" y="${s*0.31}" width="${s*0.06}" height="${s*0.1}" rx="16" fill="${glass}" stroke="#294d79" stroke-width="${small ? 2 : 3}"/>
           <circle cx="${s*0.085}" cy="${s*0.36}" r="${s*0.025}" fill="${nose}" stroke="#7d4b11" stroke-width="${small ? 2 : 3}"/>
-          <path d="M ${s*0.26} ${s*0.3} L ${s*0.33} ${s*0.29}" stroke="#7f8ca3" stroke-width="${small ? 2 : 3}" stroke-linecap="round"/>
-          <path d="M ${s*0.27} ${s*0.44} L ${s*0.35} ${s*0.45}" stroke="#7f8ca3" stroke-width="${small ? 2 : 3}" stroke-linecap="round"/>
         </g>
       </svg>`;
     }
@@ -625,6 +700,15 @@
       playerName: "파일럿"
     };
 
+    function hideGameoverMenu() {
+      gameoverMenu.classList.remove("show");
+    }
+
+    function showGameoverMenu() {
+      gameoverInfo.textContent = `최종 WAVE ${game.wave} · 점수 ${game.score}`;
+      gameoverMenu.classList.add("show");
+    }
+
     function resetBattle() {
       game.running = true;
       game.touchDown = false;
@@ -653,7 +737,6 @@
         h: 64,
         hp: 1,
         alive: true,
-        gunLevel: 1,
         level: 1,
         dmg: 1,
         bulletCount: 1,
@@ -662,7 +745,6 @@
         miniBulletCount: 0,
         maxNormalLevel: 15,
         shotCooldown: 0,
-        miniShotCooldown: 0,
         entryDone: false
       };
       game.targetX = game.player.x;
@@ -670,6 +752,7 @@
       game.playerName = playerProfile ? playerProfile.nickname : "파일럿";
       hudState.textContent = "대기 중";
       hudNick.textContent = game.playerName;
+      hideGameoverMenu();
 
       for (let i = 0; i < 70; i++) {
         game.stars.push({
@@ -685,6 +768,16 @@
     playBtn.addEventListener("click", () => {
       showScreen(battleScreen);
       resetBattle();
+    });
+
+    restartBtn.addEventListener("click", () => {
+      resetBattle();
+    });
+
+    exitBtn.addEventListener("click", () => {
+      game.running = false;
+      hideGameoverMenu();
+      enterMain();
     });
 
     function canvasPos(e) {
@@ -725,7 +818,6 @@
     canvas.addEventListener("pointermove", moveTouch);
     canvas.addEventListener("pointerup", endTouch);
     canvas.addEventListener("pointercancel", endTouch);
-    canvas.addEventListener("pointerleave", () => {});
 
     function rand(a, b) { return Math.random() * (b - a) + a; }
     function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
@@ -753,16 +845,19 @@
       showMessage(`WAVE ${wave}!`, 1.35);
       hudState.textContent = `WAVE ${wave}`;
 
-      const rows = Math.min(3 + Math.floor(wave / 4), 6);
-      const cols = Math.min(4 + Math.floor(wave * 0.6), 11);
-      const hpBase = 2 + Math.floor(wave * 1.2);
-      const dmg = 1 + Math.floor(wave / 6);
-      const fireRate = Math.max(0.5, 1.8 - wave * 0.04);
-      const startX = W * 0.14;
-      const endX = W * 0.86;
+      const rows = Math.min(2 + Math.floor(wave / 5), 5);
+      const cols = Math.min(4 + Math.floor(wave * 0.45), 9);
+      const hpBase = 2 + Math.floor(wave * 1.1);
+      const dmg = 1 + Math.floor(wave / 8);
+
+      /* 적 공격 빈도 줄임 */
+      const fireRate = Math.max(1.6, 3.2 - wave * 0.04);
+
+      const startX = W * 0.16;
+      const endX = W * 0.84;
       const gapX = cols > 1 ? (endX - startX) / (cols - 1) : 0;
-      const topY = 90;
-      const gapY = 70;
+      const topY = 100;
+      const gapY = 72;
 
       let idx = 0;
       for (let r = 0; r < rows; r++) {
@@ -778,15 +873,14 @@
             ty,
             w: 34,
             h: 30,
-            hp: hpBase + Math.floor(r * 0.8) + Math.floor(wave * 0.3),
-            maxHp: hpBase + Math.floor(r * 0.8) + Math.floor(wave * 0.3),
+            hp: hpBase + Math.floor(r * 0.8) + Math.floor(wave * 0.25),
+            maxHp: hpBase + Math.floor(r * 0.8) + Math.floor(wave * 0.25),
             dmg,
-            fireCooldown: rand(0.5, fireRate + 0.8),
+            fireCooldown: rand(1.2, fireRate + 1.6),
             fireBase: fireRate,
             pattern,
             t: Math.random() * 6,
-            phase: "enter",
-            speed: 70 + wave * 3
+            phase: "enter"
           });
         }
       }
@@ -803,14 +897,15 @@
         h: 110,
         hp,
         maxHp: hp,
-        dmg: 1 + Math.floor(wave / 8),
+        dmg: 1 + Math.floor(wave / 10),
         phase: "enter",
         t: 0,
-        fireCooldown: 0.8,
-        volleyCooldown: 2.2,
-        ringCooldown: 4.1,
-        summonCooldown: 6.5,
-        speed: 80 + wave * 1.6,
+
+        /* 보스 공격도 줄임 */
+        fireCooldown: 1.4,
+        volleyCooldown: 3.3,
+        ringCooldown: 5.8,
+        summonCooldown: 7.2,
         wave
       };
     }
@@ -819,6 +914,7 @@
       const p = game.player;
       const n = p.bulletCount;
       const spread = Math.min(22, 8 + (n - 1) * 3.2);
+
       for (let i = 0; i < n; i++) {
         const off = n === 1 ? 0 : ((i / (n - 1)) - 0.5) * spread * (n - 1);
         game.bullets.push({
@@ -828,15 +924,13 @@
           vy: -520,
           r: 4.5,
           dmg: p.dmg,
-          color: "#ffe27a",
-          kind: "main"
+          color: "#ffe27a"
         });
       }
 
       if (p.miniLevel > 0) {
-        const miniCount = 2;
         const sideOffsets = [-30, 30];
-        for (let m = 0; m < miniCount; m++) {
+        for (let m = 0; m < 2; m++) {
           const baseX = p.x + sideOffsets[m];
           const bn = Math.max(1, p.miniBulletCount);
           const sp = 8 + (bn - 1) * 3;
@@ -849,8 +943,7 @@
               vy: -430,
               r: 3.2,
               dmg: Math.max(1, Math.floor(p.dmg * 0.45)),
-              color: "#8fd2ff",
-              kind: "mini"
+              color: "#8fd2ff"
             });
           }
         }
@@ -888,9 +981,7 @@
     function applyItem(type) {
       const p = game.player;
       if (type === "power") {
-        if (p.level < p.maxNormalLevel) {
-          p.level += 1;
-        }
+        if (p.level < p.maxNormalLevel) p.level += 1;
         p.powerStacks += 1;
         p.dmg += 1;
         if (p.powerStacks >= 3) {
@@ -917,7 +1008,6 @@
         showMessage("SUPER!! MAX LEVEL", 1.5);
       }
     }
-
     function playerHit() {
       if (!game.player.alive) return;
       game.player.hp -= 1;
@@ -930,6 +1020,7 @@
           playerProfile.bestWave = Math.max(playerProfile.bestWave || 1, game.wave);
           savePlayer(playerProfile);
         }
+        showGameoverMenu();
       }
     }
 
@@ -979,6 +1070,7 @@
       }
 
       game.time += activeDt;
+
       if (game.phase === "prestart") {
         game.holdTime += activeDt;
         hudState.textContent = "출격 중...";
@@ -1002,18 +1094,21 @@
           const b = game.bullets[i];
           b.x += b.vx * activeDt;
           b.y += b.vy * activeDt;
+
           if (b.y < -30 || b.x < -30 || b.x > W + 30) {
             game.bullets.splice(i, 1);
             continue;
           }
 
           let hit = false;
+
           if (game.boss) {
             const boss = game.boss;
             if (circleHit(b.x, b.y, b.r, boss.x, boss.y, boss.w, boss.h)) {
               boss.hp -= b.dmg;
               game.bullets.splice(i, 1);
               hit = true;
+
               if (boss.hp <= 0) {
                 for (let k = 0; k < 40; k++) {
                   game.particles.push({
@@ -1049,6 +1144,7 @@
 
         for (const e of game.enemies) {
           e.t += activeDt;
+
           if (e.phase === "enter") {
             e.x += (e.tx - e.x) * Math.min(1, activeDt * 2.6);
             e.y += (e.ty - e.y) * Math.min(1, activeDt * 2.6);
@@ -1071,21 +1167,25 @@
           }
 
           e.fireCooldown -= activeDt;
+
           if (e.fireCooldown <= 0 && p.alive && e.phase !== "enter") {
-            const aimX = p.x;
-            const aimY = p.y;
-            const dx = aimX - e.x;
-            const dy = aimY - e.y;
+            const dx = p.x - e.x;
+            const dy = p.y - e.y;
             const len = Math.hypot(dx, dy) || 1;
-            const spd = 180 + game.wave * 7;
-            const type = Math.random() < 0.18 ? "spread" : "normal";
+
+            const spd = 150 + game.wave * 5;
+
+            /* 적 공격 종류도 줄임 */
+            const type = Math.random() < 0.08 ? "spread" : "normal";
+
             if (type === "spread") {
-              for (let a = -0.22; a <= 0.22; a += 0.22) {
+              for (let a = -0.15; a <= 0.15; a += 0.15) {
                 const vx = (dx / len) * spd;
                 const vy = (dy / len) * spd;
                 const cos = Math.cos(a), sin = Math.sin(a);
                 game.enemyBullets.push({
-                  x: e.x, y: e.y + 12,
+                  x: e.x,
+                  y: e.y + 12,
                   vx: vx * cos - vy * sin,
                   vy: vx * sin + vy * cos,
                   r: 5,
@@ -1104,13 +1204,15 @@
                 color: "#ff8b8b"
               });
             }
-            e.fireCooldown = rand(e.fireBase * 0.7, e.fireBase * 1.4);
+
+            e.fireCooldown = rand(e.fireBase * 0.95, e.fireBase * 1.65);
           }
         }
 
         if (game.boss) {
           const b = game.boss;
           b.t += activeDt;
+
           if (b.phase === "enter") {
             b.x += (b.tx - b.x) * Math.min(1, activeDt * 2.4);
             b.y += (b.ty - b.y) * Math.min(1, activeDt * 2.1);
@@ -1118,6 +1220,7 @@
           } else {
             b.x = W * 0.5 + Math.sin(b.t * 0.8) * Math.min(220, 90 + b.wave * 2);
             b.y = 145 + Math.sin(b.t * 1.15) * 18;
+
             b.fireCooldown -= activeDt;
             b.volleyCooldown -= activeDt;
             b.ringCooldown -= activeDt;
@@ -1127,36 +1230,39 @@
               const dx = p.x - b.x;
               const dy = p.y - b.y;
               const len = Math.hypot(dx, dy) || 1;
-              const spd = 220 + b.wave * 5;
+              const spd = 180 + b.wave * 4;
               game.enemyBullets.push({
-                x: b.x, y: b.y + 20,
+                x: b.x,
+                y: b.y + 20,
                 vx: (dx / len) * spd,
                 vy: (dy / len) * spd,
                 r: 7,
                 dmg: b.dmg,
                 color: "#ff6f6f"
               });
-              b.fireCooldown = Math.max(0.3, 0.75 - b.wave * 0.01);
+              b.fireCooldown = Math.max(0.9, 1.45 - b.wave * 0.01);
             }
+
             if (b.volleyCooldown <= 0) {
-              for (let i = -3; i <= 3; i++) {
+              for (let i = -2; i <= 2; i++) {
                 game.enemyBullets.push({
-                  x: b.x + i * 18,
+                  x: b.x + i * 22,
                   y: b.y + 10,
-                  vx: i * 28,
-                  vy: 220 + b.wave * 6,
+                  vx: i * 24,
+                  vy: 185 + b.wave * 4,
                   r: 6,
                   dmg: b.dmg,
                   color: "#ffa0a0"
                 });
               }
-              b.volleyCooldown = Math.max(1.1, 2.1 - b.wave * 0.02);
+              b.volleyCooldown = Math.max(2.0, 3.3 - b.wave * 0.015);
             }
+
             if (b.ringCooldown <= 0) {
-              const bullets = Math.min(24, 12 + Math.floor(b.wave / 2));
+              const bullets = Math.min(16, 8 + Math.floor(b.wave / 3));
               for (let i = 0; i < bullets; i++) {
                 const ang = (Math.PI * 2 * i) / bullets + b.t * 0.35;
-                const spd = 140 + b.wave * 4;
+                const spd = 105 + b.wave * 3;
                 game.enemyBullets.push({
                   x: b.x,
                   y: b.y,
@@ -1167,10 +1273,11 @@
                   color: "#ffd0d0"
                 });
               }
-              b.ringCooldown = Math.max(2.2, 4.2 - b.wave * 0.03);
+              b.ringCooldown = Math.max(3.6, 5.8 - b.wave * 0.02);
             }
-            if (b.summonCooldown <= 0 && game.enemies.length < 10) {
-              const n = 2 + Math.floor(b.wave / 10);
+
+            if (b.summonCooldown <= 0 && game.enemies.length < 6) {
+              const n = 1 + Math.floor(b.wave / 20);
               for (let i = 0; i < n; i++) {
                 const tx = rand(W * 0.15, W * 0.85);
                 const ty = rand(90, 240);
@@ -1183,15 +1290,14 @@
                   hp: 8 + Math.floor(b.wave * 0.8),
                   maxHp: 8 + Math.floor(b.wave * 0.8),
                   dmg: 1 + Math.floor(b.wave / 10),
-                  fireCooldown: rand(0.8, 1.5),
-                  fireBase: Math.max(0.45, 1.2 - b.wave * 0.02),
+                  fireCooldown: rand(1.8, 3.2),
+                  fireBase: Math.max(1.5, 2.6 - b.wave * 0.015),
                   pattern: ["sway", "zigzag", "curve"][Math.floor(Math.random() * 3)],
                   t: Math.random() * 5,
-                  phase: "enter",
-                  speed: 90
+                  phase: "enter"
                 });
               }
-              b.summonCooldown = Math.max(3.5, 6.6 - b.wave * 0.04);
+              b.summonCooldown = Math.max(5.8, 7.2 - b.wave * 0.02);
             }
           }
         }
@@ -1200,10 +1306,12 @@
           const b = game.enemyBullets[i];
           b.x += b.vx * activeDt;
           b.y += b.vy * activeDt;
+
           if (b.x < -40 || b.x > W + 40 || b.y < -40 || b.y > H + 40) {
             game.enemyBullets.splice(i, 1);
             continue;
           }
+
           if (p.alive && circleHit(b.x, b.y, b.r, p.x, p.y, 34, 42)) {
             game.enemyBullets.splice(i, 1);
             playerHit();
@@ -1214,10 +1322,12 @@
           const it = game.items[i];
           it.y += it.vy * activeDt;
           it.x += Math.sin(game.time * 3 + i) * 25 * activeDt;
+
           if (it.y > H + 30) {
             game.items.splice(i, 1);
             continue;
           }
+
           const dx = it.x - p.x;
           const dy = it.y - p.y;
           if (dx * dx + dy * dy < (it.r + 24) * (it.r + 24)) {
@@ -1272,23 +1382,6 @@
         ctx.fill();
       }
       ctx.globalAlpha = 1;
-    }
-
-    function drawPlayer() {
-      const p = game.player;
-      if (!p) return;
-
-      ctx.save();
-      ctx.translate(p.x, p.y);
-      if (!p.alive) ctx.globalAlpha = 0.4;
-
-      if (p.miniLevel > 0) {
-        drawMiniShip(-30, 8, p.miniLevel);
-        drawMiniShip(30, 8, p.miniLevel);
-      }
-
-      drawShip(0, 0, 1, true);
-      ctx.restore();
     }
 
     function drawShip(x, y, scale = 1, main = false) {
@@ -1352,6 +1445,23 @@
       ctx.save();
       ctx.translate(x, y);
       drawShip(0, 0, 0.55 + Math.min(0.18, lv * 0.03), false);
+      ctx.restore();
+    }
+
+    function drawPlayer() {
+      const p = game.player;
+      if (!p) return;
+
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      if (!p.alive) ctx.globalAlpha = 0.4;
+
+      if (p.miniLevel > 0) {
+        drawMiniShip(-30, 8, p.miniLevel);
+        drawMiniShip(30, 8, p.miniLevel);
+      }
+
+      drawShip(0, 0, 1, true);
       ctx.restore();
     }
 
@@ -1437,13 +1547,10 @@
     function drawItem(it) {
       ctx.save();
       ctx.translate(it.x, it.y);
-      if (it.type === "power") {
-        ctx.fillStyle = "#ffd86a";
-      } else if (it.type === "upgrade") {
-        ctx.fillStyle = "#7ecbff";
-      } else {
-        ctx.fillStyle = "#ff79f0";
-      }
+      if (it.type === "power") ctx.fillStyle = "#ffd86a";
+      else if (it.type === "upgrade") ctx.fillStyle = "#7ecbff";
+      else ctx.fillStyle = "#ff79f0";
+
       ctx.beginPath();
       ctx.arc(0, 0, it.r, 0, Math.PI * 2);
       ctx.fill();
@@ -1504,6 +1611,7 @@
       ctx.fillText(`WAVE ${Math.max(1, game.wave)}`, 24, H - 56);
       ctx.fillText(`점수 ${game.score}`, 24, H - 32);
       ctx.font = "14px Malgun Gothic";
+
       const p = game.player;
       if (p) {
         ctx.fillText(`레벨 ${p.level}  공격력 ${p.dmg}  탄수 ${p.bulletCount}`, 24, H - 10);
@@ -1530,19 +1638,6 @@
         ctx.fillText("누르고 있는 동안만 시간이 흐릅니다", W * 0.5, H * 0.5 - 12);
         ctx.font = "16px Malgun Gothic";
         ctx.fillText("손/마우스로 드래그해 비행기를 움직여", W * 0.5, H * 0.5 + 22);
-        ctx.textAlign = "left";
-      }
-
-      if (game.player && !game.player.alive) {
-        ctx.fillStyle = "rgba(0,0,0,0.58)";
-        ctx.fillRect(0, 0, W, H);
-        ctx.fillStyle = "#fff2f2";
-        ctx.textAlign = "center";
-        ctx.font = "bold 42px Malgun Gothic";
-        ctx.fillText("GAME OVER", W * 0.5, H * 0.5 - 20);
-        ctx.font = "18px Malgun Gothic";
-        ctx.fillText(`최종 WAVE ${game.wave} · 점수 ${game.score}`, W * 0.5, H * 0.5 + 18);
-        ctx.fillText("새로고침 후 다시 시작 가능", W * 0.5, H * 0.5 + 48);
         ctx.textAlign = "left";
       }
     }
