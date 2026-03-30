@@ -13,7 +13,6 @@
       --text:#eef6ff;
       --sub:#b7cae4;
       --gold:#ffd86f;
-      --coin:#7ef0ff;
       --shadow:0 14px 40px rgba(0,0,0,0.35);
       --green1:#003f14;
       --green2:#005b1d;
@@ -58,10 +57,10 @@
     }
     .war-bg::before{
       background:
-        linear-gradient(180deg,rgba(0,0,0,0.14),rgba(0,0,0,0.45)),
-        radial-gradient(circle at 20% 18%, rgba(255,180,100,0.06), transparent 18%),
-        radial-gradient(circle at 78% 14%, rgba(255,90,90,0.06), transparent 18%),
-        linear-gradient(180deg,#111722 0%,#27231f 35%,#161d2a 72%,#0c1119 100%);
+        linear-gradient(180deg,rgba(0,0,0,0.18),rgba(0,0,0,0.52)),
+        radial-gradient(circle at 18% 20%, rgba(255,150,90,0.08), transparent 18%),
+        radial-gradient(circle at 80% 16%, rgba(255,80,80,0.08), transparent 20%),
+        linear-gradient(180deg,#0f141d 0%,#2a241d 35%,#171d2c 72%,#0a0f16 100%);
     }
     .war-bg::after{
       background:
@@ -84,28 +83,36 @@
     /* loading */
     #loadingScreen{
       background:
-        radial-gradient(circle at 50% 70%, rgba(255,120,70,0.12), transparent 18%),
-        linear-gradient(180deg,#0b121a 0%,#161e2b 55%,#0b1019 100%);
+        radial-gradient(circle at 50% 80%, rgba(255,130,70,0.16), transparent 20%),
+        radial-gradient(circle at 20% 18%, rgba(255,80,80,0.08), transparent 18%),
+        radial-gradient(circle at 82% 20%, rgba(255,180,90,0.08), transparent 18%),
+        linear-gradient(180deg,#090e15 0%,#171d2a 45%,#0a0d14 100%);
     }
     .loading-box{
-      width:min(92vw,640px);
+      width:min(92vw,680px);
       text-align:center;
+      padding:28px;
+      border-radius:28px;
+      background:linear-gradient(180deg, rgba(13,18,28,0.82), rgba(8,12,20,0.84));
+      border:1px solid rgba(255,255,255,0.12);
+      box-shadow:var(--shadow);
+      backdrop-filter:blur(6px);
     }
     .loading-title{
       font-size:clamp(34px,7vw,64px);
       font-weight:900;
-      margin-bottom:16px;
+      margin-bottom:12px;
       letter-spacing:2px;
-      text-shadow:0 8px 26px rgba(0,0,0,0.35);
+      text-shadow:0 8px 26px rgba(0,0,0,0.4);
     }
     .loading-sub{
       color:#dbe6ff;
-      margin-bottom:20px;
+      margin-bottom:22px;
       font-size:15px;
     }
     .loading-bg{
       width:100%;
-      height:24px;
+      height:26px;
       border-radius:999px;
       background:rgba(255,255,255,0.09);
       border:1px solid rgba(255,255,255,0.16);
@@ -116,9 +123,9 @@
       width:0%;
       height:100%;
       border-radius:999px;
-      background:linear-gradient(90deg,#6ec8ff,#a7e7ff,#ffe78e);
-      transition:width .18s linear;
-      box-shadow:0 0 20px rgba(167,231,255,0.3);
+      background:linear-gradient(90deg,#ff9b5f,#ffdc83,#b8ecff);
+      transition:width .08s linear;
+      box-shadow:0 0 20px rgba(255,190,120,0.32);
     }
     .loading-text{
       margin-top:12px;
@@ -451,9 +458,9 @@
       width:max-content;
       padding:8px 14px;
       border-radius:999px;
-      background:rgba(126,240,255,0.14);
-      border:1px solid rgba(126,240,255,0.4);
-      color:#bdf7ff;
+      background:rgba(255,215,120,0.14);
+      border:1px solid rgba(255,215,120,0.4);
+      color:#fff2b5;
       font-weight:900;
       font-size:16px;
     }
@@ -540,7 +547,7 @@
     .stage-desc{
       color:#c5d6ef;
       line-height:1.6;
-      min-height:66px;
+      min-height:78px;
       white-space:pre-line;
     }
     .stage-play-btn{
@@ -743,7 +750,7 @@
       <div class="center-wrap">
         <div class="loading-box">
           <div class="loading-title">비행기 전쟁</div>
-          <div class="loading-sub">출격 준비 중...</div>
+          <div class="loading-sub">전장 연결 중...</div>
           <div class="loading-bg">
             <div id="loadingFill" class="loading-fill"></div>
           </div>
@@ -791,10 +798,10 @@
         <div class="topbar-left">
           <div class="chip">✈️ <span id="nickChip">파일럿</span></div>
           <div class="chip">선택: <span id="selectedPlaneChip">기본 비행기</span></div>
+          <div class="chip">선택 Stage: <span id="selectedStageChip">1</span></div>
         </div>
         <div class="topbar-right">
           <div class="chip">🏅 골드 <span id="goldChip">0</span></div>
-          <div class="chip">🪙 코인 <span id="coinChip">0</span></div>
         </div>
       </div>
 
@@ -886,36 +893,36 @@
         <div class="stage-grid">
           <div class="stage-card">
             <div class="stage-name">Stage 1</div>
-            <div class="stage-desc">기본 전장
-난이도: 쉬움
+            <div class="stage-desc">입문 전장
+보스 5종
 총 50 Wave</div>
             <button class="stage-play-btn" data-stage="1">선택</button>
           </div>
           <div class="stage-card">
             <div class="stage-name">Stage 2</div>
-            <div class="stage-desc">적 증가
-난이도: 보통
+            <div class="stage-desc">강화 전장
+보스 5종
 총 50 Wave</div>
             <button class="stage-play-btn" data-stage="2">선택</button>
           </div>
           <div class="stage-card">
             <div class="stage-name">Stage 3</div>
             <div class="stage-desc">고속 전장
-난이도: 어려움
+보스 5종
 총 50 Wave</div>
             <button class="stage-play-btn" data-stage="3">선택</button>
           </div>
           <div class="stage-card">
             <div class="stage-name">Stage 4</div>
             <div class="stage-desc">중화기 전장
-난이도: 매우 어려움
+보스 5종
 총 50 Wave</div>
             <button class="stage-play-btn" data-stage="4">선택</button>
           </div>
           <div class="stage-card">
             <div class="stage-name">Stage 5</div>
             <div class="stage-desc">최종 전장
-난이도: 극악
+보스 5종
 총 50 Wave</div>
             <button class="stage-play-btn" data-stage="5">선택</button>
           </div>
@@ -935,10 +942,6 @@
           <div class="hud-box">
             <div class="hud-title">골드</div>
             <div class="hud-main" id="hudGold">0</div>
-          </div>
-          <div class="hud-box">
-            <div class="hud-title">코인</div>
-            <div class="hud-main" id="hudCoin">0</div>
           </div>
           <div class="hud-box">
             <div class="hud-title">스테이지</div>
@@ -961,8 +964,7 @@
           <div id="gameoverInfo" class="gameover-sub">최종 기록</div>
           <div class="revive-box">
             <div id="reviveCostText" class="revive-cost">부활 비용: 50골드</div>
-            <div id="earnedGoldText" class="gameover-sub" style="margin:0;">획득 골드: 0
-획득 코인: 0</div>
+            <div id="earnedGoldText" class="gameover-sub" style="margin:0;">획득 골드: 0</div>
           </div>
           <div class="gameover-actions">
             <button id="reviveBtn" class="go-btn go-revive">부활</button>
@@ -975,7 +977,7 @@
   </div>
 
   <script>
-    const STORAGE_KEY_PREFIX = "air_war_save_v5_";
+    const STORAGE_KEY_PREFIX = "air_war_save_v6_";
 
     const loadingScreen = document.getElementById("loadingScreen");
     const nicknameScreen = document.getElementById("nicknameScreen");
@@ -996,12 +998,11 @@
 
     const nickChip = document.getElementById("nickChip");
     const goldChip = document.getElementById("goldChip");
-    const coinChip = document.getElementById("coinChip");
     const selectedPlaneChip = document.getElementById("selectedPlaneChip");
+    const selectedStageChip = document.getElementById("selectedStageChip");
 
     const hudNick = document.getElementById("hudNick");
     const hudGold = document.getElementById("hudGold");
-    const hudCoin = document.getElementById("hudCoin");
     const hudState = document.getElementById("hudState");
     const hudStage = document.getElementById("hudStage");
 
@@ -1032,6 +1033,14 @@
       nova: "노바"
     };
 
+    const STAGE_BOSS_NAMES = {
+      1: ["철날개 정찰기", "붉은 송곳", "강철 매복자", "연기 폭격선", "황혼 파쇄기"],
+      2: ["청뢰 창기병", "철우박 순양함", "심연 절단자", "폭풍 집행관", "창공 파멸자"],
+      3: ["흑운 추적자", "절규 포식선", "섬광 분쇄기", "전율 수확자", "천공 학살자"],
+      4: ["잔영 사령선", "멸망 투창기", "암야 심판자", "천둥 처형관", "적멸 군주함"],
+      5: ["공허 징벌자", "종말 절단왕", "몰락 초신성", "재앙 수문장", "천공 종언룡"]
+    };
+
     let playerProfile = null;
 
     function showScreen(el){
@@ -1041,16 +1050,20 @@
 
     function runLoading() {
       let v = 0;
-      const timer = setInterval(() => {
-        v += Math.random() * 9 + 3;
-        if (v >= 100) v = 100;
+      const started = performance.now();
+      const duration = 2000;
+      function step(now) {
+        const p = Math.min(1, (now - started) / duration);
+        v = Math.floor(p * 100);
         loadingFill.style.width = v + "%";
-        loadingText.textContent = Math.floor(v) + "%";
-        if (v >= 100) {
-          clearInterval(timer);
-          setTimeout(() => showScreen(nicknameScreen), 280);
+        loadingText.textContent = v + "%";
+        if (p < 1) {
+          requestAnimationFrame(step);
+        } else {
+          setTimeout(() => showScreen(nicknameScreen), 120);
         }
-      }, 90);
+      }
+      requestAnimationFrame(step);
     }
 
     function saveExists(nick){
@@ -1071,11 +1084,11 @@
         nickname,
         bestWave: 1,
         gold: 0,
-        coins: 0,
         planeAttackBase: 100,
         planeUpgradeLevel: 0,
+        planeUpgradeCost: 100,
         selectedPlane: "basic",
-        lastStage: 1,
+        selectedStage: 1,
         createdAt: Date.now()
       };
     }
@@ -1086,11 +1099,8 @@
 
     function updateCurrencyUI(){
       const gold = playerProfile?.gold || 0;
-      const coins = playerProfile?.coins || 0;
       goldChip.textContent = gold;
-      coinChip.textContent = coins;
       hudGold.textContent = gold;
-      hudCoin.textContent = coins;
     }
 
     function updateSelectedPlaneUI(){
@@ -1108,6 +1118,11 @@
       if (badge) badge.style.display = "block";
     }
 
+    function updateStageUI(){
+      selectedStageChip.textContent = playerProfile?.selectedStage || 1;
+      hudStage.textContent = playerProfile?.selectedStage || 1;
+    }
+
     function updatePlaneUI(){
       if(!playerProfile) return;
       const basicText = document.getElementById("planeTextBasic");
@@ -1116,7 +1131,7 @@
 설명: 균형 잡힌 기본 기체
 공격력: ${playerProfile.planeAttackBase}`;
       const upgradeBtn = document.querySelector('[data-upgrade="basic"]');
-      upgradeBtn.textContent = "강화: 100골드";
+      upgradeBtn.textContent = `강화: ${playerProfile.planeUpgradeCost || 100}골드`;
       updateSelectedPlaneUI();
     }
 
@@ -1171,9 +1186,9 @@
       playerProfile = data;
       if(playerProfile.planeAttackBase == null) playerProfile.planeAttackBase = 100;
       if(playerProfile.gold == null) playerProfile.gold = 0;
-      if(playerProfile.coins == null) playerProfile.coins = 0;
       if(playerProfile.selectedPlane == null) playerProfile.selectedPlane = "basic";
-      if(playerProfile.lastStage == null) playerProfile.lastStage = 1;
+      if(playerProfile.selectedStage == null) playerProfile.selectedStage = 1;
+      if(playerProfile.planeUpgradeCost == null) playerProfile.planeUpgradeCost = 100;
       loadNickHint.textContent = "불러오기 성공";
       loadNickHint.className = "hint ok";
       enterMain();
@@ -1184,6 +1199,7 @@
       hudNick.textContent = playerProfile.nickname;
       updateCurrencyUI();
       updatePlaneUI();
+      updateStageUI();
       renderMainPlane();
       showScreen(mainScreen);
       hideGameoverMenu();
@@ -1262,13 +1278,10 @@
 
     document.querySelectorAll(".stage-play-btn").forEach(btn => {
       btn.addEventListener("click", () => {
-        game.currentStage = Number(btn.dataset.stage || 1);
-        if (playerProfile) {
-          playerProfile.lastStage = game.currentStage;
-          savePlayer(playerProfile);
-        }
-        showScreen(battleScreen);
-        resetBattle();
+        playerProfile.selectedStage = Number(btn.dataset.stage || 1);
+        savePlayer(playerProfile);
+        updateStageUI();
+        showScreen(mainScreen);
       });
     });
 
@@ -1295,13 +1308,15 @@
       const upgradeBtn = e.target.closest(".plane-upgrade-btn");
       if(upgradeBtn && upgradeBtn.dataset.upgrade === "basic"){
         e.stopPropagation();
-        if((playerProfile.gold || 0) < 100){
+        const cost = playerProfile.planeUpgradeCost || 100;
+        if((playerProfile.gold || 0) < cost){
           alert("골드가 부족해.");
           return;
         }
-        playerProfile.gold -= 100;
+        playerProfile.gold -= cost;
         playerProfile.planeUpgradeLevel = (playerProfile.planeUpgradeLevel || 0) + 1;
         playerProfile.planeAttackBase += 18;
+        playerProfile.planeUpgradeCost = Math.floor(cost * 1.55);
         savePlayer(playerProfile);
         updateCurrencyUI();
         updatePlaneUI();
@@ -1356,7 +1371,6 @@
       playerName:"파일럿",
       reviveCount:0,
       earnedGold:0,
-      earnedCoins:0,
       superTimer:0,
       endedByStage50:false,
       currentStage:1
@@ -1371,21 +1385,15 @@
       gameoverMenu.classList.remove("show");
     }
 
-    function calculateCoinReward(score) {
-      return Math.round(score * 0.01);
-    }
-
     function calculateGoldReward(score) {
-      return Math.round(score * 0.1);
+      return Math.round(score * 0.05);
     }
 
     function showGameoverMenu(extraText = ""){
       game.earnedGold = calculateGoldReward(game.score);
-      game.earnedCoins = calculateCoinReward(game.score) + (game.endedByStage50 ? 10 : 0);
       gameoverInfo.textContent = `Stage ${game.currentStage} · 최종 WAVE ${game.wave} · 점수 ${game.score}${extraText ? "\n" + extraText : ""}`;
       reviveCostText.textContent = `부활 비용: ${getReviveCost()}골드`;
-      earnedGoldText.textContent = `획득 골드: ${game.earnedGold}
-획득 코인: ${game.earnedCoins}`;
+      earnedGoldText.textContent = `획득 골드: ${game.earnedGold}`;
       reviveBtn.disabled = game.endedByStage50 || (playerProfile.gold || 0) < getReviveCost();
       reviveBtn.style.opacity = reviveBtn.disabled ? "0.55" : "1";
       gameoverMenu.classList.add("show");
@@ -1394,16 +1402,14 @@
     function grantRunRewards(){
       if(!playerProfile) return;
       const goldAmount = calculateGoldReward(game.score);
-      const coinAmount = calculateCoinReward(game.score) + (game.endedByStage50 ? 10 : 0);
       playerProfile.gold = (playerProfile.gold || 0) + goldAmount;
-      playerProfile.coins = (playerProfile.coins || 0) + coinAmount;
       savePlayer(playerProfile);
       updateCurrencyUI();
       game.earnedGold = goldAmount;
-      game.earnedCoins = coinAmount;
     }
 
     function resetBattle(){
+      game.currentStage = playerProfile?.selectedStage || 1;
       game.running = true;
       game.touchDown = false;
       game.pointerId = null;
@@ -1428,7 +1434,6 @@
       game.waveSpawned = false;
       game.reviveCount = 0;
       game.earnedGold = 0;
-      game.earnedCoins = 0;
       game.superTimer = 0;
       game.endedByStage50 = false;
       game.player = {
@@ -1472,7 +1477,6 @@
     }
 
     playBtn.addEventListener("click", () => {
-      game.currentStage = playerProfile?.lastStage || 1;
       showScreen(battleScreen);
       resetBattle();
     });
@@ -1560,13 +1564,23 @@
     }
 
     function getStageDifficulty(stage) {
-      return 1 + (stage - 1) * 0.7;
+      return 1 + (stage - 1) * 0.85;
     }
 
     function getWaveGrowthMultiplier(wave, stage) {
       const stageMul = getStageDifficulty(stage);
       if (wave < 5) return stageMul;
-      return stageMul * Math.pow(2, wave - 4);
+      return stageMul * Math.pow(1.75, wave - 4);
+    }
+
+    function getBossPower(stage, wave) {
+      return stage * 1000 + wave * 10;
+    }
+
+    function getBossName(stage, wave) {
+      const idx = Math.floor(wave / 10) - 1;
+      const names = STAGE_BOSS_NAMES[stage] || STAGE_BOSS_NAMES[1];
+      return names[Math.max(0, Math.min(4, idx))];
     }
 
     function spawnWave(wave){
@@ -1578,14 +1592,14 @@
         game.running = false;
         game.endedByStage50 = true;
         showMessage(`STAGE ${game.currentStage} CLEAR!`, 99999);
-        showGameoverMenu(`Stage ${game.currentStage} 완료\n추가 코인 +10`);
+        showGameoverMenu(`Stage ${game.currentStage} 완료`);
         return;
       }
 
       const isBoss = wave % 10 === 0;
       if(isBoss){
         spawnBoss(wave);
-        showMessage(`BOSS WAVE ${wave}!`, 1.8);
+        showMessage(`${getBossName(game.currentStage, wave)} 등장!`, 1.8);
         hudState.textContent = `Stage ${game.currentStage} · 보스 WAVE ${wave}`;
         return;
       }
@@ -1594,10 +1608,10 @@
       hudState.textContent = `Stage ${game.currentStage} · WAVE ${wave}`;
 
       const growth = getWaveGrowthMultiplier(wave, game.currentStage);
-      const rows = Math.min(2 + Math.floor(wave / 6), 5);
-      const cols = Math.min(4 + Math.floor(wave * 0.42) + Math.floor(game.currentStage * 0.4), 9);
-      const hpBase = Math.max(2, Math.floor((2 + wave * 0.9) * Math.max(1, growth * 0.35)));
-      const dmg = Math.max(1, Math.floor((1 + wave / 10) * Math.max(1, growth * 0.08)));
+      const rows = Math.min(2 + Math.floor(wave / 8), 5);
+      const cols = Math.min(4 + Math.floor(wave * 0.35) + Math.floor(game.currentStage * 0.3), 8);
+      const hpBase = Math.max(2, Math.floor((2 + wave * 0.8) * Math.max(1, growth * 0.18)));
+      const dmg = Math.max(1, Math.floor((1 + wave / 12) * Math.max(1, growth * 0.03)));
 
       const startX = W * 0.14;
       const endX = W * 0.86;
@@ -1618,11 +1632,11 @@
             tx, ty,
             w: 34,
             h: 30,
-            hp: hpBase + Math.floor(r * growth * 0.06),
-            maxHp: hpBase + Math.floor(r * growth * 0.06),
+            hp: hpBase + Math.floor(r * growth * 0.03),
+            maxHp: hpBase + Math.floor(r * growth * 0.03),
             dmg,
-            fireCooldown: rand(1.6, 3.1), /* 느리게 */
-            fireBase: rand(1.8, 3.2),
+            fireCooldown: rand(2.1, 4.4),
+            fireBase: rand(2.3, 4.6),
             pattern,
             t: Math.random()*6,
             phase:"enter"
@@ -1633,14 +1647,18 @@
 
     function spawnBoss(wave){
       const growth = getWaveGrowthMultiplier(wave, game.currentStage);
-      const stageStyle = game.currentStage % 3;
-      const phaseType = wave % 30 === 0 ? "fortress" : wave % 20 === 0 ? "spider" : "destroyer";
+      const idx = Math.floor(wave / 10) - 1;
+      const types = ["destroyer", "spider", "fortress", "destroyer", "fortress"];
+      const phaseType = types[idx] || "destroyer";
       const size = phaseType === "fortress" ? 220 : phaseType === "spider" ? 180 : 160;
-      const hp = Math.floor((320 + wave * 120) * Math.max(1, growth * 0.48));
+      const powerRank = getBossPower(game.currentStage, wave);
+      const hp = Math.floor((450 + powerRank * 0.55) * Math.max(1, growth * 0.2));
 
       game.boss = {
+        name: getBossName(game.currentStage, wave),
         type: phaseType,
-        style: stageStyle,
+        style: (game.currentStage + idx) % 3,
+        waveIndex: idx + 1,
         x: W * 0.5,
         y: -200,
         tx: W * 0.5,
@@ -1649,17 +1667,18 @@
         h: phaseType === "fortress" ? 140 : 110,
         hp,
         maxHp: hp,
-        dmg: Math.max(2, Math.floor((1 + wave / 8) * Math.max(1, growth * 0.12))),
+        dmg: Math.max(2, Math.floor(1 + game.currentStage * 0.8 + idx * 0.8)),
         phase:"enter",
         t:0,
-        fireCooldown: 0.8,
-        burstCooldown: 1.8,
-        spreadCooldown: 2.7,
-        ringCooldown: 4.5,
-        summonCooldown: 5.5,
-        sweepCooldown: 3.8,
+        fireCooldown: 1.0,
+        tripleCooldown: 2.2,
+        ringCooldown: 4.2,
+        summonCooldown: 6.2,
+        sweepCooldown: 4.8,
+        specialCooldown: 5.6,
         wave,
-        growth
+        growth,
+        stage: game.currentStage
       };
     }
 
@@ -1756,8 +1775,10 @@
         if(p.powerStacks >= 3){
           p.powerStacks = 0;
           if(p.bulletCount < 5) p.bulletCount += 1;
+          showMessage("탄창 증가!", 0.8);
+        } else {
+          showMessage("POWER UP!", 0.8);
         }
-        showMessage("POWER UP!", 0.8);
       }else if(type === "upgrade"){
         p.miniLevel += 1;
         if(p.miniLevel === 1){
@@ -1773,7 +1794,8 @@
           bulletCount: p.bulletCount,
           dmg: p.dmg,
           miniLevel: p.miniLevel,
-          miniBulletCount: p.miniBulletCount
+          miniBulletCount: p.miniBulletCount,
+          powerStacks: p.powerStacks
         };
         p.level = 16;
         p.bulletCount = 5;
@@ -1794,6 +1816,7 @@
       p.dmg = p._prevState.dmg;
       p.miniLevel = p._prevState.miniLevel;
       p.miniBulletCount = p._prevState.miniBulletCount;
+      p.powerStacks = p._prevState.powerStacks;
       p._prevState = null;
       game.superTimer = 0;
       showMessage("SUPER 종료", 0.8);
@@ -1838,48 +1861,33 @@
       return rectsOverlap(b.x,b.y,b.width,b.height,tx,ty,tw,th);
     }
 
-    function bossShootSingle(b, p) {
+    function bossShootTargeted(b, p, spread = 0) {
       const dx = p.x - b.x;
       const dy = p.y - b.y;
       const len = Math.hypot(dx,dy) || 1;
-      const spd = 150 + b.wave * 4 + game.currentStage * 10;
-      game.enemyBullets.push({
-        x:b.x,
-        y:b.y + 18,
-        vx:(dx / len) * spd,
-        vy:(dy / len) * spd,
-        r:7,
-        dmg:b.dmg,
-        color:"#ff6f6f"
-      });
-    }
-
-    function bossShootTriple(b, p) {
-      const dx = p.x - b.x;
-      const dy = p.y - b.y;
-      const len = Math.hypot(dx,dy) || 1;
-      const baseVx = (dx / len);
-      const baseVy = (dy / len);
-      const spd = 145 + b.wave * 4 + game.currentStage * 8;
-      for (let a = -0.18; a <= 0.18; a += 0.18) {
+      const baseX = dx / len;
+      const baseY = dy / len;
+      const spd = 130 + b.stage * 10 + b.waveIndex * 12;
+      const angles = spread === 0 ? [0] : [-spread, 0, spread];
+      for (const a of angles) {
         const cos = Math.cos(a), sin = Math.sin(a);
         game.enemyBullets.push({
           x:b.x,
           y:b.y + 18,
-          vx:(baseVx * cos - baseVy * sin) * spd,
-          vy:(baseVx * sin + baseVy * cos) * spd,
-          r:6,
+          vx:(baseX * cos - baseY * sin) * spd,
+          vy:(baseX * sin + baseY * cos) * spd,
+          r:6.2,
           dmg:b.dmg,
-          color:"#ffaaaa"
+          color:"#ff8f8f"
         });
       }
     }
 
-    function bossShootRing(b) {
-      const bullets = Math.min(20, 8 + Math.floor(b.wave / 4) + game.currentStage * 2);
-      const spd = 95 + b.wave * 2 + game.currentStage * 5;
+    function bossShootRing(b, extra = 0) {
+      const bullets = 8 + b.waveIndex * 2 + b.stage + extra;
+      const spd = 85 + b.waveIndex * 8 + b.stage * 10;
       for(let i=0;i<bullets;i++){
-        const ang = (Math.PI * 2 * i) / bullets + b.t * 0.3;
+        const ang = (Math.PI * 2 * i) / bullets + b.t * 0.22;
         game.enemyBullets.push({
           x:b.x,
           y:b.y,
@@ -1892,25 +1900,41 @@
       }
     }
 
-    function bossShootSweep(b) {
-      const count = b.type === "fortress" ? 7 : 5;
+    function bossShootSweep(b, count = 5) {
       for(let i = 0; i < count; i++){
-        const offset = (i - Math.floor(count / 2)) * 18;
+        const offset = (i - Math.floor(count / 2)) * 20;
         game.enemyBullets.push({
           x:b.x + offset,
           y:b.y + 12,
-          vx: offset * 1.15,
-          vy: 185 + b.wave * 2 + game.currentStage * 10,
-          r:6.5,
+          vx: offset * 1.0,
+          vy: 165 + b.waveIndex * 12 + b.stage * 10,
+          r:6.2,
           dmg:b.dmg,
           color:"#fff1f1"
         });
       }
     }
 
+    function bossShootSpiral(b) {
+      const bullets = 10 + b.stage + b.waveIndex;
+      const spd = 90 + b.stage * 8 + b.waveIndex * 8;
+      for(let i=0;i<bullets;i++){
+        const ang = b.t * 1.2 + i * 0.34;
+        game.enemyBullets.push({
+          x:b.x,
+          y:b.y,
+          vx:Math.cos(ang) * spd,
+          vy:Math.sin(ang) * spd,
+          r:4.8,
+          dmg:b.dmg,
+          color:"#ffc7c7"
+        });
+      }
+    }
+
     function bossSummonAdds(b) {
       if(game.enemies.length >= 8) return;
-      const n = 1 + Math.floor(game.currentStage / 2);
+      const n = 1 + Math.floor(b.stage / 2);
       for(let i=0;i<n;i++){
         const tx = rand(W * 0.15, W * 0.85);
         const ty = rand(90, 240);
@@ -1920,11 +1944,11 @@
           y:-60 - i*20,
           tx,ty,
           w:30,h:28,
-          hp: Math.floor((10 + b.wave * 1.3) * Math.max(1, b.growth * 0.12)),
-          maxHp: Math.floor((10 + b.wave * 1.3) * Math.max(1, b.growth * 0.12)),
-          dmg: Math.max(1, Math.floor((1 + b.wave / 12) * Math.max(1, b.growth * 0.04))),
-          fireCooldown: rand(1.8, 3.0),
-          fireBase: rand(1.8, 3.2),
+          hp: 10 + b.stage * 2 + b.waveIndex * 3,
+          maxHp: 10 + b.stage * 2 + b.waveIndex * 3,
+          dmg: 1 + Math.floor(b.stage / 2),
+          fireCooldown: rand(2.2, 4.2),
+          fireBase: rand(2.2, 4.4),
           pattern:["sway","zigzag","curve","rush"][Math.floor(Math.random()*4)],
           t:Math.random()*5,
           phase:"enter"
@@ -2084,10 +2108,10 @@
             const dx = p.x - e.x;
             const dy = p.y - e.y;
             const len = Math.hypot(dx,dy) || 1;
-            const spd = 120 + game.wave * 2 + game.currentStage * 8;
+            const spd = 105 + game.currentStage * 8 + Math.floor(game.wave / 6) * 3;
 
-            if(Math.random() < 0.12){
-              for(let a = -0.16; a <= 0.16; a += 0.16){
+            if(Math.random() < 0.10){
+              for(let a = -0.14; a <= 0.14; a += 0.14){
                 const baseVx = (dx / len);
                 const baseVy = (dy / len);
                 const cos = Math.cos(a), sin = Math.sin(a);
@@ -2113,7 +2137,7 @@
               });
             }
 
-            e.fireCooldown = rand(1.7, 3.2);
+            e.fireCooldown = rand(2.2, 4.6);
           }
         }
 
@@ -2127,14 +2151,14 @@
             if(Math.abs(b.tx - b.x) < 2 && Math.abs(b.ty - b.y) < 2) b.phase = "fight";
           }else{
             if (b.type === "destroyer") {
-              b.x = W * 0.5 + Math.sin(b.t * 0.8) * Math.min(220, 90 + b.wave * 2);
-              b.y = 145 + Math.sin(b.t * 1.15) * 18;
+              b.x = W * 0.5 + Math.sin(b.t * 0.75) * Math.min(220, 90 + b.wave * 1.6);
+              b.y = 145 + Math.sin(b.t * 1.0) * 18;
             } else if (b.type === "spider") {
-              b.x = W * 0.5 + Math.sin(b.t * 1.15) * Math.min(230, 110 + b.wave * 1.5);
-              b.y = 150 + Math.cos(b.t * 1.65) * 28;
+              b.x = W * 0.5 + Math.sin(b.t * 1.05) * Math.min(210, 100 + b.wave * 1.2);
+              b.y = 150 + Math.cos(b.t * 1.45) * 24;
             } else {
-              b.x = W * 0.5 + Math.sin(b.t * 0.55) * Math.min(180, 80 + b.wave * 1.4);
-              b.y = 130 + Math.sin(b.t * 0.9) * 12;
+              b.x = W * 0.5 + Math.sin(b.t * 0.52) * Math.min(180, 80 + b.wave * 1.1);
+              b.y = 130 + Math.sin(b.t * 0.85) * 12;
             }
 
             if(p.alive && rectsOverlap(p.x,p.y,34,42,b.x,b.y,b.w,b.h)){
@@ -2142,36 +2166,42 @@
             }
 
             b.fireCooldown -= activeDt;
-            b.burstCooldown -= activeDt;
-            b.spreadCooldown -= activeDt;
+            b.tripleCooldown -= activeDt;
             b.ringCooldown -= activeDt;
             b.summonCooldown -= activeDt;
             b.sweepCooldown -= activeDt;
+            b.specialCooldown -= activeDt;
+
+            const idx = b.waveIndex;
 
             if (b.fireCooldown <= 0) {
-              bossShootSingle(b, p);
-              b.fireCooldown = Math.max(0.55, 0.95 - game.currentStage * 0.05);
+              bossShootTargeted(b, p, 0);
+              b.fireCooldown = Math.max(0.95, 1.35 - b.stage * 0.05 - idx * 0.04);
             }
-            if (b.burstCooldown <= 0) {
-              bossShootTriple(b, p);
-              b.burstCooldown = Math.max(1.1, 1.8 - game.currentStage * 0.05);
+
+            if (b.tripleCooldown <= 0) {
+              bossShootTargeted(b, p, 0.18);
+              b.tripleCooldown = Math.max(1.7, 2.5 - b.stage * 0.05 - idx * 0.06);
             }
-            if (b.spreadCooldown <= 0) {
-              bossShootTriple(b, p);
-              bossShootTriple(b, p);
-              b.spreadCooldown = Math.max(2.0, 3.0 - game.currentStage * 0.08);
+
+            if (b.type === "destroyer" && b.sweepCooldown <= 0) {
+              bossShootSweep(b, 5 + Math.floor(idx / 2));
+              b.sweepCooldown = Math.max(2.6, 4.2 - b.stage * 0.08 - idx * 0.1);
             }
-            if (b.ringCooldown <= 0) {
-              bossShootRing(b);
-              b.ringCooldown = Math.max(2.2, 4.2 - game.currentStage * 0.18);
+
+            if (b.type === "spider" && b.specialCooldown <= 0) {
+              bossShootSpiral(b);
+              b.specialCooldown = Math.max(2.8, 4.8 - b.stage * 0.08 - idx * 0.1);
             }
-            if (b.sweepCooldown <= 0) {
-              bossShootSweep(b);
-              b.sweepCooldown = Math.max(2.0, 3.5 - game.currentStage * 0.12);
+
+            if (b.type === "fortress" && b.ringCooldown <= 0) {
+              bossShootRing(b, idx);
+              b.ringCooldown = Math.max(2.4, 4.6 - b.stage * 0.08 - idx * 0.08);
             }
-            if (b.summonCooldown <= 0) {
+
+            if (idx >= 3 && b.summonCooldown <= 0) {
               bossSummonAdds(b);
-              b.summonCooldown = Math.max(3.2, 5.4 - game.currentStage * 0.14);
+              b.summonCooldown = Math.max(4.0, 6.2 - b.stage * 0.08 - idx * 0.08);
             }
           }
         }
@@ -2198,7 +2228,7 @@
           it.x += Math.sin(game.time * 3 + i) * 25 * activeDt;
 
           if(it.y > H + 80){
-            continue; /* 안 사라지게 아래에서도 유지 */
+            continue;
           }
 
           const dx = it.x - p.x;
@@ -2435,7 +2465,7 @@
       ctx.fillRect(-10,-16,20,18);
       ctx.restore();
 
-      drawHpBar(W * 0.5, 28, Math.min(460, W * 0.75), 16, b.hp / b.maxHp, "#ff6262", true, `BOSS HP ${Math.max(0, Math.ceil(b.hp))}`);
+      drawHpBar(W * 0.5, 28, Math.min(460, W * 0.75), 16, b.hp / b.maxHp, "#ff6262", true, `${b.name} · HP ${Math.max(0, Math.ceil(b.hp))}`);
     }
 
     function drawHpBar(x,y,w,h,ratio,color,center=true,label=""){
@@ -2531,32 +2561,32 @@
       ctx.restore();
 
       ctx.fillStyle = "rgba(10,12,18,0.55)";
-      ctx.fillRect(12, H - 122, 440, 106);
+      ctx.fillRect(12, H - 122, 420, 106);
       ctx.strokeStyle = "rgba(255,255,255,0.12)";
-      ctx.strokeRect(12, H - 122, 440, 106);
+      ctx.strokeRect(12, H - 122, 420, 106);
       ctx.fillStyle = "#f2f7ff";
       ctx.font = "bold 16px Malgun Gothic";
       ctx.fillText(`Stage ${game.currentStage}`, 24, H - 88);
       ctx.fillText(`WAVE ${Math.max(1, game.wave)}/50`, 24, H - 64);
       ctx.fillText(`점수 ${game.score}`, 24, H - 40);
-      ctx.fillText(`골드 ${playerProfile?.gold || 0} / 코인 ${playerProfile?.coins || 0}`, 24, H - 16);
+      ctx.fillText(`골드 ${playerProfile?.gold || 0}`, 24, H - 16);
 
       ctx.font = "14px Malgun Gothic";
       const p = game.player;
       if(p){
-        ctx.fillText(`레벨 ${p.level}  공격력 ${p.dmg}  탄수 ${p.bulletCount}`, 220, H - 40);
+        ctx.fillText(`레벨 ${p.level}  공격력 ${p.dmg}  탄수 ${p.bulletCount}`, 170, H - 40);
         if (game.superTimer > 0) {
-          ctx.fillText(`SUPER ${game.superTimer.toFixed(1)}초`, 220, H - 16);
+          ctx.fillText(`SUPER ${game.superTimer.toFixed(1)}초`, 170, H - 16);
         }
       }
 
       if(game.messageTimer > 0 && game.message){
         ctx.fillStyle = "rgba(0,0,0,0.35)";
-        ctx.fillRect(W * 0.5 - 190, 54, 380, 46);
+        ctx.fillRect(W * 0.5 - 220, 54, 440, 46);
         ctx.strokeStyle = "rgba(255,255,255,0.1)";
-        ctx.strokeRect(W * 0.5 - 190, 54, 380, 46);
+        ctx.strokeRect(W * 0.5 - 220, 54, 440, 46);
         ctx.fillStyle = "#ffffff";
-        ctx.font = "bold 26px Malgun Gothic";
+        ctx.font = "bold 24px Malgun Gothic";
         ctx.textAlign = "center";
         ctx.fillText(game.message, W * 0.5, 85);
         ctx.textAlign = "left";
