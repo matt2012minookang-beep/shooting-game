@@ -7,15 +7,18 @@
   <style>
     :root{
       --bg:#07131d;
-      --panel:#0f2230;
-      --panel2:#12293a;
-      --line:rgba(255,255,255,0.14);
+      --panel:#101a2a;
+      --panel2:#18243a;
+      --line:rgba(255,255,255,.12);
       --text:#eef6ff;
       --sub:#b7cae4;
       --gold:#ffd86f;
-      --shadow:0 14px 40px rgba(0,0,0,0.35);
+      --shadow:0 14px 40px rgba(0,0,0,.35);
       --green1:#003f14;
       --green2:#005b1d;
+      --blue1:#223a66;
+      --blue2:#15233f;
+      --active:#ffe67d;
     }
     *{box-sizing:border-box;}
     html,body{
@@ -26,9 +29,9 @@
       background:#050b12;
       color:var(--text);
       font-family:"Malgun Gothic","Apple SD Gothic Neo",Arial,sans-serif;
-      touch-action:none;
       -webkit-user-select:none;
       user-select:none;
+      touch-action:none;
     }
     button,input{font-family:inherit;}
     #app{
@@ -37,17 +40,23 @@
       height:100%;
       overflow:hidden;
       background:
-        radial-gradient(circle at 50% 110%, rgba(255,120,70,0.12), transparent 28%),
+        radial-gradient(circle at 50% 110%, rgba(255,120,70,.12), transparent 28%),
         linear-gradient(180deg,#0c1019 0%,#131a28 45%,#0b1019 100%);
     }
-
     .screen{
       position:absolute;
       inset:0;
       display:none;
     }
     .screen.active{display:block;}
-
+    .center-wrap{
+      position:absolute;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+    }
     .war-bg::before,
     .war-bg::after{
       content:"";
@@ -57,88 +66,146 @@
     }
     .war-bg::before{
       background:
-        linear-gradient(180deg,rgba(0,0,0,0.18),rgba(0,0,0,0.52)),
-        radial-gradient(circle at 18% 20%, rgba(255,150,90,0.08), transparent 18%),
-        radial-gradient(circle at 80% 16%, rgba(255,80,80,0.08), transparent 20%),
+        linear-gradient(180deg,rgba(0,0,0,.18),rgba(0,0,0,.52)),
+        radial-gradient(circle at 18% 20%, rgba(255,150,90,.08), transparent 18%),
+        radial-gradient(circle at 80% 16%, rgba(255,80,80,.08), transparent 20%),
         linear-gradient(180deg,#0f141d 0%,#2a241d 35%,#171d2c 72%,#0a0f16 100%);
     }
     .war-bg::after{
       background:
-        repeating-linear-gradient(120deg, rgba(255,255,255,0.015) 0 2px, transparent 2px 24px),
-        radial-gradient(circle at 15% 70%, rgba(255,120,70,0.08), transparent 18%),
-        radial-gradient(circle at 83% 74%, rgba(255,90,90,0.05), transparent 14%);
+        repeating-linear-gradient(120deg, rgba(255,255,255,.015) 0 2px, transparent 2px 24px),
+        radial-gradient(circle at 15% 70%, rgba(255,120,70,.08), transparent 18%),
+        radial-gradient(circle at 83% 74%, rgba(255,90,90,.05), transparent 14%);
       mix-blend-mode:screen;
       opacity:.85;
-    }
-
-    .center-wrap{
-      position:absolute;
-      inset:0;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:20px;
     }
 
     /* loading */
     #loadingScreen{
       background:
-        radial-gradient(circle at 50% 80%, rgba(255,130,70,0.16), transparent 20%),
-        radial-gradient(circle at 20% 18%, rgba(255,80,80,0.08), transparent 18%),
-        radial-gradient(circle at 82% 20%, rgba(255,180,90,0.08), transparent 18%),
-        linear-gradient(180deg,#090e15 0%,#171d2a 45%,#0a0d14 100%);
+        radial-gradient(circle at 50% 78%, rgba(255,120,60,.14), transparent 18%),
+        radial-gradient(circle at 20% 15%, rgba(255,80,80,.08), transparent 18%),
+        radial-gradient(circle at 80% 18%, rgba(255,180,80,.07), transparent 18%),
+        linear-gradient(180deg,#090d14 0%,#161d2b 45%,#0a0d13 100%);
     }
-    .loading-box{
-      width:min(92vw,680px);
-      text-align:center;
+    .loading-card{
+      width:min(92vw,700px);
       padding:28px;
       border-radius:28px;
-      background:linear-gradient(180deg, rgba(13,18,28,0.82), rgba(8,12,20,0.84));
-      border:1px solid rgba(255,255,255,0.12);
+      background:linear-gradient(180deg,rgba(13,18,28,.82),rgba(8,12,20,.88));
+      border:1px solid rgba(255,255,255,.12);
       box-shadow:var(--shadow);
-      backdrop-filter:blur(6px);
+      text-align:center;
     }
     .loading-title{
-      font-size:clamp(34px,7vw,64px);
+      font-size:clamp(36px,7vw,64px);
       font-weight:900;
       margin-bottom:12px;
       letter-spacing:2px;
-      text-shadow:0 8px 26px rgba(0,0,0,0.4);
     }
     .loading-sub{
       color:#dbe6ff;
       margin-bottom:22px;
       font-size:15px;
     }
-    .loading-bg{
+    .loading-bar{
       width:100%;
       height:26px;
       border-radius:999px;
-      background:rgba(255,255,255,0.09);
-      border:1px solid rgba(255,255,255,0.16);
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.12);
       overflow:hidden;
-      box-shadow:inset 0 2px 8px rgba(0,0,0,0.3);
+      box-shadow:inset 0 2px 8px rgba(0,0,0,.3);
     }
     .loading-fill{
       width:0%;
       height:100%;
       border-radius:999px;
-      background:linear-gradient(90deg,#ff9b5f,#ffdc83,#b8ecff);
-      transition:width .08s linear;
-      box-shadow:0 0 20px rgba(255,190,120,0.32);
+      background:linear-gradient(90deg,#ff9b5f,#ffdf85,#bfeeff);
+      box-shadow:0 0 20px rgba(255,190,120,.35);
     }
     .loading-text{
       margin-top:12px;
       font-size:18px;
       font-weight:900;
-      color:#f4f9ff;
+    }
+
+    /* common */
+    .topbar{
+      position:absolute;
+      top:14px;
+      left:14px;
+      right:14px;
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      z-index:6;
+      flex-wrap:wrap;
+    }
+    .topbar-left,.topbar-right{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    .chip{
+      background:rgba(15,19,32,.78);
+      border:1px solid rgba(255,255,255,.1);
+      border-radius:999px;
+      padding:10px 14px;
+      color:#eaf1ff;
+      font-weight:800;
+      backdrop-filter:blur(8px);
+      box-shadow:var(--shadow);
+    }
+    .btn{
+      border:none;
+      border-radius:16px;
+      height:52px;
+      padding:0 18px;
+      font-size:16px;
+      font-weight:900;
+      cursor:pointer;
+      color:#fff;
+      background:linear-gradient(180deg,#3d6dff,#2245ab);
+      box-shadow:0 8px 20px rgba(34,69,171,.35);
+    }
+    .btn.secondary{
+      background:linear-gradient(180deg,#4d556d,#2a3041);
+      box-shadow:0 8px 20px rgba(0,0,0,.25);
     }
 
     /* nickname */
+    .opening-overlay{
+      position:absolute;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      flex-direction:column;
+      gap:18px;
+      pointer-events:none;
+    }
+    .opening-title{
+      font-size:clamp(34px,7vw,66px);
+      font-weight:900;
+      letter-spacing:2px;
+      text-shadow:0 0 25px rgba(255,180,120,.2),0 8px 30px rgba(0,0,0,.4);
+    }
+    .opening-plane{
+      width:min(60vw,320px);
+      aspect-ratio:1.3/1;
+      filter:drop-shadow(0 14px 30px rgba(0,0,0,.55));
+      animation:openingFloat 2.6s ease-in-out infinite;
+    }
+    @keyframes openingFloat{
+      0%,100%{transform:translateY(0) rotate(-1deg);}
+      50%{transform:translateY(-10px) rotate(1deg);}
+    }
     .nickname-card{
       width:min(92vw,520px);
-      background:linear-gradient(180deg, rgba(18,24,40,0.96), rgba(10,14,24,0.96));
-      border:1px solid rgba(255,255,255,0.12);
+      background:linear-gradient(180deg,rgba(18,24,40,.96),rgba(10,14,24,.96));
+      border:1px solid rgba(255,255,255,.12);
       border-radius:24px;
       box-shadow:var(--shadow);
       padding:24px;
@@ -168,11 +235,11 @@
       width:100%;
       height:52px;
       border-radius:16px;
-      border:1px solid rgba(255,255,255,0.14);
+      border:1px solid rgba(255,255,255,.14);
       outline:none;
       padding:0 16px;
       font-size:16px;
-      background:rgba(255,255,255,0.06);
+      background:rgba(255,255,255,.06);
       color:#fff;
     }
     .hint{
@@ -188,84 +255,8 @@
       gap:10px;
       flex-wrap:wrap;
     }
-    .btn{
-      border:none;
-      border-radius:16px;
-      height:52px;
-      padding:0 18px;
-      font-size:16px;
-      font-weight:900;
-      cursor:pointer;
-      color:#fff;
-      background:linear-gradient(180deg,#3d6dff,#2245ab);
-      box-shadow:0 8px 20px rgba(34,69,171,0.35);
-    }
-    .btn.secondary{
-      background:linear-gradient(180deg,#4d556d,#2a3041);
-      box-shadow:0 8px 20px rgba(0,0,0,0.25);
-    }
 
-    .opening-overlay{
-      position:absolute;
-      inset:0;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      flex-direction:column;
-      gap:18px;
-      z-index:1;
-      pointer-events:none;
-    }
-    .opening-title{
-      font-size:clamp(34px,7vw,66px);
-      font-weight:900;
-      letter-spacing:2px;
-      text-shadow:0 0 25px rgba(255,180,120,0.2), 0 8px 30px rgba(0,0,0,0.4);
-    }
-    .opening-plane{
-      position:relative;
-      width:min(60vw,320px);
-      aspect-ratio:1.3/1;
-      filter:drop-shadow(0 14px 30px rgba(0,0,0,0.55));
-      animation:openingFloat 2.6s ease-in-out infinite;
-    }
-    @keyframes openingFloat{
-      0%,100%{transform:translateY(0) rotate(-1deg);}
-      50%{transform:translateY(-10px) rotate(1deg);}
-    }
-
-    .topbar{
-      position:absolute;
-      top:14px;
-      left:14px;
-      right:14px;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:10px;
-      z-index:6;
-    }
-    .topbar-left,
-    .topbar-right{
-      display:flex;
-      gap:10px;
-      align-items:center;
-      flex-wrap:wrap;
-    }
-    .chip{
-      background:rgba(15,19,32,0.78);
-      border:1px solid rgba(255,255,255,0.1);
-      border-radius:999px;
-      padding:10px 14px;
-      color:#eaf1ff;
-      font-weight:800;
-      backdrop-filter:blur(8px);
-      display:flex;
-      align-items:center;
-      gap:8px;
-      box-shadow:var(--shadow);
-    }
-
+    /* main */
     .left-menu{
       position:absolute;
       left:16px;
@@ -280,15 +271,14 @@
       min-width:128px;
       height:56px;
       border-radius:18px;
-      border:1px solid rgba(255,255,255,0.12);
-      background:linear-gradient(180deg,rgba(40,48,70,0.96),rgba(18,22,34,0.96));
+      border:1px solid rgba(255,255,255,.12);
+      background:linear-gradient(180deg,rgba(40,48,70,.96),rgba(18,22,34,.96));
       color:#fff;
       font-size:18px;
       font-weight:900;
       box-shadow:var(--shadow);
       cursor:pointer;
     }
-
     .main-layout{
       position:absolute;
       inset:0;
@@ -302,10 +292,9 @@
       width:min(72vw,420px);
       aspect-ratio:1.4/1;
       position:relative;
-      filter:drop-shadow(0 18px 40px rgba(0,0,0,0.5));
+      filter:drop-shadow(0 18px 40px rgba(0,0,0,.5));
       cursor:pointer;
     }
-
     .play-btn-wrap{
       position:absolute;
       left:0;
@@ -318,41 +307,34 @@
       padding:0 16px;
       flex-wrap:wrap;
     }
-    .play-btn{
+    .play-btn,.stage-btn{
       width:min(42vw,280px);
       min-width:220px;
       height:68px;
       border-radius:22px;
-      border:1px solid rgba(255,255,255,0.12);
-      font-size:clamp(24px,5vw,30px);
+      border:1px solid rgba(255,255,255,.12);
+      font-size:clamp(22px,4.8vw,30px);
       font-weight:900;
       letter-spacing:1px;
+      cursor:pointer;
+    }
+    .play-btn{
       color:#2c1800;
       background:linear-gradient(180deg,#ffe696,#d4971e);
-      box-shadow:0 14px 30px rgba(212,151,30,0.35);
-      cursor:pointer;
+      box-shadow:0 14px 30px rgba(212,151,30,.35);
     }
     .stage-btn{
-      width:min(42vw,280px);
-      min-width:220px;
-      height:68px;
-      border-radius:22px;
-      border:1px solid rgba(255,255,255,0.12);
-      font-size:clamp(22px,4.5vw,28px);
-      font-weight:900;
-      letter-spacing:1px;
       color:#fff;
       background:linear-gradient(180deg,#4c8eff,#2647b5);
-      box-shadow:0 14px 30px rgba(38,71,181,0.35);
-      cursor:pointer;
+      box-shadow:0 14px 30px rgba(38,71,181,.35);
     }
 
-    /* plane */
+    /* plane screen */
     #planeScreen{
       background:linear-gradient(90deg,var(--green1),var(--green2));
       overflow:hidden;
     }
-    .plane-top{
+    .panel-top{
       position:absolute;
       left:0;
       right:0;
@@ -360,9 +342,9 @@
       height:110px;
       padding:18px 28px;
       z-index:4;
-      background:linear-gradient(180deg, rgba(0,0,0,0.18), rgba(0,0,0,0));
+      background:linear-gradient(180deg, rgba(0,0,0,.18), rgba(0,0,0,0));
     }
-    .plane-title{
+    .panel-title{
       font-size:78px;
       font-weight:900;
       line-height:1;
@@ -370,7 +352,7 @@
       color:#f2f2f2;
       letter-spacing:1px;
     }
-    .plane-back{
+    .panel-back{
       position:absolute;
       top:20px;
       right:22px;
@@ -392,31 +374,52 @@
       padding:8px 28px 40px;
       -webkit-overflow-scrolling:touch;
     }
-    .plane-grid{
+    .tab-row{
+      display:flex;
+      gap:12px;
+      margin-bottom:18px;
+      flex-wrap:wrap;
+    }
+    .tab-btn{
+      min-width:120px;
+      height:52px;
+      padding:0 16px;
+      border-radius:18px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.08);
+      color:#fff;
+      font-size:20px;
+      font-weight:900;
+      cursor:pointer;
+    }
+    .tab-btn.active{
+      background:#fff200;
+      color:#111;
+    }
+    .card-grid{
       display:grid;
       grid-template-columns:repeat(3, minmax(240px, 1fr));
       gap:26px 22px;
       align-items:start;
     }
-    .plane-item{
-      min-height:300px;
+    .item-card{
+      min-height:320px;
       border-radius:30px;
-      border:6px solid rgba(235,235,235,0.78);
-      background:rgba(0,70,18,0.12);
+      border:6px solid rgba(235,235,235,.78);
+      background:rgba(0,70,18,.12);
       position:relative;
       padding:20px;
       color:#fff;
       cursor:pointer;
-      transition:transform .16s ease, box-shadow .16s ease, min-height .16s ease, border-color .16s ease;
-      box-shadow:0 0 0 rgba(0,0,0,0);
+      transition:transform .16s ease, box-shadow .16s ease, border-color .16s ease;
     }
-    .plane-item.selected{
+    .item-card.selected{
       transform:scale(1.03);
-      box-shadow:0 18px 35px rgba(0,0,0,0.28);
-      background:rgba(0,55,14,0.22);
+      box-shadow:0 18px 35px rgba(0,0,0,.28);
+      background:rgba(0,55,14,.22);
       border-color:#ffe77e;
     }
-    .plane-rank{
+    .item-rank{
       position:absolute;
       top:12px;
       right:16px;
@@ -424,7 +427,7 @@
       font-weight:900;
       color:#fff;
     }
-    .plane-preview{
+    .item-preview{
       width:170px;
       height:170px;
       margin:18px auto 8px;
@@ -432,68 +435,63 @@
       align-items:center;
       justify-content:center;
     }
-    .plane-name{
+    .item-name{
       text-align:center;
       font-size:30px;
       font-weight:900;
-      margin-top:2px;
+      margin-top:4px;
       color:#fff;
     }
-    .plane-mini-text{
+    .item-stats{
       display:none;
       margin-top:14px;
       text-align:center;
       color:#ebf4ff;
-      line-height:1.6;
-      font-size:22px;
+      line-height:1.7;
+      font-size:20px;
       font-weight:800;
       white-space:pre-line;
     }
-    .plane-item.selected .plane-mini-text{
-      display:block;
-    }
-    .plane-selected-badge{
+    .item-card.selected .item-stats{display:block;}
+    .selected-badge{
       display:none;
       margin:10px auto 0;
       width:max-content;
       padding:8px 14px;
       border-radius:999px;
-      background:rgba(255,215,120,0.14);
-      border:1px solid rgba(255,215,120,0.4);
+      background:rgba(255,215,120,.14);
+      border:1px solid rgba(255,215,120,.4);
       color:#fff2b5;
       font-weight:900;
       font-size:16px;
     }
-    .plane-select-btn,
-    .plane-upgrade-btn{
+    .item-card.selected .selected-badge{display:block;}
+    .card-btn{
       display:none;
       margin:14px auto 0;
-      width:min(100%, 260px);
+      width:min(100%,260px);
       height:56px;
       border:none;
       border-radius:18px;
       font-size:20px;
       font-weight:900;
       cursor:pointer;
-      box-shadow:0 10px 24px rgba(0,0,0,0.25);
+      box-shadow:0 10px 24px rgba(0,0,0,.25);
     }
-    .plane-select-btn{
+    .item-card.selected .card-btn{display:block;}
+    .select-btn{
       background:linear-gradient(180deg,#8cecff,#2eaee0);
       color:#04293a;
     }
-    .plane-upgrade-btn{
+    .upgrade-btn{
       background:linear-gradient(180deg,#ffe28f,#d79d20);
       color:#2a1a00;
-    }
-    .plane-item.selected .plane-select-btn,
-    .plane-item.selected .plane-upgrade-btn{
-      display:block;
     }
 
     /* stage */
     #stageScreen{
       background:
-        radial-gradient(circle at 50% 90%, rgba(86,148,255,0.14), transparent 24%),
+        radial-gradient(circle at 50% 90%, rgba(86,148,255,.14), transparent 24%),
         linear-gradient(180deg,#09111b 0%, #121c2c 55%, #09111b 100%);
     }
     .stage-wrap{
@@ -502,42 +500,22 @@
       padding:110px 24px 30px;
       overflow:auto;
     }
-    .stage-title{
-      position:absolute;
-      left:26px;
-      top:18px;
-      font-size:62px;
-      font-weight:900;
-      z-index:3;
-      margin:0;
-    }
-    .stage-back{
-      position:absolute;
-      top:20px;
-      right:22px;
-      width:58px;
-      height:58px;
-      border:none;
-      border-radius:18px;
-      background:linear-gradient(180deg,#55617b,#2c3344);
-      color:#fff;
-      font-size:28px;
-      font-weight:900;
-      cursor:pointer;
-      box-shadow:var(--shadow);
-      z-index:3;
-    }
     .stage-grid{
       display:grid;
       grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));
       gap:18px;
     }
     .stage-card{
-      background:linear-gradient(180deg, rgba(22,31,48,0.95), rgba(11,16,26,0.95));
-      border:1px solid rgba(255,255,255,0.12);
+      background:linear-gradient(180deg, rgba(22,31,48,.95), rgba(11,16,26,.95));
+      border:1px solid rgba(255,255,255,.12);
       border-radius:24px;
       padding:20px;
       box-shadow:var(--shadow);
+      cursor:pointer;
+    }
+    .stage-card.selected{
+      border-color:var(--active);
+      box-shadow:0 0 0 2px rgba(255,230,125,.18), var(--shadow);
     }
     .stage-name{
       font-size:30px;
@@ -550,7 +528,7 @@
       min-height:78px;
       white-space:pre-line;
     }
-    .stage-play-btn{
+    .stage-select-btn{
       margin-top:14px;
       width:100%;
       height:54px;
@@ -563,6 +541,7 @@
       background:linear-gradient(180deg,#3f7dff,#234db5);
     }
 
+    /* battle */
     .hud{
       position:absolute;
       top:12px;
@@ -575,16 +554,15 @@
       gap:10px;
       pointer-events:none;
     }
-    .hud-left,
-    .hud-right{
+    .hud-left,.hud-right{
       display:flex;
       gap:10px;
       align-items:flex-start;
       flex-wrap:wrap;
     }
     .hud-box{
-      background:rgba(12,16,28,0.78);
-      border:1px solid rgba(255,255,255,0.1);
+      background:rgba(12,16,28,.78);
+      border:1px solid rgba(255,255,255,.1);
       border-radius:18px;
       padding:10px 14px;
       backdrop-filter:blur(8px);
@@ -607,7 +585,7 @@
       height:100%;
       display:block;
       background:
-        radial-gradient(circle at 50% 100%, rgba(255,110,60,0.08), transparent 22%),
+        radial-gradient(circle at 50% 100%, rgba(255,110,60,.08), transparent 22%),
         linear-gradient(180deg,#161a22 0%,#1d2433 36%,#111722 100%);
       touch-action:none;
     }
@@ -617,8 +595,8 @@
       bottom:18px;
       transform:translateX(-50%);
       z-index:25;
-      background:rgba(0,0,0,0.38);
-      border:1px solid rgba(255,255,255,0.09);
+      background:rgba(0,0,0,.38);
+      border:1px solid rgba(255,255,255,.09);
       border-radius:999px;
       padding:10px 16px;
       color:#dce8ff;
@@ -635,15 +613,15 @@
       align-items:center;
       justify-content:center;
       z-index:40;
-      background:rgba(0,0,0,0.45);
+      background:rgba(0,0,0,.45);
       padding:20px;
     }
     .gameover-menu.show{display:flex;}
     .gameover-card{
       width:min(92vw,500px);
       border-radius:24px;
-      background:linear-gradient(180deg, rgba(20,24,36,0.96), rgba(10,12,20,0.96));
-      border:1px solid rgba(255,255,255,0.12);
+      background:linear-gradient(180deg, rgba(20,24,36,.96), rgba(10,12,20,.96));
+      border:1px solid rgba(255,255,255,.12);
       box-shadow:var(--shadow);
       padding:24px;
       text-align:center;
@@ -665,8 +643,8 @@
       margin:10px 0 18px;
       border-radius:18px;
       padding:14px;
-      background:rgba(255,215,106,0.08);
-      border:1px solid rgba(255,215,106,0.22);
+      background:rgba(255,215,106,.08);
+      border:1px solid rgba(255,215,106,.22);
     }
     .revive-cost{
       color:#ffd86d;
@@ -693,20 +671,20 @@
     .go-revive{
       background:linear-gradient(180deg,#ffdf87,#cb8b13);
       color:#2f1d00;
-      box-shadow:0 10px 20px rgba(203,139,19,0.35);
+      box-shadow:0 10px 20px rgba(203,139,19,.35);
     }
     .go-restart{
       background:linear-gradient(180deg,#3f7dff,#234db5);
-      box-shadow:0 10px 20px rgba(35,77,181,0.35);
+      box-shadow:0 10px 20px rgba(35,77,181,.35);
     }
     .go-exit{
       background:linear-gradient(180deg,#666f86,#31384a);
-      box-shadow:0 10px 20px rgba(0,0,0,0.28);
+      box-shadow:0 10px 20px rgba(0,0,0,.28);
     }
 
     @media (max-width:1100px){
-      .plane-title{font-size:60px;}
-      .plane-grid{grid-template-columns:repeat(2,minmax(240px,1fr));}
+      .panel-title{font-size:60px;}
+      .card-grid{grid-template-columns:repeat(2,minmax(240px,1fr));}
     }
     @media (max-width:720px){
       .left-menu{
@@ -724,7 +702,7 @@
         padding:18px;
         border-radius:20px;
       }
-      .play-btn, .stage-btn{
+      .play-btn,.stage-btn{
         min-width:0;
         width:100%;
         height:62px;
@@ -733,13 +711,12 @@
         width:100%;
         min-width:0;
       }
-      .plane-title{font-size:48px;}
-      .plane-grid{grid-template-columns:1fr;}
-      .plane-item{min-height:250px;}
-      .plane-preview{width:130px;height:130px;}
-      .plane-name{font-size:24px;}
-      .plane-mini-text{font-size:18px;}
-      .stage-title{font-size:44px;}
+      .panel-title{font-size:48px;}
+      .card-grid{grid-template-columns:1fr;}
+      .item-card{min-height:250px;}
+      .item-preview{width:130px;height:130px;}
+      .item-name{font-size:24px;}
+      .item-stats{font-size:18px;}
     }
   </style>
 </head>
@@ -748,12 +725,10 @@
 
     <section id="loadingScreen" class="screen active">
       <div class="center-wrap">
-        <div class="loading-box">
+        <div class="loading-card">
           <div class="loading-title">비행기 전쟁</div>
           <div class="loading-sub">전장 연결 중...</div>
-          <div class="loading-bg">
-            <div id="loadingFill" class="loading-fill"></div>
-          </div>
+          <div class="loading-bar"><div id="loadingFill" class="loading-fill"></div></div>
           <div id="loadingText" class="loading-text">0%</div>
         </div>
       </div>
@@ -764,7 +739,6 @@
         <div class="opening-plane" id="openingPlane"></div>
         <div class="opening-title">비행기 전쟁</div>
       </div>
-
       <div class="center-wrap">
         <div class="nickname-card">
           <h1>닉네임 설정</h1>
@@ -797,8 +771,9 @@
       <div class="topbar">
         <div class="topbar-left">
           <div class="chip">✈️ <span id="nickChip">파일럿</span></div>
-          <div class="chip">선택: <span id="selectedPlaneChip">기본 비행기</span></div>
-          <div class="chip">선택 Stage: <span id="selectedStageChip">1</span></div>
+          <div class="chip">우주선: <span id="selectedShipChip">브레이드</span></div>
+          <div class="chip">드론: <span id="selectedDroneChip">에일리언</span></div>
+          <div class="chip">Stage: <span id="selectedStageChip">1</span></div>
         </div>
         <div class="topbar-right">
           <div class="chip">🏅 골드 <span id="goldChip">0</span></div>
@@ -820,111 +795,123 @@
     </section>
 
     <section id="planeScreen" class="screen">
-      <div class="plane-top">
-        <h1 class="plane-title">비행기</h1>
-        <button id="planeBackBtn" class="plane-back">←</button>
+      <div class="panel-top">
+        <h1 class="panel-title">비행기</h1>
+        <button id="planeBackBtn" class="panel-back">←</button>
       </div>
 
       <div class="plane-scroll">
-        <div class="plane-grid" id="planeGrid">
-          <div class="plane-item selected" data-plane="basic">
-            <div class="plane-rank">1</div>
-            <div class="plane-preview" id="planePreviewBasic"></div>
-            <div class="plane-name">기본 비행기</div>
-            <div class="plane-mini-text" id="planeTextBasic">기본 비행기
-설명: 균형 잡힌 기본 기체
-공격력: 100</div>
-            <div class="plane-selected-badge" id="badgeBasic">선택됨</div>
-            <button class="plane-select-btn" data-select="basic">선택</button>
-            <button class="plane-upgrade-btn" data-upgrade="basic">강화: 100골드</button>
+        <div class="tab-row">
+          <button id="shipTabBtn" class="tab-btn active">우주선</button>
+          <button id="droneTabBtn" class="tab-btn">드론</button>
+        </div>
+
+        <div id="shipTab" class="card-grid">
+          <div class="item-card selected" data-ship="blade">
+            <div class="item-rank">1</div>
+            <div class="item-preview" id="shipPreviewBlade"></div>
+            <div class="item-name">브레이드</div>
+            <div class="item-stats" id="shipTextBlade">공격력: 100
+강화 비용: 100골드</div>
+            <div class="selected-badge" id="shipBadgeBlade">선택됨</div>
+            <button class="card-btn select-btn" data-select-ship="blade">선택</button>
+            <button class="card-btn upgrade-btn" data-upgrade-ship="blade">강화</button>
           </div>
 
-          <div class="plane-item" data-plane="swift">
-            <div class="plane-rank">2</div>
-            <div class="plane-preview" id="planePreviewSwift"></div>
-            <div class="plane-name">스위프트</div>
-            <div class="plane-mini-text">설명: 빠른 기동형 기체
-공격력: 준비중</div>
-            <div class="plane-selected-badge" id="badgeSwift">선택됨</div>
-            <button class="plane-select-btn" data-select="swift" disabled>준비중</button>
-            <button class="plane-upgrade-btn" disabled>준비중</button>
+          <div class="item-card" data-ship="thunder_blade">
+            <div class="item-rank">2</div>
+            <div class="item-preview" id="shipPreviewThunder"></div>
+            <div class="item-name">썬더 블레이드</div>
+            <div class="item-stats">모습만 표시</div>
+            <div class="selected-badge" id="shipBadgeThunder">선택됨</div>
+            <button class="card-btn select-btn" data-select-ship="thunder_blade">선택</button>
           </div>
 
-          <div class="plane-item" data-plane="heavy">
-            <div class="plane-rank">3</div>
-            <div class="plane-preview" id="planePreviewHeavy"></div>
-            <div class="plane-name">헤비암</div>
-            <div class="plane-mini-text">설명: 중장갑 고화력 기체
-공격력: 준비중</div>
-            <div class="plane-selected-badge" id="badgeHeavy">선택됨</div>
-            <button class="plane-select-btn" data-select="heavy" disabled>준비중</button>
-            <button class="plane-upgrade-btn" disabled>준비중</button>
+          <div class="item-card" data-ship="light_phantom">
+            <div class="item-rank">3</div>
+            <div class="item-preview" id="shipPreviewLight"></div>
+            <div class="item-name">라이트팬텀</div>
+            <div class="item-stats">모습만 표시</div>
+            <div class="selected-badge" id="shipBadgeLight">선택됨</div>
+            <button class="card-btn select-btn" data-select-ship="light_phantom">선택</button>
           </div>
 
-          <div class="plane-item" data-plane="wing">
-            <div class="plane-rank">4</div>
-            <div class="plane-preview" id="planePreviewWing"></div>
-            <div class="plane-name">트윈윙</div>
-            <div class="plane-mini-text">설명: 양날개 특화 기체
-공격력: 준비중</div>
-            <div class="plane-selected-badge" id="badgeWing">선택됨</div>
-            <button class="plane-select-btn" data-select="wing" disabled>준비중</button>
-            <button class="plane-upgrade-btn" disabled>준비중</button>
+          <div class="item-card" data-ship="phantom_assassin">
+            <div class="item-rank">4</div>
+            <div class="item-preview" id="shipPreviewAssassin"></div>
+            <div class="item-name">팬텀 어쌔신</div>
+            <div class="item-stats">모습만 표시</div>
+            <div class="selected-badge" id="shipBadgeAssassin">선택됨</div>
+            <button class="card-btn select-btn" data-select-ship="phantom_assassin">선택</button>
           </div>
 
-          <div class="plane-item" data-plane="nova">
-            <div class="plane-rank">5</div>
-            <div class="plane-preview" id="planePreviewNova"></div>
-            <div class="plane-name">노바</div>
-            <div class="plane-mini-text">설명: 에너지 집속형 기체
-공격력: 준비중</div>
-            <div class="plane-selected-badge" id="badgeNova">선택됨</div>
-            <button class="plane-select-btn" data-select="nova" disabled>준비중</button>
-            <button class="plane-upgrade-btn" disabled>준비중</button>
+          <div class="item-card" data-ship="pirate_king">
+            <div class="item-rank">5</div>
+            <div class="item-preview" id="shipPreviewPirate"></div>
+            <div class="item-name">해적킹</div>
+            <div class="item-stats">모습만 표시</div>
+            <div class="selected-badge" id="shipBadgePirate">선택됨</div>
+            <button class="card-btn select-btn" data-select-ship="pirate_king">선택</button>
+          </div>
+        </div>
+
+        <div id="droneTab" class="card-grid" style="display:none;">
+          <div class="item-card selected" data-drone="alien">
+            <div class="item-rank">1</div>
+            <div class="item-preview" id="dronePreviewAlien"></div>
+            <div class="item-name">에일리언</div>
+            <div class="item-stats" id="droneTextAlien">공격력: 30
+강화 비용: 30골드
+인게임 지속시간: 10초</div>
+            <div class="selected-badge" id="droneBadgeAlien">선택됨</div>
+            <button class="card-btn select-btn" data-select-drone="alien">선택</button>
+            <button class="card-btn upgrade-btn" data-upgrade-drone="alien">강화</button>
           </div>
         </div>
       </div>
     </section>
 
     <section id="stageScreen" class="screen">
-      <h1 class="stage-title">STAGE</h1>
-      <button id="stageBackBtn" class="stage-back">←</button>
+      <div class="panel-top">
+        <h1 class="panel-title">STAGE</h1>
+        <button id="stageBackBtn" class="panel-back">←</button>
+      </div>
       <div class="stage-wrap">
         <div class="stage-grid">
-          <div class="stage-card">
+          <div class="stage-card" data-stage-card="1">
             <div class="stage-name">Stage 1</div>
             <div class="stage-desc">입문 전장
 보스 5종
 총 50 Wave</div>
-            <button class="stage-play-btn" data-stage="1">선택</button>
+            <button class="stage-select-btn" data-stage="1">선택</button>
           </div>
-          <div class="stage-card">
+          <div class="stage-card" data-stage-card="2">
             <div class="stage-name">Stage 2</div>
             <div class="stage-desc">강화 전장
 보스 5종
 총 50 Wave</div>
-            <button class="stage-play-btn" data-stage="2">선택</button>
+            <button class="stage-select-btn" data-stage="2">선택</button>
           </div>
-          <div class="stage-card">
+          <div class="stage-card" data-stage-card="3">
             <div class="stage-name">Stage 3</div>
             <div class="stage-desc">고속 전장
 보스 5종
 총 50 Wave</div>
-            <button class="stage-play-btn" data-stage="3">선택</button>
+            <button class="stage-select-btn" data-stage="3">선택</button>
           </div>
-          <div class="stage-card">
+          <div class="stage-card" data-stage-card="4">
             <div class="stage-name">Stage 4</div>
             <div class="stage-desc">중화기 전장
 보스 5종
 총 50 Wave</div>
-            <button class="stage-play-btn" data-stage="4">선택</button>
+            <button class="stage-select-btn" data-stage="4">선택</button>
           </div>
-          <div class="stage-card">
+          <div class="stage-card" data-stage-card="5">
             <div class="stage-name">Stage 5</div>
             <div class="stage-desc">최종 전장
 보스 5종
 총 50 Wave</div>
-            <button class="stage-play-btn" data-stage="5">선택</button>
+            <button class="stage-select-btn" data-stage="5">선택</button>
           </div>
         </div>
       </div>
@@ -946,6 +933,14 @@
           <div class="hud-box">
             <div class="hud-title">스테이지</div>
             <div class="hud-main" id="hudStage">1</div>
+          </div>
+          <div class="hud-box">
+            <div class="hud-title">우주선 공격력</div>
+            <div class="hud-main" id="hudShipAtk">100</div>
+          </div>
+          <div class="hud-box">
+            <div class="hud-title">드론 공격력</div>
+            <div class="hud-main" id="hudDroneAtk">30</div>
           </div>
         </div>
         <div class="hud-right">
@@ -974,10 +969,11 @@
         </div>
       </div>
     </section>
+
   </div>
 
   <script>
-    const STORAGE_KEY_PREFIX = "air_war_save_v6_";
+    const STORAGE_KEY_PREFIX = "air_war_save_v7_";
 
     const loadingScreen = document.getElementById("loadingScreen");
     const nicknameScreen = document.getElementById("nicknameScreen");
@@ -998,13 +994,16 @@
 
     const nickChip = document.getElementById("nickChip");
     const goldChip = document.getElementById("goldChip");
-    const selectedPlaneChip = document.getElementById("selectedPlaneChip");
+    const selectedShipChip = document.getElementById("selectedShipChip");
+    const selectedDroneChip = document.getElementById("selectedDroneChip");
     const selectedStageChip = document.getElementById("selectedStageChip");
 
     const hudNick = document.getElementById("hudNick");
     const hudGold = document.getElementById("hudGold");
     const hudState = document.getElementById("hudState");
     const hudStage = document.getElementById("hudStage");
+    const hudShipAtk = document.getElementById("hudShipAtk");
+    const hudDroneAtk = document.getElementById("hudDroneAtk");
 
     const playBtn = document.getElementById("playBtn");
     const stageBtn = document.getElementById("stageBtn");
@@ -1013,7 +1012,11 @@
 
     const planeTabBtn = document.getElementById("planeTabBtn");
     const planeBackBtn = document.getElementById("planeBackBtn");
-    const planeGrid = document.getElementById("planeGrid");
+    const planeGrid = document.getElementById("planeScreen");
+    const shipTabBtn = document.getElementById("shipTabBtn");
+    const droneTabBtn = document.getElementById("droneTabBtn");
+    const shipTab = document.getElementById("shipTab");
+    const droneTab = document.getElementById("droneTab");
 
     const stageBackBtn = document.getElementById("stageBackBtn");
 
@@ -1025,15 +1028,15 @@
     const restartBtn = document.getElementById("restartBtn");
     const exitBtn = document.getElementById("exitBtn");
 
-    const PLANE_NAME_MAP = {
-      basic: "기본 비행기",
-      swift: "스위프트",
-      heavy: "헤비암",
-      wing: "트윈윙",
-      nova: "노바"
+    const SHIP_NAME_MAP = {
+      blade: "브레이드",
+      thunder_blade: "썬더 블레이드",
+      light_phantom: "라이트팬텀",
+      phantom_assassin: "팬텀 어쌔신",
+      pirate_king: "해적킹"
     };
 
-    const STAGE_BOSS_NAMES = {
+    const BOSS_NAMES = {
       1: ["철날개 정찰기", "붉은 송곳", "강철 매복자", "연기 폭격선", "황혼 파쇄기"],
       2: ["청뢰 창기병", "철우박 순양함", "심연 절단자", "폭풍 집행관", "창공 파멸자"],
       3: ["흑운 추적자", "절규 포식선", "섬광 분쇄기", "전율 수확자", "천공 학살자"],
@@ -1084,17 +1087,19 @@
         nickname,
         bestWave: 1,
         gold: 0,
-        planeAttackBase: 100,
-        planeUpgradeLevel: 0,
-        planeUpgradeCost: 100,
-        selectedPlane: "basic",
+        shipAttack: 100,
+        shipUpgradeCost: 100,
+        droneAttack: 30,
+        droneUpgradeCost: 30,
+        selectedShip: "blade",
+        selectedDrone: "alien",
         selectedStage: 1,
         createdAt: Date.now()
       };
     }
 
-    function getSelectedPlaneName(){
-      return PLANE_NAME_MAP[playerProfile?.selectedPlane || "basic"] || "기본 비행기";
+    function getSelectedShipName(){
+      return SHIP_NAME_MAP[playerProfile?.selectedShip || "blade"] || "브레이드";
     }
 
     function updateCurrencyUI(){
@@ -1103,36 +1108,49 @@
       hudGold.textContent = gold;
     }
 
-    function updateSelectedPlaneUI(){
-      selectedPlaneChip.textContent = getSelectedPlaneName();
-      document.querySelectorAll(".plane-selected-badge").forEach(el => el.style.display = "none");
-      const selected = playerProfile?.selectedPlane || "basic";
-      const badgeMap = {
-        basic: "badgeBasic",
-        swift: "badgeSwift",
-        heavy: "badgeHeavy",
-        wing: "badgeWing",
-        nova: "badgeNova"
-      };
-      const badge = document.getElementById(badgeMap[selected]);
-      if (badge) badge.style.display = "block";
-    }
-
-    function updateStageUI(){
+    function updateProfileUI(){
+      selectedShipChip.textContent = getSelectedShipName();
+      selectedDroneChip.textContent = "에일리언";
       selectedStageChip.textContent = playerProfile?.selectedStage || 1;
       hudStage.textContent = playerProfile?.selectedStage || 1;
-    }
+      hudShipAtk.textContent = playerProfile?.shipAttack || 100;
+      hudDroneAtk.textContent = playerProfile?.droneAttack || 30;
 
-    function updatePlaneUI(){
-      if(!playerProfile) return;
-      const basicText = document.getElementById("planeTextBasic");
-      basicText.textContent =
-`기본 비행기
-설명: 균형 잡힌 기본 기체
-공격력: ${playerProfile.planeAttackBase}`;
-      const upgradeBtn = document.querySelector('[data-upgrade="basic"]');
-      upgradeBtn.textContent = `강화: ${playerProfile.planeUpgradeCost || 100}골드`;
-      updateSelectedPlaneUI();
+      document.getElementById("shipTextBlade").textContent =
+`공격력: ${playerProfile?.shipAttack || 100}
+강화 비용: ${playerProfile?.shipUpgradeCost || 100}골드`;
+
+      document.getElementById("droneTextAlien").textContent =
+`공격력: ${playerProfile?.droneAttack || 30}
+강화 비용: ${playerProfile?.droneUpgradeCost || 30}골드
+인게임 지속시간: 10초`;
+
+      document.querySelector('[data-upgrade-ship="blade"]').textContent = `강화: ${playerProfile?.shipUpgradeCost || 100}골드`;
+      document.querySelector('[data-upgrade-drone="alien"]').textContent = `강화: ${playerProfile?.droneUpgradeCost || 30}골드`;
+
+      ["Blade","Thunder","Light","Assassin","Pirate"].forEach(id => {
+        const el = document.getElementById("shipBadge" + id);
+        if (el) el.style.display = "none";
+      });
+      document.getElementById("droneBadgeAlien").style.display = "block";
+
+      const shipBadgeMap = {
+        blade: "shipBadgeBlade",
+        thunder_blade: "shipBadgeThunder",
+        light_phantom: "shipBadgeLight",
+        phantom_assassin: "shipBadgeAssassin",
+        pirate_king: "shipBadgePirate"
+      };
+      const badge = document.getElementById(shipBadgeMap[playerProfile?.selectedShip || "blade"]);
+      if (badge) badge.style.display = "block";
+
+      document.querySelectorAll("#shipTab .item-card").forEach(card => card.classList.remove("selected"));
+      const selectedShipCard = document.querySelector(`#shipTab .item-card[data-ship="${playerProfile?.selectedShip || "blade"}"]`);
+      if (selectedShipCard) selectedShipCard.classList.add("selected");
+
+      document.querySelectorAll('[data-stage-card]').forEach(card => card.classList.remove("selected"));
+      const stageCard = document.querySelector(`[data-stage-card="${playerProfile?.selectedStage || 1}"]`);
+      if (stageCard) stageCard.classList.add("selected");
     }
 
     function updateNewNickHint(){
@@ -1184,11 +1202,14 @@
         return;
       }
       playerProfile = data;
-      if(playerProfile.planeAttackBase == null) playerProfile.planeAttackBase = 100;
       if(playerProfile.gold == null) playerProfile.gold = 0;
-      if(playerProfile.selectedPlane == null) playerProfile.selectedPlane = "basic";
+      if(playerProfile.shipAttack == null) playerProfile.shipAttack = 100;
+      if(playerProfile.shipUpgradeCost == null) playerProfile.shipUpgradeCost = 100;
+      if(playerProfile.droneAttack == null) playerProfile.droneAttack = 30;
+      if(playerProfile.droneUpgradeCost == null) playerProfile.droneUpgradeCost = 30;
+      if(playerProfile.selectedShip == null) playerProfile.selectedShip = "blade";
+      if(playerProfile.selectedDrone == null) playerProfile.selectedDrone = "alien";
       if(playerProfile.selectedStage == null) playerProfile.selectedStage = 1;
-      if(playerProfile.planeUpgradeCost == null) playerProfile.planeUpgradeCost = 100;
       loadNickHint.textContent = "불러오기 성공";
       loadNickHint.className = "hint ok";
       enterMain();
@@ -1198,9 +1219,8 @@
       nickChip.textContent = playerProfile.nickname;
       hudNick.textContent = playerProfile.nickname;
       updateCurrencyUI();
-      updatePlaneUI();
-      updateStageUI();
-      renderMainPlane();
+      updateProfileUI();
+      renderMainShip();
       showScreen(mainScreen);
       hideGameoverMenu();
     }
@@ -1213,16 +1233,16 @@
       showScreen(stageScreen);
     }
 
-    function planeSVG({ glow=false, small=false, styleType="basic" } = {}){
+    function planeSVG({ glow=false, small=false, styleType="blade" } = {}){
       const s = small ? 180 : 420;
       const palettes = {
-        basic: { body:"#e3e9f5", wing:"#b0bdd3", nose:"#ffcb5a", glass:"#79b8ff" },
-        swift: { body:"#f0f7ff", wing:"#95b8ff", nose:"#9de0ff", glass:"#bde7ff" },
-        heavy: { body:"#ddd2bf", wing:"#a6916b", nose:"#ff9359", glass:"#87b7d8" },
-        wing:  { body:"#ececec", wing:"#8df0c0", nose:"#ffd56a", glass:"#7bc8ff" },
-        nova:  { body:"#f5deff", wing:"#cb9cff", nose:"#ff98cf", glass:"#a7d0ff" }
+        blade: { body:"#e3e9f5", wing:"#b0bdd3", nose:"#ffcb5a", glass:"#79b8ff" },
+        thunder_blade: { body:"#f0f7ff", wing:"#95b8ff", nose:"#9de0ff", glass:"#bde7ff" },
+        light_phantom: { body:"#ececec", wing:"#8df0c0", nose:"#ffd56a", glass:"#7bc8ff" },
+        phantom_assassin: { body:"#f5deff", wing:"#cb9cff", nose:"#ff98cf", glass:"#a7d0ff" },
+        pirate_king: { body:"#ddd2bf", wing:"#a6916b", nose:"#ff9359", glass:"#87b7d8" }
       };
-      const p = palettes[styleType] || palettes.basic;
+      const p = palettes[styleType] || palettes.blade;
       return `
       <svg viewBox="0 0 ${s} ${s*0.72}" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
         <defs>
@@ -1232,9 +1252,7 @@
           </filter>
         </defs>
         <g filter="url(#g${styleType}${small ? 's' : 'l'})">
-          <ellipse cx="${s*0.12}" cy="${s*0.36}" rx="${s*0.06}" ry="${s*0.03}" fill="rgba(255,210,120,0.2)">
-            <animate attributeName="opacity" values="0.15;0.35;0.15" dur="0.7s" repeatCount="indefinite"/>
-          </ellipse>
+          <ellipse cx="${s*0.12}" cy="${s*0.36}" rx="${s*0.06}" ry="${s*0.03}" fill="rgba(255,210,120,0.2)"/>
           <g transform="translate(${s*0.08},${s*0.31})">
             <rect x="0" y="${s*0.03}" width="${s*0.08}" height="${s*0.01}" rx="10" fill="rgba(255,245,220,0.25)"/>
             <g>
@@ -1253,74 +1271,129 @@
       </svg>`;
     }
 
-    function renderMainPlane() {
-      const selected = playerProfile?.selectedPlane || "basic";
+    function droneSVG({ small=false } = {}){
+      const s = small ? 180 : 240;
+      return `
+      <svg viewBox="0 0 ${s} ${s}" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+        <g>
+          <ellipse cx="${s*0.5}" cy="${s*0.52}" rx="${s*0.18}" ry="${s*0.11}" fill="#9ff0c8" stroke="#0f3f2d" stroke-width="6"/>
+          <circle cx="${s*0.5}" cy="${s*0.5}" r="${s*0.06}" fill="#5ad3ff"/>
+          <path d="M ${s*0.26} ${s*0.52} L ${s*0.14} ${s*0.4} L ${s*0.12} ${s*0.58} Z" fill="#d7fff2" stroke="#0f3f2d" stroke-width="5"/>
+          <path d="M ${s*0.74} ${s*0.52} L ${s*0.86} ${s*0.4} L ${s*0.88} ${s*0.58} Z" fill="#d7fff2" stroke="#0f3f2d" stroke-width="5"/>
+          <rect x="${s*0.18}" y="${s*0.48}" width="${s*0.08}" height="${s*0.03}" rx="8" fill="#7fe8ff"/>
+          <rect x="${s*0.74}" y="${s*0.48}" width="${s*0.08}" height="${s*0.03}" rx="8" fill="#7fe8ff"/>
+        </g>
+      </svg>`;
+    }
+
+    function renderMainShip() {
+      const selected = playerProfile?.selectedShip || "blade";
       heroPlane.innerHTML = planeSVG({ glow:true, styleType:selected });
     }
 
-    openingPlane.innerHTML = planeSVG({ glow:true, styleType:"basic" });
-    document.getElementById("planePreviewBasic").innerHTML = planeSVG({ glow:true, small:true, styleType:"basic" });
-    document.getElementById("planePreviewSwift").innerHTML = planeSVG({ glow:true, small:true, styleType:"swift" });
-    document.getElementById("planePreviewHeavy").innerHTML = planeSVG({ glow:true, small:true, styleType:"heavy" });
-    document.getElementById("planePreviewWing").innerHTML = planeSVG({ glow:true, small:true, styleType:"wing" });
-    document.getElementById("planePreviewNova").innerHTML = planeSVG({ glow:true, small:true, styleType:"nova" });
+    openingPlane.innerHTML = planeSVG({ glow:true, styleType:"blade" });
+    document.getElementById("shipPreviewBlade").innerHTML = planeSVG({ glow:true, small:true, styleType:"blade" });
+    document.getElementById("shipPreviewThunder").innerHTML = planeSVG({ glow:true, small:true, styleType:"thunder_blade" });
+    document.getElementById("shipPreviewLight").innerHTML = planeSVG({ glow:true, small:true, styleType:"light_phantom" });
+    document.getElementById("shipPreviewAssassin").innerHTML = planeSVG({ glow:true, small:true, styleType:"phantom_assassin" });
+    document.getElementById("shipPreviewPirate").innerHTML = planeSVG({ glow:true, small:true, styleType:"pirate_king" });
+    document.getElementById("dronePreviewAlien").innerHTML = droneSVG({ small:true });
 
     planeTabBtn.addEventListener("click", openPlaneScreen);
     heroPlane.addEventListener("click", openPlaneScreen);
     stageBtn.addEventListener("click", openStageScreen);
 
     planeBackBtn.addEventListener("click", () => {
-      renderMainPlane();
+      renderMainShip();
       showScreen(mainScreen);
     });
 
     stageBackBtn.addEventListener("click", () => showScreen(mainScreen));
 
-    document.querySelectorAll(".stage-play-btn").forEach(btn => {
+    shipTabBtn.addEventListener("click", () => {
+      shipTabBtn.classList.add("active");
+      droneTabBtn.classList.remove("active");
+      shipTab.style.display = "";
+      droneTab.style.display = "none";
+    });
+
+    droneTabBtn.addEventListener("click", () => {
+      droneTabBtn.classList.add("active");
+      shipTabBtn.classList.remove("active");
+      droneTab.style.display = "";
+      shipTab.style.display = "none";
+    });
+
+    document.querySelectorAll(".stage-select-btn").forEach(btn => {
       btn.addEventListener("click", () => {
         playerProfile.selectedStage = Number(btn.dataset.stage || 1);
         savePlayer(playerProfile);
-        updateStageUI();
+        updateProfileUI();
         showScreen(mainScreen);
       });
     });
 
-    planeGrid.addEventListener("click", (e) => {
-      const item = e.target.closest(".plane-item");
-      if(!item) return;
-
-      document.querySelectorAll(".plane-item").forEach(v => v.classList.remove("selected"));
-      item.classList.add("selected");
-
-      const selectBtn = e.target.closest(".plane-select-btn");
-      if (selectBtn && selectBtn.dataset.select) {
-        const planeKey = selectBtn.dataset.select;
-        if (!selectBtn.disabled) {
-          playerProfile.selectedPlane = planeKey;
-          savePlayer(playerProfile);
-          updateSelectedPlaneUI();
-          renderMainPlane();
-          showScreen(mainScreen);
-          return;
-        }
-      }
-
-      const upgradeBtn = e.target.closest(".plane-upgrade-btn");
-      if(upgradeBtn && upgradeBtn.dataset.upgrade === "basic"){
+    document.querySelectorAll("[data-select-ship]").forEach(btn => {
+      btn.addEventListener("click", (e) => {
         e.stopPropagation();
-        const cost = playerProfile.planeUpgradeCost || 100;
-        if((playerProfile.gold || 0) < cost){
-          alert("골드가 부족해.");
-          return;
-        }
-        playerProfile.gold -= cost;
-        playerProfile.planeUpgradeLevel = (playerProfile.planeUpgradeLevel || 0) + 1;
-        playerProfile.planeAttackBase += 18;
-        playerProfile.planeUpgradeCost = Math.floor(cost * 1.55);
+        playerProfile.selectedShip = btn.dataset.selectShip;
         savePlayer(playerProfile);
-        updateCurrencyUI();
-        updatePlaneUI();
+        updateProfileUI();
+        renderMainShip();
+        showScreen(mainScreen);
+      });
+    });
+
+    document.querySelectorAll("#shipTab .item-card").forEach(card => {
+      card.addEventListener("click", () => {
+        document.querySelectorAll("#shipTab .item-card").forEach(v => v.classList.remove("selected"));
+        card.classList.add("selected");
+      });
+    });
+
+    document.querySelectorAll("#droneTab .item-card").forEach(card => {
+      card.addEventListener("click", () => {
+        document.querySelectorAll("#droneTab .item-card").forEach(v => v.classList.remove("selected"));
+        card.classList.add("selected");
+      });
+    });
+
+    document.querySelector('[data-select-drone="alien"]').addEventListener("click", (e) => {
+      e.stopPropagation();
+      playerProfile.selectedDrone = "alien";
+      savePlayer(playerProfile);
+      updateProfileUI();
+      showScreen(mainScreen);
+    });
+
+    document.querySelector('[data-upgrade-ship="blade"]').addEventListener("click", (e) => {
+      e.stopPropagation();
+      const cost = playerProfile.shipUpgradeCost || 100;
+      if ((playerProfile.gold || 0) < cost) {
+        alert("골드가 부족해.");
+        return;
       }
+      playerProfile.gold -= cost;
+      playerProfile.shipAttack += 18;
+      playerProfile.shipUpgradeCost = Math.floor(cost * 1.55);
+      savePlayer(playerProfile);
+      updateCurrencyUI();
+      updateProfileUI();
+    });
+
+    document.querySelector('[data-upgrade-drone="alien"]').addEventListener("click", (e) => {
+      e.stopPropagation();
+      const cost = playerProfile.droneUpgradeCost || 30;
+      if ((playerProfile.gold || 0) < cost) {
+        alert("골드가 부족해.");
+        return;
+      }
+      playerProfile.gold -= cost;
+      playerProfile.droneAttack += 8;
+      playerProfile.droneUpgradeCost = Math.floor(cost * 1.45);
+      savePlayer(playerProfile);
+      updateCurrencyUI();
+      updateProfileUI();
     });
 
     const canvas = document.getElementById("gameCanvas");
@@ -1444,17 +1517,16 @@
         hp: 1,
         alive: true,
         level: 1,
-        dmg: Math.max(1, Math.round((playerProfile?.planeAttackBase || 100) / 100)),
-        laserPower: playerProfile?.planeAttackBase || 100,
+        dmg: Math.max(1, Math.round((playerProfile?.shipAttack || 100) / 100)),
         bulletCount: 1,
         powerStacks: 0,
-        miniLevel: 0,
-        miniBulletCount: 0,
-        maxNormalLevel: 15,
         shotCooldown: 0,
         entryDone: false,
         invincible: 0,
-        baseDmg: Math.max(1, Math.round((playerProfile?.planeAttackBase || 100) / 100))
+        droneActive: false,
+        droneTimer: 0,
+        droneAttack: Math.max(1, Math.round((playerProfile?.droneAttack || 30) / 10)),
+        droneBaseAttack: Math.max(1, Math.round((playerProfile?.droneAttack || 30) / 10))
       };
       game.targetX = game.player.x;
       game.targetY = H - 120;
@@ -1462,6 +1534,8 @@
       hudState.textContent = "대기 중";
       hudNick.textContent = game.playerName;
       hudStage.textContent = game.currentStage;
+      hudShipAtk.textContent = playerProfile?.shipAttack || 100;
+      hudDroneAtk.textContent = playerProfile?.droneAttack || 30;
       updateCurrencyUI();
       hideGameoverMenu();
 
@@ -1564,22 +1638,18 @@
     }
 
     function getStageDifficulty(stage) {
-      return 1 + (stage - 1) * 0.85;
+      return 1 + (stage - 1) * 0.9;
     }
 
     function getWaveGrowthMultiplier(wave, stage) {
       const stageMul = getStageDifficulty(stage);
       if (wave < 5) return stageMul;
-      return stageMul * Math.pow(1.75, wave - 4);
-    }
-
-    function getBossPower(stage, wave) {
-      return stage * 1000 + wave * 10;
+      return stageMul * Math.pow(1.7, wave - 4);
     }
 
     function getBossName(stage, wave) {
       const idx = Math.floor(wave / 10) - 1;
-      const names = STAGE_BOSS_NAMES[stage] || STAGE_BOSS_NAMES[1];
+      const names = BOSS_NAMES[stage] || BOSS_NAMES[1];
       return names[Math.max(0, Math.min(4, idx))];
     }
 
@@ -1609,9 +1679,9 @@
 
       const growth = getWaveGrowthMultiplier(wave, game.currentStage);
       const rows = Math.min(2 + Math.floor(wave / 8), 5);
-      const cols = Math.min(4 + Math.floor(wave * 0.35) + Math.floor(game.currentStage * 0.3), 8);
+      const cols = Math.min(4 + Math.floor(wave * 0.32) + Math.floor(game.currentStage * 0.25), 8);
       const hpBase = Math.max(2, Math.floor((2 + wave * 0.8) * Math.max(1, growth * 0.18)));
-      const dmg = Math.max(1, Math.floor((1 + wave / 12) * Math.max(1, growth * 0.03)));
+      const dmg = Math.max(1, Math.floor((1 + wave / 14) * Math.max(1, growth * 0.025)));
 
       const startX = W * 0.14;
       const endX = W * 0.86;
@@ -1635,8 +1705,8 @@
             hp: hpBase + Math.floor(r * growth * 0.03),
             maxHp: hpBase + Math.floor(r * growth * 0.03),
             dmg,
-            fireCooldown: rand(2.1, 4.4),
-            fireBase: rand(2.3, 4.6),
+            fireCooldown: rand(2.4, 4.8),
+            fireBase: rand(2.5, 5.0),
             pattern,
             t: Math.random()*6,
             phase:"enter"
@@ -1651,8 +1721,7 @@
       const types = ["destroyer", "spider", "fortress", "destroyer", "fortress"];
       const phaseType = types[idx] || "destroyer";
       const size = phaseType === "fortress" ? 220 : phaseType === "spider" ? 180 : 160;
-      const powerRank = getBossPower(game.currentStage, wave);
-      const hp = Math.floor((450 + powerRank * 0.55) * Math.max(1, growth * 0.2));
+      const hp = Math.floor((500 + game.currentStage * 240 + idx * 320 + wave * 18) * Math.max(1, growth * 0.16));
 
       game.boss = {
         name: getBossName(game.currentStage, wave),
@@ -1667,15 +1736,15 @@
         h: phaseType === "fortress" ? 140 : 110,
         hp,
         maxHp: hp,
-        dmg: Math.max(2, Math.floor(1 + game.currentStage * 0.8 + idx * 0.8)),
+        dmg: Math.max(2, Math.floor(2 + game.currentStage * 0.8 + idx * 0.9)),
         phase:"enter",
         t:0,
-        fireCooldown: 1.0,
-        tripleCooldown: 2.2,
-        ringCooldown: 4.2,
-        summonCooldown: 6.2,
-        sweepCooldown: 4.8,
-        specialCooldown: 5.6,
+        fireCooldown: 1.25,
+        tripleCooldown: 2.8,
+        ringCooldown: 4.9,
+        summonCooldown: 6.8,
+        sweepCooldown: 5.2,
+        specialCooldown: 6.0,
         wave,
         growth,
         stage: game.currentStage
@@ -1710,26 +1779,20 @@
         });
       }
 
-      if(p.miniLevel > 0){
-        const sideOffsets = [-30, 30];
-        for(let m=0;m<2;m++){
-          const baseX = p.x + sideOffsets[m];
-          const bn = Math.max(1, p.miniBulletCount);
-          const sp = 10 + (bn - 1) * 3;
-          for(let i=0;i<bn;i++){
-            const off = bn === 1 ? 0 : ((i/(bn-1)) - 0.5) * sp * (bn - 1);
-            game.bullets.push({
-              x:baseX + off,
-              y:p.y - 14,
-              vx:0,
-              vy:-650,
-              width:8,
-              height:24,
-              dmg:Math.max(1, Math.floor(p.dmg * 0.45)),
-              colorMain:"#94e2ff",
-              colorCore:"#ffffff"
-            });
-          }
+      if (p.droneActive && p.droneTimer > 0) {
+        const offsets = [-40, 40];
+        for (const dx of offsets) {
+          game.bullets.push({
+            x:p.x + dx,
+            y:p.y - 12,
+            vx:0,
+            vy:-650,
+            width:8,
+            height:24,
+            dmg:p.droneAttack,
+            colorMain:"#94e2ff",
+            colorCore:"#ffffff"
+          });
         }
       }
     }
@@ -1768,10 +1831,9 @@
     function applyItem(type){
       const p = game.player;
       if(type === "power"){
-        if(p.level < p.maxNormalLevel) p.level += 1;
+        if(p.level < 15) p.level += 1;
         p.powerStacks += 1;
         p.dmg += 1;
-        p.laserPower += 18;
         if(p.powerStacks >= 3){
           p.powerStacks = 0;
           if(p.bulletCount < 5) p.bulletCount += 1;
@@ -1780,31 +1842,22 @@
           showMessage("POWER UP!", 0.8);
         }
       }else if(type === "upgrade"){
-        p.miniLevel += 1;
-        if(p.miniLevel === 1){
-          p.miniBulletCount = 1;
-          showMessage("보조 비행선 장착!", 1.1);
-        }else{
-          p.miniBulletCount = Math.min(3, p.miniBulletCount + 1);
-          showMessage("보조 비행선 강화!", 1.1);
-        }
+        p.droneActive = true;
+        p.droneTimer = 10.0;
+        p.droneAttack = Math.max(1, Math.round((playerProfile?.droneAttack || 30) / 10));
+        showMessage("드론 10초 갱신!", 1.0);
       }else if(type === "super"){
         p._prevState = {
           level: p.level,
           bulletCount: p.bulletCount,
           dmg: p.dmg,
-          miniLevel: p.miniLevel,
-          miniBulletCount: p.miniBulletCount,
           powerStacks: p.powerStacks
         };
         p.level = 16;
         p.bulletCount = 5;
         p.dmg = Math.max(p.dmg, 16);
-        p.laserPower = Math.max(p.laserPower, 320);
-        p.miniLevel = Math.max(p.miniLevel, 2);
-        p.miniBulletCount = Math.max(p.miniBulletCount, 2);
-        game.superTimer = 5.0;
-        showMessage("SUPER!! 5초", 1.2);
+        game.superTimer = 7.0;
+        showMessage("SUPER!! 7초", 1.2);
       }
     }
 
@@ -1814,8 +1867,6 @@
       p.level = Math.min(p._prevState.level, 15);
       p.bulletCount = p._prevState.bulletCount;
       p.dmg = p._prevState.dmg;
-      p.miniLevel = p._prevState.miniLevel;
-      p.miniBulletCount = p._prevState.miniBulletCount;
       p.powerStacks = p._prevState.powerStacks;
       p._prevState = null;
       game.superTimer = 0;
@@ -1867,7 +1918,7 @@
       const len = Math.hypot(dx,dy) || 1;
       const baseX = dx / len;
       const baseY = dy / len;
-      const spd = 130 + b.stage * 10 + b.waveIndex * 12;
+      const spd = 120 + b.stage * 8 + b.waveIndex * 8;
       const angles = spread === 0 ? [0] : [-spread, 0, spread];
       for (const a of angles) {
         const cos = Math.cos(a), sin = Math.sin(a);
@@ -1884,8 +1935,8 @@
     }
 
     function bossShootRing(b, extra = 0) {
-      const bullets = 8 + b.waveIndex * 2 + b.stage + extra;
-      const spd = 85 + b.waveIndex * 8 + b.stage * 10;
+      const bullets = 8 + b.waveIndex * 2 + Math.floor(b.stage / 2) + extra;
+      const spd = 80 + b.waveIndex * 7 + b.stage * 7;
       for(let i=0;i<bullets;i++){
         const ang = (Math.PI * 2 * i) / bullets + b.t * 0.22;
         game.enemyBullets.push({
@@ -1906,8 +1957,8 @@
         game.enemyBullets.push({
           x:b.x + offset,
           y:b.y + 12,
-          vx: offset * 1.0,
-          vy: 165 + b.waveIndex * 12 + b.stage * 10,
+          vx: offset * 0.9,
+          vy: 150 + b.waveIndex * 10 + b.stage * 8,
           r:6.2,
           dmg:b.dmg,
           color:"#fff1f1"
@@ -1916,10 +1967,10 @@
     }
 
     function bossShootSpiral(b) {
-      const bullets = 10 + b.stage + b.waveIndex;
-      const spd = 90 + b.stage * 8 + b.waveIndex * 8;
+      const bullets = 8 + b.stage + b.waveIndex;
+      const spd = 80 + b.stage * 6 + b.waveIndex * 8;
       for(let i=0;i<bullets;i++){
-        const ang = b.t * 1.2 + i * 0.34;
+        const ang = b.t * 1.2 + i * 0.38;
         game.enemyBullets.push({
           x:b.x,
           y:b.y,
@@ -1934,7 +1985,7 @@
 
     function bossSummonAdds(b) {
       if(game.enemies.length >= 8) return;
-      const n = 1 + Math.floor(b.stage / 2);
+      const n = 1 + Math.floor(b.stage / 3);
       for(let i=0;i<n;i++){
         const tx = rand(W * 0.15, W * 0.85);
         const ty = rand(90, 240);
@@ -1947,8 +1998,8 @@
           hp: 10 + b.stage * 2 + b.waveIndex * 3,
           maxHp: 10 + b.stage * 2 + b.waveIndex * 3,
           dmg: 1 + Math.floor(b.stage / 2),
-          fireCooldown: rand(2.2, 4.2),
-          fireBase: rand(2.2, 4.4),
+          fireCooldown: rand(2.5, 4.6),
+          fireBase: rand(2.6, 4.8),
           pattern:["sway","zigzag","curve","rush"][Math.floor(Math.random()*4)],
           t:Math.random()*5,
           phase:"enter"
@@ -1978,6 +2029,14 @@
       if (game.superTimer > 0) {
         game.superTimer -= activeDt;
         if (game.superTimer <= 0) endSuperMode();
+      }
+
+      if (p.droneActive) {
+        p.droneTimer -= activeDt;
+        if (p.droneTimer <= 0) {
+          p.droneTimer = 0;
+          p.droneActive = false;
+        }
       }
 
       if(!p.entryDone){
@@ -2108,7 +2167,7 @@
             const dx = p.x - e.x;
             const dy = p.y - e.y;
             const len = Math.hypot(dx,dy) || 1;
-            const spd = 105 + game.currentStage * 8 + Math.floor(game.wave / 6) * 3;
+            const spd = 100 + game.currentStage * 7 + Math.floor(game.wave / 8) * 2;
 
             if(Math.random() < 0.10){
               for(let a = -0.14; a <= 0.14; a += 0.14){
@@ -2137,7 +2196,7 @@
               });
             }
 
-            e.fireCooldown = rand(2.2, 4.6);
+            e.fireCooldown = rand(2.5, 5.0);
           }
         }
 
@@ -2176,32 +2235,32 @@
 
             if (b.fireCooldown <= 0) {
               bossShootTargeted(b, p, 0);
-              b.fireCooldown = Math.max(0.95, 1.35 - b.stage * 0.05 - idx * 0.04);
+              b.fireCooldown = Math.max(1.1, 1.5 - b.stage * 0.03 - idx * 0.03);
             }
 
             if (b.tripleCooldown <= 0) {
               bossShootTargeted(b, p, 0.18);
-              b.tripleCooldown = Math.max(1.7, 2.5 - b.stage * 0.05 - idx * 0.06);
+              b.tripleCooldown = Math.max(2.0, 3.0 - b.stage * 0.04 - idx * 0.04);
             }
 
             if (b.type === "destroyer" && b.sweepCooldown <= 0) {
               bossShootSweep(b, 5 + Math.floor(idx / 2));
-              b.sweepCooldown = Math.max(2.6, 4.2 - b.stage * 0.08 - idx * 0.1);
+              b.sweepCooldown = Math.max(3.0, 4.8 - b.stage * 0.05 - idx * 0.06);
             }
 
             if (b.type === "spider" && b.specialCooldown <= 0) {
               bossShootSpiral(b);
-              b.specialCooldown = Math.max(2.8, 4.8 - b.stage * 0.08 - idx * 0.1);
+              b.specialCooldown = Math.max(3.0, 5.2 - b.stage * 0.05 - idx * 0.07);
             }
 
             if (b.type === "fortress" && b.ringCooldown <= 0) {
               bossShootRing(b, idx);
-              b.ringCooldown = Math.max(2.4, 4.6 - b.stage * 0.08 - idx * 0.08);
+              b.ringCooldown = Math.max(2.8, 5.0 - b.stage * 0.05 - idx * 0.05);
             }
 
             if (idx >= 3 && b.summonCooldown <= 0) {
               bossSummonAdds(b);
-              b.summonCooldown = Math.max(4.0, 6.2 - b.stage * 0.08 - idx * 0.08);
+              b.summonCooldown = Math.max(4.4, 6.8 - b.stage * 0.05 - idx * 0.05);
             }
           }
         }
@@ -2303,15 +2362,15 @@
         ctx.globalAlpha = 0.45 + Math.sin(performance.now() * 0.02) * 0.25;
       }
 
-      const selected = playerProfile?.selectedPlane || "basic";
+      const selected = playerProfile?.selectedShip || "blade";
       const colorMap = {
-        basic: {body:"#e8eef9", wing:"#aab7cd", glass:"#7fc4ff", nose:"#ffcd62"},
-        swift: {body:"#f0f8ff", wing:"#95b8ff", glass:"#c0edff", nose:"#8ff2ff"},
-        heavy: {body:"#ddd2bf", wing:"#9c8b68", glass:"#9ec6dd", nose:"#ff9e5d"},
-        wing: {body:"#ececec", wing:"#8df0c0", glass:"#94d8ff", nose:"#ffd96f"},
-        nova: {body:"#f4dcff", wing:"#cb9cff", glass:"#b7d1ff", nose:"#ff9fd6"}
+        blade: {body:"#e8eef9", wing:"#aab7cd", glass:"#7fc4ff", nose:"#ffcd62"},
+        thunder_blade: {body:"#f0f8ff", wing:"#95b8ff", glass:"#c0edff", nose:"#8ff2ff"},
+        light_phantom: {body:"#ececec", wing:"#8df0c0", glass:"#94d8ff", nose:"#ffd96f"},
+        phantom_assassin: {body:"#f4dcff", wing:"#cb9cff", glass:"#b7d1ff", nose:"#ff9fd6"},
+        pirate_king: {body:"#ddd2bf", wing:"#9c8b68", glass:"#9ec6dd", nose:"#ff9e5d"}
       };
-      const col = colorMap[selected] || colorMap.basic;
+      const col = colorMap[selected] || colorMap.blade;
 
       ctx.fillStyle = main ? col.body : "#c8d5e9";
       ctx.strokeStyle = "#2e3444";
@@ -2365,10 +2424,60 @@
       ctx.restore();
     }
 
-    function drawMiniShip(x,y,lv){
+    function drawDroneAt(x, y, timer) {
+      const total = 10;
+      const remain = Math.max(0, timer);
+      const ratio = remain / total;
+
       ctx.save();
-      ctx.translate(x,y);
-      drawShip(0,0,0.55 + Math.min(0.18, lv * 0.03), false);
+      ctx.translate(x, y);
+
+      ctx.fillStyle = "#9ff0c8";
+      ctx.strokeStyle = "#12382f";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, 15, 10, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = "#7fe8ff";
+      ctx.beginPath();
+      ctx.arc(0, 0, 4, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = "#d7fff2";
+      ctx.beginPath();
+      ctx.moveTo(-15, 0);
+      ctx.lineTo(-25, -10);
+      ctx.lineTo(-26, 8);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(15, 0);
+      ctx.lineTo(25, -10);
+      ctx.lineTo(26, 8);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.strokeStyle = "rgba(160,255,230,.25)";
+      ctx.lineWidth = 5;
+      ctx.beginPath();
+      ctx.arc(0, 0, 22, -Math.PI / 2, Math.PI * 1.5);
+      ctx.stroke();
+
+      ctx.strokeStyle = "#8fffe1";
+      ctx.lineWidth = 5;
+      ctx.beginPath();
+      ctx.arc(0, 0, 22, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * ratio, false);
+      ctx.stroke();
+
+      ctx.fillStyle = "#f5ffff";
+      ctx.font = "bold 10px Malgun Gothic";
+      ctx.textAlign = "center";
+      ctx.fillText(remain.toFixed(1), 0, -28);
       ctx.restore();
     }
 
@@ -2380,13 +2489,13 @@
       ctx.translate(p.x,p.y);
 
       if(!p.alive) ctx.globalAlpha = 0.25;
-
-      if(p.miniLevel > 0){
-        drawMiniShip(-30,8,p.miniLevel);
-        drawMiniShip(30,8,p.miniLevel);
-      }
       drawShip(0,0,1,true,p.invincible > 0 || game.superTimer > 0);
       ctx.restore();
+
+      if (p.droneActive && p.droneTimer > 0) {
+        drawDroneAt(p.x - 42, p.y + 8, p.droneTimer);
+        drawDroneAt(p.x + 42, p.y + 8, p.droneTimer);
+      }
     }
 
     function drawEnemy(e){
@@ -2561,22 +2670,27 @@
       ctx.restore();
 
       ctx.fillStyle = "rgba(10,12,18,0.55)";
-      ctx.fillRect(12, H - 122, 420, 106);
+      ctx.fillRect(12, H - 138, 500, 122);
       ctx.strokeStyle = "rgba(255,255,255,0.12)";
-      ctx.strokeRect(12, H - 122, 420, 106);
+      ctx.strokeRect(12, H - 138, 500, 122);
       ctx.fillStyle = "#f2f7ff";
       ctx.font = "bold 16px Malgun Gothic";
-      ctx.fillText(`Stage ${game.currentStage}`, 24, H - 88);
-      ctx.fillText(`WAVE ${Math.max(1, game.wave)}/50`, 24, H - 64);
-      ctx.fillText(`점수 ${game.score}`, 24, H - 40);
-      ctx.fillText(`골드 ${playerProfile?.gold || 0}`, 24, H - 16);
+      ctx.fillText(`Stage ${game.currentStage}`, 24, H - 102);
+      ctx.fillText(`WAVE ${Math.max(1, game.wave)}/50`, 24, H - 78);
+      ctx.fillText(`점수 ${game.score}`, 24, H - 54);
+      ctx.fillText(`골드 ${playerProfile?.gold || 0}`, 24, H - 30);
 
       ctx.font = "14px Malgun Gothic";
       const p = game.player;
       if(p){
-        ctx.fillText(`레벨 ${p.level}  공격력 ${p.dmg}  탄수 ${p.bulletCount}`, 170, H - 40);
+        ctx.fillText(`우주선 공격력 ${playerProfile?.shipAttack || 100}`, 210, H - 78);
+        ctx.fillText(`드론 공격력 ${playerProfile?.droneAttack || 30}`, 210, H - 54);
+        ctx.fillText(`탄수 ${p.bulletCount}`, 210, H - 30);
+        if (p.droneActive && p.droneTimer > 0) {
+          ctx.fillText(`드론 남은시간 ${p.droneTimer.toFixed(1)}초`, 350, H - 30);
+        }
         if (game.superTimer > 0) {
-          ctx.fillText(`SUPER ${game.superTimer.toFixed(1)}초`, 170, H - 16);
+          ctx.fillText(`SUPER ${game.superTimer.toFixed(1)}초`, 350, H - 54);
         }
       }
 
