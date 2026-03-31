@@ -69,7 +69,6 @@
       opacity:.85;
     }
 
-    /* loading */
     #loadingScreen{
       background:
         radial-gradient(circle at 50% 90%, rgba(0,255,255,.07), transparent 18%),
@@ -157,7 +156,6 @@
       color:#e6f7ff;
     }
 
-    /* common */
     .topbar{
       position:absolute;
       top:14px;
@@ -202,7 +200,6 @@
       box-shadow:0 8px 20px rgba(0,0,0,.25);
     }
 
-    /* nickname */
     .opening-overlay{
       position:absolute;
       inset:0;
@@ -283,7 +280,6 @@
       flex-wrap:wrap;
     }
 
-    /* main */
     .left-menu{
       position:absolute;
       left:16px;
@@ -356,7 +352,6 @@
       box-shadow:0 14px 30px rgba(38,71,181,.35);
     }
 
-    /* plane screen */
     #planeScreen{
       background:linear-gradient(90deg,var(--green1),var(--green2));
       overflow:hidden;
@@ -430,7 +425,7 @@
       align-items:start;
     }
     .item-card{
-      min-height:320px;
+      min-height:340px;
       border-radius:30px;
       border:6px solid rgba(235,235,235,.78);
       background:rgba(0,70,18,.12);
@@ -445,6 +440,10 @@
       box-shadow:0 18px 35px rgba(0,0,0,.28);
       background:rgba(0,55,14,.22);
       border-color:#ffe77e;
+    }
+    .item-card.locked{
+      filter:grayscale(.35);
+      opacity:.9;
     }
     .item-rank{
       position:absolute;
@@ -475,7 +474,7 @@
       text-align:center;
       color:#ebf4ff;
       line-height:1.7;
-      font-size:20px;
+      font-size:18px;
       font-weight:800;
       white-space:pre-line;
     }
@@ -514,8 +513,16 @@
       background:linear-gradient(180deg,#ffe28f,#d79d20);
       color:#2a1a00;
     }
+    .buy-btn{
+      background:linear-gradient(180deg,#9ef0a7,#2b9a40);
+      color:#05200b;
+    }
+    .disabled-btn{
+      background:linear-gradient(180deg,#626a7a,#2d3340);
+      color:#dbe5ff;
+      cursor:not-allowed;
+    }
 
-    /* stage */
     #stageScreen{
       background:
         radial-gradient(circle at 50% 90%, rgba(86,148,255,.14), transparent 24%),
@@ -568,7 +575,6 @@
       background:linear-gradient(180deg,#3f7dff,#234db5);
     }
 
-    /* battle */
     .hud{
       position:absolute;
       top:12px;
@@ -744,7 +750,7 @@
       .item-card{min-height:250px;}
       .item-preview{width:130px;height:130px;}
       .item-name{font-size:24px;}
-      .item-stats{font-size:18px;}
+      .item-stats{font-size:16px;}
     }
   </style>
 </head>
@@ -846,40 +852,42 @@
             <button class="card-btn upgrade-btn" data-upgrade-ship="blade">강화</button>
           </div>
 
-          <div class="item-card" data-ship="thunder_blade">
+          <div class="item-card locked" data-ship="thunder_blade">
             <div class="item-rank">2</div>
             <div class="item-preview" id="shipPreviewThunder"></div>
             <div class="item-name">썬더 블레이드</div>
-            <div class="item-stats">공격력: 100</div>
+            <div class="item-stats" id="shipTextThunder">구매: 150골드
+공격력: 95
+보조 유도탄: 2갈래
+업그레이드: 120골드부터 증가</div>
             <div class="selected-badge" id="shipBadgeThunder">선택됨</div>
-            <button class="card-btn select-btn" data-select-ship="thunder_blade">선택</button>
+            <button class="card-btn buy-btn" id="buyThunderBtn">구매: 150골드</button>
+            <button class="card-btn select-btn" id="selectThunderBtn" style="display:none;">선택</button>
+            <button class="card-btn upgrade-btn" id="upgradeThunderBtn" style="display:none;">강화</button>
           </div>
 
-          <div class="item-card" data-ship="light_phantom">
+          <div class="item-card locked">
             <div class="item-rank">3</div>
             <div class="item-preview" id="shipPreviewLight"></div>
             <div class="item-name">라이트팬텀</div>
-            <div class="item-stats">공격력: 100</div>
-            <div class="selected-badge" id="shipBadgeLight">선택됨</div>
-            <button class="card-btn select-btn" data-select-ship="light_phantom">선택</button>
+            <div class="item-stats">현재 선택 불가</div>
+            <button class="card-btn disabled-btn">선택 불가</button>
           </div>
 
-          <div class="item-card" data-ship="phantom_assassin">
+          <div class="item-card locked">
             <div class="item-rank">4</div>
             <div class="item-preview" id="shipPreviewAssassin"></div>
             <div class="item-name">팬텀 어쌔신</div>
-            <div class="item-stats">공격력: 100</div>
-            <div class="selected-badge" id="shipBadgeAssassin">선택됨</div>
-            <button class="card-btn select-btn" data-select-ship="phantom_assassin">선택</button>
+            <div class="item-stats">현재 선택 불가</div>
+            <button class="card-btn disabled-btn">선택 불가</button>
           </div>
 
-          <div class="item-card" data-ship="pirate_king">
+          <div class="item-card locked">
             <div class="item-rank">5</div>
             <div class="item-preview" id="shipPreviewPirate"></div>
             <div class="item-name">해적킹</div>
-            <div class="item-stats">공격력: 100</div>
-            <div class="selected-badge" id="shipBadgePirate">선택됨</div>
-            <button class="card-btn select-btn" data-select-ship="pirate_king">선택</button>
+            <div class="item-stats">현재 선택 불가</div>
+            <button class="card-btn disabled-btn">선택 불가</button>
           </div>
         </div>
 
@@ -1001,7 +1009,7 @@
   </div>
 
   <script>
-    const STORAGE_KEY_PREFIX = "air_war_save_v8_";
+    const STORAGE_KEY_PREFIX = "air_war_save_v9_";
 
     const loadingScreen = document.getElementById("loadingScreen");
     const nicknameScreen = document.getElementById("nicknameScreen");
@@ -1045,6 +1053,10 @@
     const shipTab = document.getElementById("shipTab");
     const droneTab = document.getElementById("droneTab");
 
+    const buyThunderBtn = document.getElementById("buyThunderBtn");
+    const selectThunderBtn = document.getElementById("selectThunderBtn");
+    const upgradeThunderBtn = document.getElementById("upgradeThunderBtn");
+
     const stageBackBtn = document.getElementById("stageBackBtn");
 
     const gameoverMenu = document.getElementById("gameoverMenu");
@@ -1057,10 +1069,7 @@
 
     const SHIP_NAME_MAP = {
       blade: "브레이드",
-      thunder_blade: "썬더 블레이드",
-      light_phantom: "라이트팬텀",
-      phantom_assassin: "팬텀 어쌔신",
-      pirate_king: "해적킹"
+      thunder_blade: "썬더 블레이드"
     };
 
     const BOSS_NAMES = {
@@ -1116,6 +1125,9 @@
         gold: 0,
         shipAttack: 100,
         shipUpgradeCost: 100,
+        thunderOwned: false,
+        thunderAttack: 95,
+        thunderUpgradeCost: 120,
         droneAttack: 30,
         droneUpgradeCost: 30,
         selectedShip: "blade",
@@ -1129,10 +1141,38 @@
       return SHIP_NAME_MAP[playerProfile?.selectedShip || "blade"] || "브레이드";
     }
 
+    function getCurrentShipAttack(){
+      return playerProfile?.selectedShip === "thunder_blade"
+        ? (playerProfile?.thunderAttack || 95)
+        : (playerProfile?.shipAttack || 100);
+    }
+
     function updateCurrencyUI(){
       const gold = playerProfile?.gold || 0;
       goldChip.textContent = gold;
       hudGold.textContent = gold;
+    }
+
+    function updateThunderUI(){
+      const owned = !!playerProfile?.thunderOwned;
+      const selected = playerProfile?.selectedShip === "thunder_blade";
+
+      document.getElementById("shipTextThunder").textContent =
+owned
+? `공격력: ${playerProfile?.thunderAttack || 95}
+유도탄: 2갈래 자동 발사
+업그레이드 비용: ${playerProfile?.thunderUpgradeCost || 120}골드`
+: `구매: 150골드
+공격력: 95
+유도탄: 2갈래 자동 발사
+업그레이드: 120골드부터 증가`;
+
+      buyThunderBtn.style.display = owned ? "none" : "block";
+      selectThunderBtn.style.display = owned ? "block" : "none";
+      upgradeThunderBtn.style.display = owned ? "block" : "none";
+
+      selectThunderBtn.textContent = selected ? "선택됨" : "선택";
+      upgradeThunderBtn.textContent = `강화: ${playerProfile?.thunderUpgradeCost || 120}골드`;
     }
 
     function updateProfileUI(){
@@ -1140,7 +1180,7 @@
       selectedDroneChip.textContent = "에일리언";
       selectedStageChip.textContent = playerProfile?.selectedStage || 1;
       hudStage.textContent = playerProfile?.selectedStage || 1;
-      hudShipAtk.textContent = playerProfile?.shipAttack || 100;
+      hudShipAtk.textContent = getCurrentShipAttack();
       hudDroneAtk.textContent = playerProfile?.droneAttack || 30;
 
       document.getElementById("shipTextBlade").textContent =
@@ -1155,20 +1195,19 @@
       document.querySelector('[data-upgrade-ship="blade"]').textContent = `강화: ${playerProfile?.shipUpgradeCost || 100}골드`;
       document.querySelector('[data-upgrade-drone="alien"]').textContent = `강화: ${playerProfile?.droneUpgradeCost || 30}골드`;
 
-      ["Blade","Thunder","Light","Assassin","Pirate"].forEach(id => {
+      updateThunderUI();
+
+      ["Blade","Thunder"].forEach(id => {
         const el = document.getElementById("shipBadge" + id);
         if (el) el.style.display = "none";
       });
       document.getElementById("droneBadgeAlien").style.display = "block";
 
-      const shipBadgeMap = {
+      const badgeMap = {
         blade: "shipBadgeBlade",
-        thunder_blade: "shipBadgeThunder",
-        light_phantom: "shipBadgeLight",
-        phantom_assassin: "shipBadgeAssassin",
-        pirate_king: "shipBadgePirate"
+        thunder_blade: "shipBadgeThunder"
       };
-      const badge = document.getElementById(shipBadgeMap[playerProfile?.selectedShip || "blade"]);
+      const badge = document.getElementById(badgeMap[playerProfile?.selectedShip || "blade"]);
       if (badge) badge.style.display = "block";
 
       document.querySelectorAll("#shipTab .item-card").forEach(card => card.classList.remove("selected"));
@@ -1232,6 +1271,9 @@
       if(playerProfile.gold == null) playerProfile.gold = 0;
       if(playerProfile.shipAttack == null) playerProfile.shipAttack = 100;
       if(playerProfile.shipUpgradeCost == null) playerProfile.shipUpgradeCost = 100;
+      if(playerProfile.thunderOwned == null) playerProfile.thunderOwned = false;
+      if(playerProfile.thunderAttack == null) playerProfile.thunderAttack = 95;
+      if(playerProfile.thunderUpgradeCost == null) playerProfile.thunderUpgradeCost = 120;
       if(playerProfile.droneAttack == null) playerProfile.droneAttack = 30;
       if(playerProfile.droneUpgradeCost == null) playerProfile.droneUpgradeCost = 30;
       if(playerProfile.selectedShip == null) playerProfile.selectedShip = "blade";
@@ -1264,7 +1306,7 @@
       const s = small ? 180 : 420;
       const palettes = {
         blade: { body:"#e3e9f5", wing:"#b0bdd3", nose:"#ffcb5a", glass:"#79b8ff" },
-        thunder_blade: { body:"#f0f7ff", wing:"#95b8ff", nose:"#9de0ff", glass:"#bde7ff" },
+        thunder_blade: { body:"#f0f7ff", wing:"#8db6ff", nose:"#bff9ff", glass:"#d8f2ff" },
         light_phantom: { body:"#ececec", wing:"#8df0c0", nose:"#ffd56a", glass:"#7bc8ff" },
         phantom_assassin: { body:"#f5deff", wing:"#cb9cff", nose:"#ff98cf", glass:"#a7d0ff" },
         pirate_king: { body:"#ddd2bf", wing:"#a6916b", nose:"#ff9359", glass:"#87b7d8" }
@@ -1360,15 +1402,51 @@
       });
     });
 
-    document.querySelectorAll("[data-select-ship]").forEach(btn => {
-      btn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        playerProfile.selectedShip = btn.dataset.selectShip;
-        savePlayer(playerProfile);
-        updateProfileUI();
-        renderMainShip();
-        showScreen(mainScreen);
-      });
+    document.querySelector('[data-select-ship="blade"]').addEventListener("click", (e) => {
+      e.stopPropagation();
+      playerProfile.selectedShip = "blade";
+      savePlayer(playerProfile);
+      updateProfileUI();
+      renderMainShip();
+      showScreen(mainScreen);
+    });
+
+    buyThunderBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if ((playerProfile.gold || 0) < 150) {
+        alert("골드가 부족해.");
+        return;
+      }
+      playerProfile.gold -= 150;
+      playerProfile.thunderOwned = true;
+      savePlayer(playerProfile);
+      updateCurrencyUI();
+      updateProfileUI();
+    });
+
+    selectThunderBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (!playerProfile.thunderOwned) return;
+      playerProfile.selectedShip = "thunder_blade";
+      savePlayer(playerProfile);
+      updateProfileUI();
+      renderMainShip();
+      showScreen(mainScreen);
+    });
+
+    upgradeThunderBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const cost = playerProfile.thunderUpgradeCost || 120;
+      if ((playerProfile.gold || 0) < cost) {
+        alert("골드가 부족해.");
+        return;
+      }
+      playerProfile.gold -= cost;
+      playerProfile.thunderAttack += 10;
+      playerProfile.thunderUpgradeCost = Math.floor(cost * 1.45);
+      savePlayer(playerProfile);
+      updateCurrencyUI();
+      updateProfileUI();
     });
 
     document.querySelectorAll("#shipTab .item-card").forEach(card => {
@@ -1466,6 +1544,7 @@
       lasers:[],
       warningLines:[],
       homingMissiles:[],
+      playerHomingMissiles:[],
       enemies:[],
       items:[],
       boss:null,
@@ -1511,6 +1590,16 @@
       game.earnedGold = goldAmount;
     }
 
+    function currentShipMode(){
+      return playerProfile?.selectedShip === "thunder_blade" ? "thunder" : "blade";
+    }
+
+    function currentShipAttackValue(){
+      return currentShipMode() === "thunder"
+        ? (playerProfile?.thunderAttack || 95)
+        : (playerProfile?.shipAttack || 100);
+    }
+
     function resetBattle(){
       game.currentStage = playerProfile?.selectedStage || 1;
       game.running = true;
@@ -1534,6 +1623,7 @@
       game.lasers = [];
       game.warningLines = [];
       game.homingMissiles = [];
+      game.playerHomingMissiles = [];
       game.enemies = [];
       game.items = [];
       game.boss = null;
@@ -1542,6 +1632,10 @@
       game.earnedGold = 0;
       game.superTimer = 0;
       game.endedByStage50 = false;
+
+      const shipAtk = currentShipAttackValue();
+      const shipMode = currentShipMode();
+
       game.player = {
         x: W * 0.5,
         y: H + 120,
@@ -1550,23 +1644,27 @@
         hp: 1,
         alive: true,
         level: 1,
-        dmg: Math.max(1, Math.round((playerProfile?.shipAttack || 100) / 100)),
-        bulletCount: 1,
+        dmg: Math.max(1, Math.round(shipAtk / 100)),
+        shipAttackDisplay: shipAtk,
+        shipMode,
+        bulletCount: shipMode === "thunder" ? 1 : 1,
         powerStacks: 0,
         shotCooldown: 0,
+        thunderMissileCooldown: 0,
         entryDone: false,
         invincible: 0,
         droneActive: false,
         droneTimer: 0,
         droneAttack: Math.max(1, Math.round((playerProfile?.droneAttack || 30) / 10))
       };
+
       game.targetX = game.player.x;
       game.targetY = H - 120;
       game.playerName = playerProfile ? playerProfile.nickname : "파일럿";
       hudState.textContent = "대기 중";
       hudNick.textContent = game.playerName;
       hudStage.textContent = game.currentStage;
-      hudShipAtk.textContent = playerProfile?.shipAttack || 100;
+      hudShipAtk.textContent = shipAtk;
       hudDroneAtk.textContent = playerProfile?.droneAttack || 30;
       updateCurrencyUI();
       hideGameoverMenu();
@@ -1756,9 +1854,9 @@
     function spawnBoss(wave){
       const growth = getWaveGrowthMultiplier(wave, game.currentStage);
       const idx = Math.floor(wave / 10) - 1;
-      const types = ["destroyer", "spider", "fortress", "destroyer", "fortress"];
-      const phaseType = types[idx] || "destroyer";
-      const size = phaseType === "fortress" ? 220 : phaseType === "spider" ? 180 : 160;
+      const types = ["sentinel", "lancer", "oracle", "crusher", "dominator"];
+      const phaseType = types[idx] || "sentinel";
+      const sizeMap = {sentinel:180, lancer:170, oracle:185, crusher:220, dominator:230};
       const hp = Math.floor((500 + game.currentStage * 240 + idx * 320 + wave * 18) * Math.max(1, growth * 0.16));
 
       game.boss = {
@@ -1770,25 +1868,44 @@
         y: -200,
         tx: W * 0.5,
         ty: 150,
-        w: size,
-        h: phaseType === "fortress" ? 140 : 110,
+        w: sizeMap[phaseType],
+        h: phaseType === "crusher" || phaseType === "dominator" ? 140 : 110,
         hp,
         maxHp: hp,
         dmg: Math.max(2, Math.floor(2 + game.currentStage * 0.8 + idx * 0.9)),
         phase:"enter",
         t:0,
-        basicCd:1.45,
-        tripleCd:2.6,
-        ringCd:4.5,
-        sweepCd:4.8,
-        homingCd:5.8,
-        laserCd:6.2,
-        wobbleCd:5.0,
-        specialCd:6.6,
+        p1:0,p2:0,p3:0,p4:0,p5:0,p6:0,
         wave,
         growth,
         stage: game.currentStage
       };
+
+      if (phaseType === "sentinel") {
+        game.boss.p1 = 1.35; // sniper
+        game.boss.p2 = 4.2;  // aimed laser
+        game.boss.p3 = 3.0;  // side burst
+      } else if (phaseType === "lancer") {
+        game.boss.p1 = 1.6;  // fast thrust bullets
+        game.boss.p2 = 3.8;  // targeted sweep
+        game.boss.p3 = 4.8;  // dash laser
+      } else if (phaseType === "oracle") {
+        game.boss.p1 = 2.2;  // wobble
+        game.boss.p2 = 4.0;  // spiral
+        game.boss.p3 = 5.3;  // vertical laser
+        game.boss.p4 = 5.7;  // homing
+      } else if (phaseType === "crusher") {
+        game.boss.p1 = 2.0;  // ring
+        game.boss.p2 = 3.6;  // wide wall
+        game.boss.p3 = 5.5;  // horizontal laser
+        game.boss.p4 = 6.2;  // summon adds
+      } else if (phaseType === "dominator") {
+        game.boss.p1 = 1.7;  // triple aimed
+        game.boss.p2 = 3.0;  // homing set
+        game.boss.p3 = 4.4;  // diagonal laser
+        game.boss.p4 = 4.8;  // wobble spread
+        game.boss.p5 = 5.6;  // ring
+      }
     }
 
     function spawnLaserSegment(x,y,width,height,dmg,colorMain="#79d8ff",colorCore="#ffffff"){
@@ -1799,9 +1916,22 @@
       });
     }
 
-    function addBossBullet(x,y,vx,vy,r=6,color="#ff8f8f",type="normal",meta={}){
+    function addEnemyBullet(x,y,vx,vy,r=6,color="#ff8f8f",type="normal",meta={}){
       game.enemyBullets.push({
-        x,y,vx,vy,r,dmg:(game.boss?.dmg || 1),color,type,life:meta.life ?? 8,age:0,phase:meta.phase ?? 0,baseVx:vx,baseVy:vy
+        x,y,vx,vy,r,dmg:(meta.dmg ?? (game.boss?.dmg || 1)),color,type,life:meta.life ?? 8,age:0,phase:meta.phase ?? 0,baseVx:vx,baseVy:vy
+      });
+    }
+
+    function addPlayerHoming(x,y,target,weak=false){
+      game.playerHomingMissiles.push({
+        x,y,target,
+        vx:0,
+        vy:-180,
+        speed: weak ? 230 : 280,
+        turn: weak ? 2.6 : 3.2,
+        dmg: weak ? 1 : 2,
+        life: 3.8,
+        weak
       });
     }
 
@@ -1823,6 +1953,18 @@
           colorMain:"#66d5ff",
           colorCore:"#ffffff"
         });
+      }
+
+      if (p.shipMode === "thunder") {
+        p.thunderMissileCooldown -= Math.max(0.08, 0.24 - Math.min(0.11, p.level * 0.008));
+        if (p.thunderMissileCooldown <= 0) {
+          const target = game.boss || game.enemies[0] || null;
+          if (target) {
+            addPlayerHoming(p.x - 18, p.y - 8, target, true);
+            addPlayerHoming(p.x + 18, p.y - 8, target, true);
+          }
+          p.thunderMissileCooldown = 0.18;
+        }
       }
 
       if (p.droneActive && p.droneTimer > 0) {
@@ -1958,124 +2100,138 @@
       return rectsOverlap(b.x,b.y,b.width,b.height,tx,ty,tw,th);
     }
 
-    function bossShootTargeted(b, p, spread = 0, speedMul=1) {
-      const dx = p.x - b.x;
-      const dy = p.y - b.y;
+    function distToSegment(px, py, x1, y1, x2, y2){
+      const A = px - x1;
+      const B = py - y1;
+      const C = x2 - x1;
+      const D = y2 - y1;
+      const dot = A * C + B * D;
+      const lenSq = C * C + D * D || 1;
+      let t = dot / lenSq;
+      t = Math.max(0, Math.min(1, t));
+      const xx = x1 + C * t;
+      const yy = y1 + D * t;
+      return Math.hypot(px - xx, py - yy);
+    }
+
+    function aimedShot(fromX, fromY, toX, toY, speed, spread=0, color="#ff8f8f", r=6, count=1, type="normal"){
+      const dx = toX - fromX;
+      const dy = toY - fromY;
       const len = Math.hypot(dx,dy) || 1;
       const baseX = dx / len;
       const baseY = dy / len;
-      const spd = (120 + b.stage * 8 + b.waveIndex * 8) * speedMul;
-      const angles = spread === 0 ? [0] : [-spread, 0, spread];
+      const angles = count === 1 ? [0] : (count === 2 ? [-spread, spread] : [-spread, 0, spread]);
       for (const a of angles) {
         const cos = Math.cos(a), sin = Math.sin(a);
-        addBossBullet(b.x, b.y + 18, (baseX * cos - baseY * sin) * spd, (baseX * sin + baseY * cos) * spd, 6.2, "#ff8f8f");
+        addEnemyBullet(fromX, fromY, (baseX * cos - baseY * sin) * speed, (baseX * sin + baseY * cos) * speed, r, color, type);
       }
     }
 
-    function bossShootRing(b, extra = 0) {
+    function telegraphFromBossToPlayer(b, mode="direct"){
+      const px = game.player.x;
+      const py = game.player.y;
+      if (mode === "direct") {
+        game.warningLines.push({
+          mode:"direct",
+          x1:b.x, y1:b.y, x2:px, y2:py,
+          timer:0.75,
+          fireTimer:0.22,
+          width:14 + b.waveIndex * 2,
+          dmg:b.dmg + 1
+        });
+      } else if (mode === "sweepLeft") {
+        game.warningLines.push({
+          mode:"sweep",
+          cx:b.x, cy:b.y,
+          angleStart:Math.atan2(py - b.y, px - b.x) - 0.55,
+          angleEnd:Math.atan2(py - b.y, px - b.x) + 0.2,
+          timer:0.8,
+          fireTimer:0.28,
+          width:12 + b.waveIndex * 2,
+          radius: Math.max(W,H),
+          dmg:b.dmg + 1
+        });
+      } else if (mode === "sweepRight") {
+        game.warningLines.push({
+          mode:"sweep",
+          cx:b.x, cy:b.y,
+          angleStart:Math.atan2(py - b.y, px - b.x) + 0.55,
+          angleEnd:Math.atan2(py - b.y, px - b.x) - 0.2,
+          timer:0.8,
+          fireTimer:0.28,
+          width:12 + b.waveIndex * 2,
+          radius: Math.max(W,H),
+          dmg:b.dmg + 1
+        });
+      }
+    }
+
+    function addBossHoming(b, count=2){
+      for(let i=0;i<count;i++){
+        const ang = -0.35 + (count===1 ? 0 : (i/(count-1))*0.7);
+        const speed = 120 + b.stage*6 + b.waveIndex*6;
+        game.homingMissiles.push({
+          x:b.x,
+          y:b.y + 18,
+          vx:Math.cos(ang) * speed * 0.2,
+          vy:Math.sin(ang) * speed + 80,
+          speed,
+          turn:1.9 + b.stage * 0.08,
+          r:7,
+          life:6.5,
+          dmg:b.dmg,
+          color:i % 2 ? "#ffd6d6" : "#ffb6c1"
+        });
+      }
+    }
+
+    function addWobbleSpread(b){
+      const baseAngles = [-0.35, -0.15, 0.15, 0.35];
+      const spd = 135 + b.stage * 5 + b.waveIndex * 7;
+      for (let i=0;i<baseAngles.length;i++) {
+        const a = baseAngles[i];
+        addEnemyBullet(b.x, b.y + 18, Math.cos(Math.PI/2 + a) * spd, Math.sin(Math.PI/2 + a) * spd, 6, "#ffb3b3", "wobble", {
+          life:9,
+          phase:i * 0.9
+        });
+      }
+    }
+
+    function addRing(b, extra=0){
       const bullets = 8 + b.waveIndex * 2 + Math.floor(b.stage / 2) + extra;
       const spd = 80 + b.waveIndex * 7 + b.stage * 7;
       for(let i=0;i<bullets;i++){
         const ang = (Math.PI * 2 * i) / bullets + b.t * 0.22;
-        addBossBullet(b.x, b.y, Math.cos(ang) * spd, Math.sin(ang) * spd, 5.2, "#ffd0d0");
+        addEnemyBullet(b.x, b.y, Math.cos(ang) * spd, Math.sin(ang) * spd, 5.2, "#ffd0d0");
       }
     }
 
-    function bossShootSweep(b, count = 5) {
-      for(let i = 0; i < count; i++){
-        const offset = (i - Math.floor(count / 2)) * 20;
-        addBossBullet(b.x + offset, b.y + 12, offset * 0.9, 150 + b.waveIndex * 10 + b.stage * 8, 6.2, "#fff1f1");
-      }
-    }
-
-    function bossShootSpiral(b) {
+    function addSpiral(b){
       const bullets = 8 + b.stage + b.waveIndex;
       const spd = 80 + b.stage * 6 + b.waveIndex * 8;
       for(let i=0;i<bullets;i++){
         const ang = b.t * 1.2 + i * 0.38;
-        addBossBullet(b.x, b.y, Math.cos(ang) * spd, Math.sin(ang) * spd, 4.8, "#ffc7c7");
+        addEnemyBullet(b.x, b.y, Math.cos(ang) * spd, Math.sin(ang) * spd, 4.8, "#ffc7c7");
       }
     }
 
-    function bossShootWobble(b, p){
-      const dx = p.x - b.x;
-      const dy = p.y - b.y;
-      const len = Math.hypot(dx,dy) || 1;
-      const spd = 120 + b.stage * 8 + b.waveIndex * 6;
-      addBossBullet(b.x, b.y + 14, (dx/len)*spd, (dy/len)*spd, 6, "#ffb3b3", "wobble", {life:9});
-      addBossBullet(b.x, b.y + 14, (dx/len)*spd, (dy/len)*spd, 6, "#ffb3b3", "wobble", {life:9, phase:Math.PI});
-    }
-
-    function bossShootHoming(b, p){
-      const dx = p.x - b.x;
-      const dy = p.y - b.y;
-      const len = Math.hypot(dx,dy) || 1;
-      const spd = 120 + b.stage * 5 + b.waveIndex * 5;
-      game.homingMissiles.push({
-        x:b.x,
-        y:b.y + 18,
-        vx:(dx/len) * spd,
-        vy:(dy/len) * spd,
-        speed:spd,
-        turn:1.9 + b.stage * 0.08,
-        r:7,
-        life:6.5,
-        dmg:b.dmg,
-        color:"#ffb6c1"
-      });
-      game.homingMissiles.push({
-        x:b.x,
-        y:b.y + 18,
-        vx:(dx/len) * spd * 0.92,
-        vy:(dy/len) * spd * 0.92,
-        speed:spd * 0.92,
-        turn:1.7 + b.stage * 0.08,
-        r:7,
-        life:6.2,
-        dmg:b.dmg,
-        color:"#ffd6d6"
-      });
-    }
-
-    function bossTelegraphLaser(b, mode="vertical"){
-      if(mode === "vertical"){
-        const x = rand(W*0.18, W*0.82);
-        game.warningLines.push({
-          mode:"vertical",
-          x1:x, y1:0, x2:x, y2:H,
-          timer:0.85,
-          fireTimer:0.22,
-          width:12 + b.waveIndex * 2,
-          dmg:b.dmg + 1
-        });
-      } else if(mode === "horizontal"){
-        const y = rand(H*0.20, H*0.72);
-        game.warningLines.push({
-          mode:"horizontal",
-          x1:0, y1:y, x2:W, y2:y,
-          timer:0.85,
-          fireTimer:0.22,
-          width:12 + b.waveIndex * 2,
-          dmg:b.dmg + 1
-        });
-      } else {
-        const fromLeft = Math.random() < 0.5;
-        const x1 = fromLeft ? 0 : W;
-        const y1 = rand(H*0.15, H*0.4);
-        const x2 = fromLeft ? W : 0;
-        const y2 = rand(H*0.5, H*0.85);
-        game.warningLines.push({
-          mode:"diag",
-          x1,y1,x2,y2,
-          timer:0.85,
-          fireTimer:0.22,
-          width:12 + b.waveIndex * 2,
-          dmg:b.dmg + 1
-        });
+    function addWideWall(b){
+      const count = 7 + Math.floor(b.waveIndex / 2);
+      for(let i = 0; i < count; i++){
+        const offset = (i - Math.floor(count / 2)) * 26;
+        addEnemyBullet(b.x + offset, b.y + 18, offset * 0.4, 170 + b.stage * 10 + b.waveIndex * 8, 6.4, "#fff1f1");
       }
     }
 
-    function bossSummonAdds(b) {
+    function addSniperBurst(b){
+      aimedShot(b.x, b.y, game.player.x, game.player.y, 320 + b.stage * 12 + b.waveIndex * 15, 0.08, "#ff6f6f", 5.5, 3);
+    }
+
+    function addFastLance(b){
+      aimedShot(b.x, b.y, game.player.x, game.player.y, 420 + b.stage * 12 + b.waveIndex * 22, 0, "#ff5555", 5.3, 1);
+    }
+
+    function addSummonAdds(b) {
       if(game.enemies.length >= 8) return;
       const n = 1 + Math.floor(b.stage / 3);
       for(let i=0;i<n;i++){
@@ -2097,20 +2253,6 @@
           phase:"enter"
         });
       }
-    }
-
-    function distToSegment(px, py, x1, y1, x2, y2){
-      const A = px - x1;
-      const B = py - y1;
-      const C = x2 - x1;
-      const D = y2 - y1;
-      const dot = A * C + B * D;
-      const lenSq = C * C + D * D || 1;
-      let t = dot / lenSq;
-      t = Math.max(0, Math.min(1, t));
-      const xx = x1 + C * t;
-      const yy = y1 + D * t;
-      return Math.hypot(px - xx, py - yy);
     }
 
     function update(dt, activeDt){
@@ -2191,6 +2333,63 @@
         if(p.shotCooldown <= 0){
           firePlayerBullets();
           p.shotCooldown = Math.max(0.08, 0.24 - Math.min(0.11, p.level * 0.008));
+        }
+
+        for(let i = game.playerHomingMissiles.length - 1; i >= 0; i--){
+          const m = game.playerHomingMissiles[i];
+          m.life -= activeDt;
+
+          let target = null;
+          if (game.boss) target = game.boss;
+          else if (game.enemies.length) target = game.enemies[0];
+
+          if (target) {
+            const dx = target.x - m.x;
+            const dy = target.y - m.y;
+            const len = Math.hypot(dx,dy) || 1;
+            const desiredX = (dx/len) * m.speed;
+            const desiredY = (dy/len) * m.speed;
+            m.vx += (desiredX - m.vx) * Math.min(1, activeDt * m.turn);
+            m.vy += (desiredY - m.vy) * Math.min(1, activeDt * m.turn);
+          }
+
+          m.x += m.vx * activeDt;
+          m.y += m.vy * activeDt;
+
+          if(m.life <= 0 || m.x < -60 || m.x > W + 60 || m.y < -60 || m.y > H + 60){
+            game.playerHomingMissiles.splice(i,1);
+            continue;
+          }
+
+          let hit = false;
+          if (game.boss && rectCircleHit(m.x, m.y, 8, game.boss.x, game.boss.y, game.boss.w, game.boss.h)) {
+            game.boss.hp -= m.dmg;
+            hit = true;
+            if(game.boss.hp <= 0){
+              explodeAt(game.boss.x, game.boss.y, 2.4);
+              game.score += 600;
+              game.boss = null;
+              game.warningLines = [];
+              game.homingMissiles = [];
+              game.nextWaveDelay = 0.9;
+              showMessage("BOSS DOWN!", 1.2);
+            }
+          } else {
+            for (let j = game.enemies.length - 1; j >= 0; j--) {
+              const e = game.enemies[j];
+              if (rectCircleHit(m.x, m.y, 8, e.x, e.y, e.w, e.h)) {
+                e.hp -= m.dmg;
+                hit = true;
+                if(e.hp <= 0) killEnemy(e);
+                break;
+              }
+            }
+          }
+
+          if (hit) {
+            explodeAt(m.x, m.y, 0.35);
+            game.playerHomingMissiles.splice(i,1);
+          }
         }
 
         for(let i = game.bullets.length - 1; i >= 0; i--){
@@ -2287,10 +2486,10 @@
                 const baseVx = (dx / len);
                 const baseVy = (dy / len);
                 const cos = Math.cos(a), sin = Math.sin(a);
-                addBossBullet(e.x, e.y + 12, (baseVx * cos - baseVy * sin) * spd, (baseVx * sin + baseVy * cos) * spd, 5, "#ff8b8b");
+                addEnemyBullet(e.x, e.y + 12, (baseVx * cos - baseVy * sin) * spd, (baseVx * sin + baseVy * cos) * spd, 5, "#ff8b8b");
               }
             }else{
-              addBossBullet(e.x, e.y + 12, (dx / len) * spd, (dy / len) * spd, 5, "#ff8b8b");
+              addEnemyBullet(e.x, e.y + 12, (dx / len) * spd, (dy / len) * spd, 5, "#ff8b8b");
             }
 
             e.fireCooldown = rand(2.5, 5.0);
@@ -2306,76 +2505,138 @@
             b.y += (b.ty - b.y) * Math.min(1, activeDt * 2.0);
             if(Math.abs(b.tx - b.x) < 2 && Math.abs(b.ty - b.y) < 2) b.phase = "fight";
           }else{
-            if (b.type === "destroyer") {
-              b.x = W * 0.5 + Math.sin(b.t * 0.75) * Math.min(220, 90 + b.wave * 1.6);
-              b.y = 145 + Math.sin(b.t * 1.0) * 18;
-            } else if (b.type === "spider") {
-              b.x = W * 0.5 + Math.sin(b.t * 1.05) * Math.min(210, 100 + b.wave * 1.2);
-              b.y = 150 + Math.cos(b.t * 1.45) * 24;
-            } else {
-              b.x = W * 0.5 + Math.sin(b.t * 0.52) * Math.min(180, 80 + b.wave * 1.1);
-              b.y = 130 + Math.sin(b.t * 0.85) * 12;
+            if (b.type === "sentinel") {
+              b.x = W * 0.5 + Math.sin(b.t * 0.55) * 140;
+              b.y = 120 + Math.sin(b.t * 1.1) * 10;
+
+              b.p1 -= activeDt;
+              b.p2 -= activeDt;
+              b.p3 -= activeDt;
+
+              if (b.p1 <= 0) {
+                addSniperBurst(b);
+                b.p1 = 1.35;
+              }
+              if (b.p2 <= 0) {
+                telegraphFromBossToPlayer(b, "direct");
+                b.p2 = 4.2;
+              }
+              if (b.p3 <= 0) {
+                aimedShot(b.x - 60, b.y, p.x, p.y, 210, 0.12, "#ff8f8f", 5.5, 2);
+                aimedShot(b.x + 60, b.y, p.x, p.y, 210, 0.12, "#ff8f8f", 5.5, 2);
+                b.p3 = 3.0;
+              }
+
+            } else if (b.type === "lancer") {
+              b.x = W * 0.5 + Math.sin(b.t * 1.0) * 210;
+              b.y = 135 + Math.cos(b.t * 0.8) * 14;
+
+              b.p1 -= activeDt;
+              b.p2 -= activeDt;
+              b.p3 -= activeDt;
+
+              if (b.p1 <= 0) {
+                addFastLance(b);
+                b.p1 = 1.6;
+              }
+              if (b.p2 <= 0) {
+                for(let i=0;i<6;i++){
+                  const offset = (i - 2.5) * 14;
+                  addEnemyBullet(b.x + offset, b.y + 10, offset * 0.25, 220 + b.stage * 8, 5.2, "#ffd0d0");
+                }
+                b.p2 = 3.8;
+              }
+              if (b.p3 <= 0) {
+                telegraphFromBossToPlayer(b, Math.random() < 0.5 ? "sweepLeft" : "sweepRight");
+                b.p3 = 4.8;
+              }
+
+            } else if (b.type === "oracle") {
+              b.x = W * 0.5 + Math.sin(b.t * 0.9) * 160;
+              b.y = 145 + Math.cos(b.t * 1.3) * 28;
+
+              b.p1 -= activeDt;
+              b.p2 -= activeDt;
+              b.p3 -= activeDt;
+              b.p4 -= activeDt;
+
+              if (b.p1 <= 0) {
+                addWobbleSpread(b);
+                b.p1 = 2.2;
+              }
+              if (b.p2 <= 0) {
+                addSpiral(b);
+                b.p2 = 4.0;
+              }
+              if (b.p3 <= 0) {
+                telegraphFromBossToPlayer(b, "direct");
+                b.p3 = 5.3;
+              }
+              if (b.p4 <= 0) {
+                addBossHoming(b, 2);
+                b.p4 = 5.7;
+              }
+
+            } else if (b.type === "crusher") {
+              b.x = W * 0.5 + Math.sin(b.t * 0.4) * 95;
+              b.y = 115 + Math.sin(b.t * 0.8) * 9;
+
+              b.p1 -= activeDt;
+              b.p2 -= activeDt;
+              b.p3 -= activeDt;
+              b.p4 -= activeDt;
+
+              if (b.p1 <= 0) {
+                addRing(b, 2);
+                b.p1 = 2.0;
+              }
+              if (b.p2 <= 0) {
+                addWideWall(b);
+                b.p2 = 3.6;
+              }
+              if (b.p3 <= 0) {
+                telegraphFromBossToPlayer(b, "direct");
+                b.p3 = 5.5;
+              }
+              if (b.p4 <= 0) {
+                addSummonAdds(b);
+                b.p4 = 6.2;
+              }
+
+            } else if (b.type === "dominator") {
+              b.x = W * 0.5 + Math.sin(b.t * 0.75) * 180;
+              b.y = 135 + Math.cos(b.t * 0.95) * 22;
+
+              b.p1 -= activeDt;
+              b.p2 -= activeDt;
+              b.p3 -= activeDt;
+              b.p4 -= activeDt;
+              b.p5 -= activeDt;
+
+              if (b.p1 <= 0) {
+                aimedShot(b.x, b.y, p.x, p.y, 230, 0.15, "#ff7a7a", 5.6, 3);
+                b.p1 = 1.7;
+              }
+              if (b.p2 <= 0) {
+                addBossHoming(b, 3);
+                b.p2 = 3.0;
+              }
+              if (b.p3 <= 0) {
+                telegraphFromBossToPlayer(b, Math.random() < 0.5 ? "sweepLeft" : "sweepRight");
+                b.p3 = 4.4;
+              }
+              if (b.p4 <= 0) {
+                addWobbleSpread(b);
+                b.p4 = 4.8;
+              }
+              if (b.p5 <= 0) {
+                addRing(b, 4);
+                b.p5 = 5.6;
+              }
             }
 
             if(p.alive && rectsOverlap(p.x,p.y,34,42,b.x,b.y,b.w,b.h)){
               playerHit(true);
-            }
-
-            b.basicCd -= activeDt;
-            b.tripleCd -= activeDt;
-            b.ringCd -= activeDt;
-            b.sweepCd -= activeDt;
-            b.homingCd -= activeDt;
-            b.laserCd -= activeDt;
-            b.wobbleCd -= activeDt;
-            b.specialCd -= activeDt;
-
-            const idx = b.waveIndex;
-
-            if (b.basicCd <= 0) {
-              bossShootTargeted(b, p, 0, 1 + idx * 0.05);
-              b.basicCd = Math.max(1.0, 1.45 - b.stage * 0.03 - idx * 0.03);
-            }
-
-            if (b.tripleCd <= 0) {
-              bossShootTargeted(b, p, 0.18, 1);
-              b.tripleCd = Math.max(1.8, 2.6 - b.stage * 0.04 - idx * 0.04);
-            }
-
-            if (b.wobbleCd <= 0) {
-              bossShootWobble(b, p);
-              b.wobbleCd = Math.max(2.2, 4.4 - b.stage * 0.06 - idx * 0.1);
-            }
-
-            if (b.homingCd <= 0 && (idx >= 2 || b.stage >= 3)) {
-              bossShootHoming(b, p);
-              b.homingCd = Math.max(3.0, 5.8 - b.stage * 0.06 - idx * 0.08);
-            }
-
-            if (b.type === "destroyer" && b.sweepCd <= 0) {
-              bossShootSweep(b, 5 + Math.floor(idx / 2));
-              b.sweepCd = Math.max(2.8, 4.8 - b.stage * 0.05 - idx * 0.06);
-            }
-
-            if (b.type === "spider" && b.specialCd <= 0) {
-              bossShootSpiral(b);
-              b.specialCd = Math.max(2.8, 5.2 - b.stage * 0.05 - idx * 0.07);
-            }
-
-            if (b.type === "fortress" && b.ringCd <= 0) {
-              bossShootRing(b, idx);
-              b.ringCd = Math.max(2.6, 5.0 - b.stage * 0.05 - idx * 0.05);
-            }
-
-            if (b.laserCd <= 0) {
-              const modes = ["vertical","horizontal","diag"];
-              bossTelegraphLaser(b, modes[Math.floor(Math.random()*modes.length)]);
-              b.laserCd = Math.max(3.2, 6.2 - b.stage * 0.08 - idx * 0.08);
-            }
-
-            if (idx >= 3 && b.specialCd <= 0 && b.type === "fortress") {
-              bossSummonAdds(b);
-              b.specialCd = Math.max(4.2, 6.6 - b.stage * 0.05 - idx * 0.05);
             }
           }
         }
@@ -2434,6 +2695,16 @@
 
         for(let i = game.warningLines.length - 1; i >= 0; i--){
           const w = game.warningLines[i];
+
+          if (w.mode === "sweep" && w.timer <= 0) {
+            const t = 1 - Math.max(0, w.fireTimer) / 0.28;
+            const angle = w.angleStart + (w.angleEnd - w.angleStart) * t;
+            w.x1 = w.cx;
+            w.y1 = w.cy;
+            w.x2 = w.cx + Math.cos(angle) * w.radius;
+            w.y2 = w.cy + Math.sin(angle) * w.radius;
+          }
+
           if (w.timer > 0) {
             w.timer -= activeDt;
           } else {
@@ -2534,10 +2805,7 @@
       const selected = playerProfile?.selectedShip || "blade";
       const colorMap = {
         blade: {body:"#e8eef9", wing:"#aab7cd", glass:"#7fc4ff", nose:"#ffcd62"},
-        thunder_blade: {body:"#f0f8ff", wing:"#95b8ff", glass:"#c0edff", nose:"#8ff2ff"},
-        light_phantom: {body:"#ececec", wing:"#8df0c0", glass:"#94d8ff", nose:"#ffd96f"},
-        phantom_assassin: {body:"#f4dcff", wing:"#cb9cff", glass:"#b7d1ff", nose:"#ff9fd6"},
-        pirate_king: {body:"#ddd2bf", wing:"#9c8b68", glass:"#9ec6dd", nose:"#ff9e5d"}
+        thunder_blade: {body:"#f0f8ff", wing:"#95b8ff", glass:"#c0edff", nose:"#8ff2ff"}
       };
       const col = colorMap[selected] || colorMap.blade;
 
@@ -2696,47 +2964,45 @@
       ctx.save();
       ctx.translate(b.x,b.y);
 
-      if (b.type === "destroyer") {
-        ctx.fillStyle = b.style === 0 ? "#8f3030" : b.style === 1 ? "#304d8f" : "#8f5c30";
+      if (b.type === "sentinel") {
+        ctx.fillStyle = "#8f3030";
         ctx.strokeStyle = "#261111";
         ctx.lineWidth = 3;
         ctx.beginPath();
         ctx.roundRect(-80,-44,160,88,24);
         ctx.fill(); ctx.stroke();
-        ctx.fillStyle = "#bc4f4f";
+      } else if (b.type === "lancer") {
+        ctx.fillStyle = "#304d8f";
+        ctx.strokeStyle = "#102047";
+        ctx.lineWidth = 3;
         ctx.beginPath();
-        ctx.moveTo(-120,10); ctx.lineTo(-55,-8); ctx.lineTo(-55,26); ctx.closePath();
+        ctx.moveTo(0,-56);
+        ctx.lineTo(84,24);
+        ctx.lineTo(0,46);
+        ctx.lineTo(-84,24);
+        ctx.closePath();
         ctx.fill(); ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(120,10); ctx.lineTo(55,-8); ctx.lineTo(55,26); ctx.closePath();
-        ctx.fill(); ctx.stroke();
-      } else if (b.type === "spider") {
-        ctx.fillStyle = b.style === 0 ? "#4c2f8f" : b.style === 1 ? "#1f6f66" : "#7a2c6c";
+      } else if (b.type === "oracle") {
+        ctx.fillStyle = "#4c2f8f";
         ctx.strokeStyle = "#220f4e";
         ctx.lineWidth = 3;
         ctx.beginPath();
         ctx.arc(0,0,46,0,Math.PI*2);
         ctx.fill(); ctx.stroke();
-        for (let i=0;i<4;i++){
-          const side = i < 2 ? -1 : 1;
-          const y = -28 + (i%2)*36;
-          ctx.beginPath();
-          ctx.moveTo(side*24, y);
-          ctx.lineTo(side*82, y-22);
-          ctx.lineTo(side*106, y-6);
-          ctx.stroke();
-        }
-      } else {
-        ctx.fillStyle = b.style === 0 ? "#8b6d28" : b.style === 1 ? "#4d7a1d" : "#7a3d12";
+      } else if (b.type === "crusher") {
+        ctx.fillStyle = "#8b6d28";
         ctx.strokeStyle = "#4d3707";
         ctx.lineWidth = 4;
         ctx.beginPath();
         ctx.roundRect(-110,-58,220,116,28);
         ctx.fill(); ctx.stroke();
-        ctx.fillStyle = "#d7b34b";
-        for(let i=-2;i<=2;i++){
-          ctx.fillRect(i*24-6,-18,12,36);
-        }
+      } else {
+        ctx.fillStyle = "#7a2c6c";
+        ctx.strokeStyle = "#3a1231";
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.roundRect(-115,-62,230,124,28);
+        ctx.fill(); ctx.stroke();
       }
 
       ctx.fillStyle = "#ffd5d5";
@@ -2797,7 +3063,7 @@
       for(const w of game.warningLines){
         if (w.timer > 0) {
           ctx.save();
-          ctx.strokeStyle = "rgba(255,60,60,.85)";
+          ctx.strokeStyle = "rgba(255,60,60,.88)";
           ctx.lineWidth = Math.max(4, w.width * 0.5);
           ctx.setLineDash([12,8]);
           ctx.beginPath();
@@ -2838,6 +3104,24 @@
       }
     }
 
+    function drawPlayerHomingMissiles(){
+      for(const m of game.playerHomingMissiles){
+        ctx.save();
+        ctx.translate(m.x, m.y);
+        const ang = Math.atan2(m.vy, m.vx);
+        ctx.rotate(ang + Math.PI / 2);
+        ctx.fillStyle = m.weak ? "#9fe7ff" : "#6fd6ff";
+        ctx.beginPath();
+        ctx.moveTo(0, -9);
+        ctx.lineTo(6, 7);
+        ctx.lineTo(0, 3);
+        ctx.lineTo(-6, 7);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
     function draw(){
       let shakeX = 0, shakeY = 0;
       if(game.shake > 0){
@@ -2871,6 +3155,7 @@
       }
 
       drawHomingMissiles();
+      drawPlayerHomingMissiles();
 
       for(const e of game.enemies) drawEnemy(e);
       if(game.boss) drawBoss(game.boss);
@@ -2888,9 +3173,9 @@
       ctx.restore();
 
       ctx.fillStyle = "rgba(10,12,18,0.55)";
-      ctx.fillRect(12, H - 138, 520, 122);
+      ctx.fillRect(12, H - 138, 540, 122);
       ctx.strokeStyle = "rgba(255,255,255,0.12)";
-      ctx.strokeRect(12, H - 138, 520, 122);
+      ctx.strokeRect(12, H - 138, 540, 122);
       ctx.fillStyle = "#f2f7ff";
       ctx.font = "bold 16px Malgun Gothic";
       ctx.fillText(`Stage ${game.currentStage}`, 24, H - 102);
@@ -2901,7 +3186,7 @@
       ctx.font = "14px Malgun Gothic";
       const p = game.player;
       if(p){
-        ctx.fillText(`우주선 공격력 ${playerProfile?.shipAttack || 100}`, 210, H - 78);
+        ctx.fillText(`우주선 공격력 ${currentShipAttackValue()}`, 210, H - 78);
         ctx.fillText(`드론 공격력 ${playerProfile?.droneAttack || 30}`, 210, H - 54);
         ctx.fillText(`탄수 ${p.bulletCount}`, 210, H - 30);
         if (p.droneActive && p.droneTimer > 0) {
