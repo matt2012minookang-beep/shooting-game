@@ -389,6 +389,11 @@
       background:linear-gradient(180deg,#4c8eff,#2647b5);
       box-shadow:0 14px 30px rgba(38,71,181,.35);
     }
+    .bossmap-btn{
+      color:#fff;
+      background:linear-gradient(180deg,#8c5bff,#5220c7);
+      box-shadow:0 14px 30px rgba(82,32,199,.35);
+    }
 
     #planeScreen{
       background:linear-gradient(90deg,var(--green1),var(--green2));
@@ -561,7 +566,7 @@
       cursor:not-allowed;
     }
 
-    #stageScreen{
+    #stageScreen, #bossMapScreen{
       background:
         radial-gradient(circle at 50% 90%, rgba(86,148,255,.14), transparent 24%),
         linear-gradient(180deg,#09111b 0%, #121c2c 55%, #09111b 100%);
@@ -784,7 +789,7 @@
         padding:18px;
         border-radius:20px;
       }
-      .play-btn,.stage-btn{
+      .play-btn,.stage-btn,.bossmap-btn{
         min-width:0;
         width:100%;
         height:62px;
@@ -867,7 +872,7 @@
       <div class="topbar">
         <div class="topbar-left">
           <div class="chip">✈️ <span id="nickChip">파일럿</span></div>
-          <div class="chip">우주선: <span id="selectedShipChip">썬더 블레이드</span></div>
+          <div class="chip">우주선: <span id="selectedShipChip">브레이드</span></div>
           <div class="chip">드론: <span id="selectedDroneChip">에일리언</span></div>
           <div class="chip">Stage: <span id="selectedStageChip">1</span></div>
         </div>
@@ -886,6 +891,7 @@
 
       <div class="play-btn-wrap">
         <button id="stageBtn" class="stage-btn">STAGE</button>
+        <button id="bossMapBtn" class="stage-btn bossmap-btn">보스맵</button>
         <button id="playBtn" class="play-btn">PLAY!</button>
       </div>
     </section>
@@ -903,25 +909,29 @@
         </div>
 
         <div id="shipTab" class="card-grid">
-          <div class="item-card locked" data-ship="blade">
+          <div class="item-card selected" data-ship="blade">
             <div class="item-rank">1</div>
             <div class="item-preview" id="shipPreviewBlade"></div>
             <div class="item-name">브레이드</div>
-            <div class="item-stats" id="shipTextBlade">현재 선택 불가</div>
+            <div class="item-stats" id="shipTextBlade">공격력: 100
+강화 비용: 100골드</div>
             <div class="selected-badge" id="shipBadgeBlade">선택됨</div>
-            <button class="card-btn disabled-btn">선택 불가</button>
+            <button class="card-btn select-btn" data-select-ship="blade">선택</button>
+            <button class="card-btn upgrade-btn" data-upgrade-ship="blade">강화</button>
           </div>
 
-          <div class="item-card selected" data-ship="thunder_blade">
+          <div class="item-card locked" data-ship="thunder_blade">
             <div class="item-rank">2</div>
             <div class="item-preview" id="shipPreviewThunder"></div>
             <div class="item-name">썬더 블레이드</div>
-            <div class="item-stats" id="shipTextThunder">공격력: 95
+            <div class="item-stats" id="shipTextThunder">구매: 150골드
+공격력: 95
 유도탄: 2갈래 자동 발사
 업그레이드: 120골드부터 증가</div>
             <div class="selected-badge" id="shipBadgeThunder">선택됨</div>
-            <button class="card-btn select-btn" id="selectThunderBtn">선택</button>
-            <button class="card-btn upgrade-btn" id="upgradeThunderBtn">강화</button>
+            <button class="card-btn buy-btn" id="buyThunderBtn">구매: 150골드</button>
+            <button class="card-btn select-btn" id="selectThunderBtn" style="display:none;">선택</button>
+            <button class="card-btn upgrade-btn" id="upgradeThunderBtn" style="display:none;">강화</button>
           </div>
 
           <div class="item-card locked">
@@ -1003,6 +1013,16 @@
       </div>
     </section>
 
+    <section id="bossMapScreen" class="screen">
+      <div class="panel-top">
+        <h1 class="panel-title">보스맵</h1>
+        <button id="bossMapBackBtn" class="panel-back">←</button>
+      </div>
+      <div class="stage-wrap">
+        <div id="bossMapGrid" class="stage-grid"></div>
+      </div>
+    </section>
+
     <section id="battleScreen" class="screen">
       <canvas id="gameCanvas"></canvas>
 
@@ -1022,7 +1042,7 @@
           </div>
           <div class="hud-box">
             <div class="hud-title">우주선 공격력</div>
-            <div class="hud-main" id="hudShipAtk">95</div>
+            <div class="hud-main" id="hudShipAtk">100</div>
           </div>
           <div class="hud-box">
             <div class="hud-title">드론 공격력</div>
@@ -1041,8 +1061,7 @@
         </div>
       </div>
 
-      <div class="pause-tip">화면을 누르고 드래그하면 시간이 흐릅니다. 떼면 즉시 멈춥니다.
-P = 화력 강화 / S = 6발 강화샷</div>
+      <div class="pause-tip">화면을 누르고 드래그하면 시간이 흐릅니다. 떼면 즉시 멈춥니다.</div>
 
       <div id="gameoverMenu" class="gameover-menu">
         <div class="gameover-card">
@@ -1064,13 +1083,14 @@ P = 화력 강화 / S = 6발 강화샷</div>
   </div>
 
   <script>
-    const STORAGE_KEY_PREFIX = "air_war_save_v11_";
+    const STORAGE_KEY_PREFIX = "air_war_save_v12_";
 
     const loadingScreen = document.getElementById("loadingScreen");
     const nicknameScreen = document.getElementById("nicknameScreen");
     const mainScreen = document.getElementById("mainScreen");
     const planeScreen = document.getElementById("planeScreen");
     const stageScreen = document.getElementById("stageScreen");
+    const bossMapScreen = document.getElementById("bossMapScreen");
     const battleScreen = document.getElementById("battleScreen");
 
     const loadingFill = document.getElementById("loadingFill");
@@ -1099,6 +1119,7 @@ P = 화력 강화 / S = 6발 강화샷</div>
 
     const playBtn = document.getElementById("playBtn");
     const stageBtn = document.getElementById("stageBtn");
+    const bossMapBtn = document.getElementById("bossMapBtn");
     const openingPlane = document.getElementById("openingPlane");
     const heroPlane = document.getElementById("heroPlane");
     const loadingShip = document.getElementById("loadingShip");
@@ -1110,10 +1131,13 @@ P = 화력 강화 / S = 6발 강화샷</div>
     const shipTab = document.getElementById("shipTab");
     const droneTab = document.getElementById("droneTab");
 
+    const buyThunderBtn = document.getElementById("buyThunderBtn");
     const selectThunderBtn = document.getElementById("selectThunderBtn");
     const upgradeThunderBtn = document.getElementById("upgradeThunderBtn");
 
     const stageBackBtn = document.getElementById("stageBackBtn");
+    const bossMapBackBtn = document.getElementById("bossMapBackBtn");
+    const bossMapGrid = document.getElementById("bossMapGrid");
 
     const gameoverMenu = document.getElementById("gameoverMenu");
     const gameoverInfo = document.getElementById("gameoverInfo");
@@ -1124,6 +1148,7 @@ P = 화력 강화 / S = 6발 강화샷</div>
     const exitBtn = document.getElementById("exitBtn");
 
     const SHIP_NAME_MAP = {
+      blade: "브레이드",
       thunder_blade: "썬더 블레이드"
     };
 
@@ -1135,10 +1160,42 @@ P = 화력 강화 / S = 6발 강화샷</div>
       5: ["공허 징벌자", "종말 절단왕", "몰락 초신성", "재앙 수문장", "천공 종언룡"]
     };
 
+    const BOSS_MAP_LIST = [
+      { id:"s1b1", stage:1, wave:10, reward:1, bossIndex:0 },
+      { id:"s1b2", stage:1, wave:20, reward:2, bossIndex:1 },
+      { id:"s1b3", stage:1, wave:30, reward:3, bossIndex:2 },
+      { id:"s1b4", stage:1, wave:40, reward:4, bossIndex:3 },
+      { id:"s1b5", stage:1, wave:50, reward:5, bossIndex:4 },
+
+      { id:"s2b1", stage:2, wave:10, reward:6, bossIndex:0 },
+      { id:"s2b2", stage:2, wave:20, reward:7, bossIndex:1 },
+      { id:"s2b3", stage:2, wave:30, reward:8, bossIndex:2 },
+      { id:"s2b4", stage:2, wave:40, reward:9, bossIndex:3 },
+      { id:"s2b5", stage:2, wave:50, reward:10, bossIndex:4 },
+
+      { id:"s3b1", stage:3, wave:10, reward:11, bossIndex:0 },
+      { id:"s3b2", stage:3, wave:20, reward:12, bossIndex:1 },
+      { id:"s3b3", stage:3, wave:30, reward:13, bossIndex:2 },
+      { id:"s3b4", stage:3, wave:40, reward:14, bossIndex:3 },
+      { id:"s3b5", stage:3, wave:50, reward:15, bossIndex:4 },
+
+      { id:"s4b1", stage:4, wave:10, reward:16, bossIndex:0 },
+      { id:"s4b2", stage:4, wave:20, reward:17, bossIndex:1 },
+      { id:"s4b3", stage:4, wave:30, reward:18, bossIndex:2 },
+      { id:"s4b4", stage:4, wave:40, reward:19, bossIndex:3 },
+      { id:"s4b5", stage:4, wave:50, reward:20, bossIndex:4 },
+
+      { id:"s5b1", stage:5, wave:10, reward:21, bossIndex:0 },
+      { id:"s5b2", stage:5, wave:20, reward:22, bossIndex:1 },
+      { id:"s5b3", stage:5, wave:30, reward:23, bossIndex:2 },
+      { id:"s5b4", stage:5, wave:40, reward:24, bossIndex:3 },
+      { id:"s5b5", stage:5, wave:50, reward:25, bossIndex:4 }
+    ];
+
     let playerProfile = null;
 
     function showScreen(el){
-      [loadingScreen, nicknameScreen, mainScreen, planeScreen, stageScreen, battleScreen].forEach(s => s.classList.remove("active"));
+      [loadingScreen, nicknameScreen, mainScreen, planeScreen, stageScreen, bossMapScreen, battleScreen].forEach(s => s.classList.remove("active"));
       el.classList.add("active");
     }
 
@@ -1178,24 +1235,30 @@ P = 화력 강화 / S = 6발 강화샷</div>
         nickname,
         bestWave: 1,
         gold: 0,
+        shipAttack: 100,
+        shipUpgradeCost: 100,
+        thunderOwned: false,
         thunderAttack: 95,
         thunderUpgradeCost: 120,
         droneAttack: 30,
         droneUpgradeCost: 30,
-        selectedShip: "thunder_blade",
+        selectedShip: "blade",
         selectedDrone: "alien",
         selectedStage: 1,
         maxUnlockedStage: 1,
+        clearedBossMap: {},
         createdAt: Date.now()
       };
     }
 
     function getSelectedShipName(){
-      return SHIP_NAME_MAP[playerProfile?.selectedShip || "thunder_blade"] || "썬더 블레이드";
+      return SHIP_NAME_MAP[playerProfile?.selectedShip || "blade"] || "브레이드";
     }
 
     function getCurrentShipAttack(){
-      return playerProfile?.thunderAttack || 95;
+      return playerProfile?.selectedShip === "thunder_blade"
+        ? (playerProfile?.thunderAttack || 95)
+        : (playerProfile?.shipAttack || 100);
     }
 
     function updateCurrencyUI(){
@@ -1224,12 +1287,22 @@ P = 화력 강화 / S = 6발 강화샷</div>
     }
 
     function updateThunderUI(){
+      const owned = !!playerProfile?.thunderOwned;
       const selected = playerProfile?.selectedShip === "thunder_blade";
 
       document.getElementById("shipTextThunder").textContent =
-`공격력: ${playerProfile?.thunderAttack || 95}
+owned
+? `공격력: ${playerProfile?.thunderAttack || 95}
 유도탄: 2갈래 자동 발사
-업그레이드 비용: ${playerProfile?.thunderUpgradeCost || 120}골드`;
+업그레이드 비용: ${playerProfile?.thunderUpgradeCost || 120}골드`
+: `구매: 150골드
+공격력: 95
+유도탄: 2갈래 자동 발사
+업그레이드: 120골드부터 증가`;
+
+      buyThunderBtn.style.display = owned ? "none" : "block";
+      selectThunderBtn.style.display = owned ? "block" : "none";
+      upgradeThunderBtn.style.display = owned ? "block" : "none";
 
       selectThunderBtn.textContent = selected ? "선택됨" : "선택";
       upgradeThunderBtn.textContent = `강화: ${playerProfile?.thunderUpgradeCost || 120}골드`;
@@ -1243,22 +1316,37 @@ P = 화력 강화 / S = 6발 강화샷</div>
       hudShipAtk.textContent = getCurrentShipAttack();
       hudDroneAtk.textContent = playerProfile?.droneAttack || 30;
 
+      document.getElementById("shipTextBlade").textContent =
+`공격력: ${playerProfile?.shipAttack || 100}
+강화 비용: ${playerProfile?.shipUpgradeCost || 100}골드`;
+
       document.getElementById("droneTextAlien").textContent =
 `공격력: ${playerProfile?.droneAttack || 30}
 강화 비용: ${playerProfile?.droneUpgradeCost || 30}골드
 인게임 지속시간: 10초`;
 
+      document.querySelector('[data-upgrade-ship="blade"]').textContent = `강화: ${playerProfile?.shipUpgradeCost || 100}골드`;
       document.querySelector('[data-upgrade-drone="alien"]').textContent = `강화: ${playerProfile?.droneUpgradeCost || 30}골드`;
 
       updateThunderUI();
       updateStageCards();
+      renderBossMapCards();
 
-      document.getElementById("shipBadgeBlade").style.display = "none";
-      document.getElementById("shipBadgeThunder").style.display = "block";
+      ["Blade","Thunder"].forEach(id => {
+        const el = document.getElementById("shipBadge" + id);
+        if (el) el.style.display = "none";
+      });
       document.getElementById("droneBadgeAlien").style.display = "block";
 
+      const badgeMap = {
+        blade: "shipBadgeBlade",
+        thunder_blade: "shipBadgeThunder"
+      };
+      const badge = document.getElementById(badgeMap[playerProfile?.selectedShip || "blade"]);
+      if (badge) badge.style.display = "block";
+
       document.querySelectorAll("#shipTab .item-card").forEach(card => card.classList.remove("selected"));
-      const selectedShipCard = document.querySelector(`#shipTab .item-card[data-ship="${playerProfile?.selectedShip || "thunder_blade"}"]`);
+      const selectedShipCard = document.querySelector(`#shipTab .item-card[data-ship="${playerProfile?.selectedShip || "blade"}"]`);
       if (selectedShipCard) selectedShipCard.classList.add("selected");
 
       document.querySelectorAll('[data-stage-card]').forEach(card => card.classList.remove("selected"));
@@ -1280,6 +1368,38 @@ P = 화력 강화 / S = 6발 강화샷</div>
         newNickHint.textContent = "사용 가능한 닉네임";
         newNickHint.className = "hint ok";
       }
+    }
+
+    function getBossMapProgressText(entry){
+      const cleared = !!playerProfile?.clearedBossMap?.[entry.id];
+      return cleared ? `클리어 보상 수령 완료 (+${entry.reward}골드)` : `클리어 보상: ${entry.reward}골드`;
+    }
+
+    function renderBossMapCards(){
+      if (!bossMapGrid) return;
+      bossMapGrid.innerHTML = "";
+      BOSS_MAP_LIST.forEach(entry => {
+        const bossName = (BOSS_NAMES[entry.stage] || [])[entry.bossIndex] || "보스";
+        const card = document.createElement("div");
+        card.className = "stage-card";
+        card.innerHTML = `
+          <div class="stage-name">Stage ${entry.stage} · ${entry.wave}W</div>
+          <div class="stage-desc">${bossName}
+체험 전투
+${getBossMapProgressText(entry)}</div>
+          <button class="stage-select-btn" data-bossmap="${entry.id}">체험</button>
+        `;
+        bossMapGrid.appendChild(card);
+      });
+
+      bossMapGrid.querySelectorAll("[data-bossmap]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const id = btn.dataset.bossmap;
+          const entry = BOSS_MAP_LIST.find(v => v.id === id);
+          if (!entry) return;
+          startBossMapBattle(entry);
+        });
+      });
     }
 
     newNick.addEventListener("input", updateNewNickHint);
@@ -1316,14 +1436,18 @@ P = 화력 강화 / S = 6발 강화샷</div>
       }
       playerProfile = data;
       if(playerProfile.gold == null) playerProfile.gold = 0;
+      if(playerProfile.shipAttack == null) playerProfile.shipAttack = 100;
+      if(playerProfile.shipUpgradeCost == null) playerProfile.shipUpgradeCost = 100;
+      if(playerProfile.thunderOwned == null) playerProfile.thunderOwned = false;
       if(playerProfile.thunderAttack == null) playerProfile.thunderAttack = 95;
       if(playerProfile.thunderUpgradeCost == null) playerProfile.thunderUpgradeCost = 120;
       if(playerProfile.droneAttack == null) playerProfile.droneAttack = 30;
       if(playerProfile.droneUpgradeCost == null) playerProfile.droneUpgradeCost = 30;
-      if(playerProfile.selectedShip == null) playerProfile.selectedShip = "thunder_blade";
+      if(playerProfile.selectedShip == null) playerProfile.selectedShip = "blade";
       if(playerProfile.selectedDrone == null) playerProfile.selectedDrone = "alien";
       if(playerProfile.selectedStage == null) playerProfile.selectedStage = 1;
       if(playerProfile.maxUnlockedStage == null) playerProfile.maxUnlockedStage = 1;
+      if(playerProfile.clearedBossMap == null) playerProfile.clearedBossMap = {};
       loadNickHint.textContent = "불러오기 성공";
       loadNickHint.className = "hint ok";
       enterMain();
@@ -1345,6 +1469,11 @@ P = 화력 강화 / S = 6발 강화샷</div>
 
     function openStageScreen() {
       showScreen(stageScreen);
+    }
+
+    function openBossMapScreen() {
+      renderBossMapCards();
+      showScreen(bossMapScreen);
     }
 
     function planeSVG({ glow=false, small=false, styleType="blade" } = {}){
@@ -1401,12 +1530,12 @@ P = 화력 강화 / S = 6발 강화샷</div>
     }
 
     function renderMainShip() {
-      const selected = playerProfile?.selectedShip || "thunder_blade";
+      const selected = playerProfile?.selectedShip || "blade";
       heroPlane.innerHTML = planeSVG({ glow:true, styleType:selected });
     }
 
     loadingShip.innerHTML = planeSVG({ glow:true, small:true, styleType:"thunder_blade" });
-    openingPlane.innerHTML = planeSVG({ glow:true, styleType:"thunder_blade" });
+    openingPlane.innerHTML = planeSVG({ glow:true, styleType:"blade" });
     document.getElementById("shipPreviewBlade").innerHTML = planeSVG({ glow:true, small:true, styleType:"blade" });
     document.getElementById("shipPreviewThunder").innerHTML = planeSVG({ glow:true, small:true, styleType:"thunder_blade" });
     document.getElementById("shipPreviewLight").innerHTML = planeSVG({ glow:true, small:true, styleType:"light_phantom" });
@@ -1417,6 +1546,7 @@ P = 화력 강화 / S = 6발 강화샷</div>
     planeTabBtn.addEventListener("click", openPlaneScreen);
     heroPlane.addEventListener("click", openPlaneScreen);
     stageBtn.addEventListener("click", openStageScreen);
+    bossMapBtn.addEventListener("click", openBossMapScreen);
 
     planeBackBtn.addEventListener("click", () => {
       renderMainShip();
@@ -1424,6 +1554,7 @@ P = 화력 강화 / S = 6발 강화샷</div>
     });
 
     stageBackBtn.addEventListener("click", () => showScreen(mainScreen));
+    bossMapBackBtn.addEventListener("click", () => showScreen(mainScreen));
 
     shipTabBtn.addEventListener("click", () => {
       shipTabBtn.classList.add("active");
@@ -1451,8 +1582,31 @@ P = 화력 강화 / S = 6발 강화샷</div>
       });
     });
 
+    document.querySelector('[data-select-ship="blade"]').addEventListener("click", (e) => {
+      e.stopPropagation();
+      playerProfile.selectedShip = "blade";
+      savePlayer(playerProfile);
+      updateProfileUI();
+      renderMainShip();
+      showScreen(mainScreen);
+    });
+
+    buyThunderBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if ((playerProfile.gold || 0) < 150) {
+        alert("골드가 부족해.");
+        return;
+      }
+      playerProfile.gold -= 150;
+      playerProfile.thunderOwned = true;
+      savePlayer(playerProfile);
+      updateCurrencyUI();
+      updateProfileUI();
+    });
+
     selectThunderBtn.addEventListener("click", (e) => {
       e.stopPropagation();
+      if (!playerProfile.thunderOwned) return;
       playerProfile.selectedShip = "thunder_blade";
       savePlayer(playerProfile);
       updateProfileUI();
@@ -1497,6 +1651,21 @@ P = 화력 강화 / S = 6발 강화샷</div>
       showScreen(mainScreen);
     });
 
+    document.querySelector('[data-upgrade-ship="blade"]').addEventListener("click", (e) => {
+      e.stopPropagation();
+      const cost = playerProfile.shipUpgradeCost || 100;
+      if ((playerProfile.gold || 0) < cost) {
+        alert("골드가 부족해.");
+        return;
+      }
+      playerProfile.gold -= cost;
+      playerProfile.shipAttack += 18;
+      playerProfile.shipUpgradeCost = Math.floor(cost * 1.55);
+      savePlayer(playerProfile);
+      updateCurrencyUI();
+      updateProfileUI();
+    });
+
     document.querySelector('[data-upgrade-drone="alien"]').addEventListener("click", (e) => {
       e.stopPropagation();
       const cost = playerProfile.droneUpgradeCost || 30;
@@ -1510,11 +1679,6 @@ P = 화력 강화 / S = 6발 강화샷</div>
       savePlayer(playerProfile);
       updateCurrencyUI();
       updateProfileUI();
-    });
-
-    playBtn.addEventListener("click", () => {
-      if (!playerProfile) return;
-      startBattle(playerProfile.selectedStage || 1);
     });
 
     const canvas = document.getElementById("gameCanvas");
@@ -1567,7 +1731,6 @@ P = 화력 강화 / S = 6발 강화샷</div>
       player:null,
       waveSpawned:false,
       wavePowerDropCount:0,
-      wavePDropCount:0,
       playerName:"파일럿",
       reviveCount:0,
       earnedGold:0,
@@ -1576,48 +1739,51 @@ P = 화력 강화 / S = 6발 강화샷</div>
       stageCleared:false,
       currentStage:1,
       stageConfig:null,
-      autoMissileTimer:0
+      autoMissileTimer:0,
+      mode:"stage",
+      bossMapEntry:null,
+      rewardGranted:false
     };
 
     const STAGE_CONFIG = {
       1: {
         enemyHpMul: 1.0,
-        enemySpeedMul: 0.9,
-        enemyFireMul: 0.45,
+        enemySpeedMul: 1.0,
+        enemyFireMul: 1.0,
         bossHpMul: 1.0,
-        bossFireMul: 0.6,
+        bossFireMul: 1.0,
         goldMul: 1.0
       },
       2: {
         enemyHpMul: 1.18,
-        enemySpeedMul: 1.0,
-        enemyFireMul: 0.58,
+        enemySpeedMul: 1.06,
+        enemyFireMul: 1.1,
         bossHpMul: 1.2,
-        bossFireMul: 0.74,
+        bossFireMul: 1.08,
         goldMul: 1.15
       },
       3: {
         enemyHpMul: 1.38,
-        enemySpeedMul: 1.08,
-        enemyFireMul: 0.7,
+        enemySpeedMul: 1.1,
+        enemyFireMul: 1.18,
         bossHpMul: 1.42,
-        bossFireMul: 0.88,
+        bossFireMul: 1.16,
         goldMul: 1.3
       },
       4: {
         enemyHpMul: 1.62,
-        enemySpeedMul: 1.16,
-        enemyFireMul: 0.84,
+        enemySpeedMul: 1.15,
+        enemyFireMul: 1.28,
         bossHpMul: 1.7,
-        bossFireMul: 1.02,
+        bossFireMul: 1.26,
         goldMul: 1.45
       },
       5: {
         enemyHpMul: 1.92,
         enemySpeedMul: 1.22,
-        enemyFireMul: 1.0,
+        enemyFireMul: 1.38,
         bossHpMul: 2.0,
-        bossFireMul: 1.15,
+        bossFireMul: 1.34,
         goldMul: 1.65
       }
     };
@@ -1632,6 +1798,9 @@ P = 화력 강화 / S = 6발 강화샷</div>
     }
 
     function calculateGoldReward(score) {
+      if (game.mode === "bossmap") {
+        return game.bossMapEntry?.reward || 0;
+      }
       return Math.round(score * 0.05 * (game.stageConfig?.goldMul || 1));
     }
 
@@ -1646,25 +1815,42 @@ P = 화력 강화 / S = 6발 강화샷</div>
     }
 
     function grantRunRewards(){
-      if(!playerProfile) return;
-      const goldAmount = calculateGoldReward(game.score);
-      playerProfile.gold = (playerProfile.gold || 0) + goldAmount;
+      if(!playerProfile || game.rewardGranted) return;
+      let goldAmount = 0;
 
-      if (game.stageCleared) {
-        playerProfile.maxUnlockedStage = Math.max(playerProfile.maxUnlockedStage || 1, Math.min(5, game.currentStage + 1));
-        if (game.currentStage < 5) {
-          playerProfile.selectedStage = Math.max(playerProfile.selectedStage || 1, Math.min(5, game.currentStage + 1));
+      if (game.mode === "bossmap") {
+        const id = game.bossMapEntry?.id;
+        if (id && !playerProfile.clearedBossMap[id]) {
+          goldAmount = game.bossMapEntry.reward || 0;
+          playerProfile.clearedBossMap[id] = true;
+        }
+      } else {
+        goldAmount = calculateGoldReward(game.score);
+
+        if (game.stageCleared) {
+          playerProfile.maxUnlockedStage = Math.max(playerProfile.maxUnlockedStage || 1, Math.min(5, game.currentStage + 1));
+          if (game.currentStage < 5) {
+            playerProfile.selectedStage = Math.max(playerProfile.selectedStage || 1, Math.min(5, game.currentStage + 1));
+          }
         }
       }
 
+      playerProfile.gold = (playerProfile.gold || 0) + goldAmount;
       savePlayer(playerProfile);
       updateCurrencyUI();
       updateProfileUI();
       game.earnedGold = goldAmount;
+      game.rewardGranted = true;
+    }
+
+    function currentShipMode(){
+      return playerProfile?.selectedShip === "thunder_blade" ? "thunder" : "blade";
     }
 
     function currentShipAttackValue(){
-      return playerProfile?.thunderAttack || 95;
+      return currentShipMode() === "thunder"
+        ? (playerProfile?.thunderAttack || 95)
+        : (playerProfile?.shipAttack || 100);
     }
 
     function updatePowerHUD() {
@@ -1673,8 +1859,7 @@ P = 화력 강화 / S = 6발 강화샷</div>
         hudPowerState.textContent = "기본";
         return;
       }
-      let text = `P${p.powerLevel} / 탄${p.bulletCount}`;
-      if (p.spreadLevel > 0) text += ` / S${p.spreadLevel}`;
+      let text = `Lv${p.level} / 탄${p.bulletCount}`;
       if (game.superTimer > 0) text += ` / SUPER ${Math.ceil(game.superTimer)}`;
       if (p.droneTimer > 0) text += ` / 드론 ${Math.ceil(p.droneTimer)}`;
       hudPowerState.textContent = text;
@@ -1712,8 +1897,8 @@ P = 화력 강화 / S = 6발 강화샷</div>
     function resetPlayerState(){
       const baseAtk = currentShipAttackValue();
       game.player = {
-        x: W * 0.5,
-        y: H * 0.82,
+        x: W * 0.18,
+        y: H * 0.5,
         r: 22,
         hp: 260,
         maxHp: 260,
@@ -1723,16 +1908,15 @@ P = 화력 강화 / S = 6발 강화샷</div>
         missileCooldown: 0,
         invincible: 0,
         level: 1,
-        bulletCount: 2,
+        bulletCount: currentShipMode() === "thunder" ? 2 : 1,
         powerLevel: 0,
-        spreadLevel: 0,
         droneTimer: 0,
         moveEase: 0.18
       };
       updatePowerHUD();
     }
 
-    function startBattle(stage){
+    function baseBattleReset(stage){
       hideGameoverMenu();
       showScreen(battleScreen);
       resize();
@@ -1742,6 +1926,7 @@ P = 화력 강화 / S = 6발 강화샷</div>
       game.touchDown = false;
       game.pointerId = null;
       game.phase = "battle";
+      game.holdTime = 0;
       game.time = 0;
       game.wave = 0;
       game.score = 0;
@@ -1761,7 +1946,6 @@ P = 화력 강화 / S = 6발 강화샷</div>
       game.boss = null;
       game.waveSpawned = false;
       game.wavePowerDropCount = 0;
-      game.wavePDropCount = 0;
       game.playerName = playerProfile.nickname;
       game.reviveCount = 0;
       game.earnedGold = 0;
@@ -1771,6 +1955,7 @@ P = 화력 강화 / S = 6발 강화샷</div>
       game.currentStage = stage;
       game.stageConfig = STAGE_CONFIG[stage] || STAGE_CONFIG[1];
       game.autoMissileTimer = 0;
+      game.rewardGranted = false;
 
       hudNick.textContent = playerProfile.nickname;
       hudStage.textContent = stage;
@@ -1779,6 +1964,21 @@ P = 화력 강화 / S = 6발 강화샷</div>
 
       resetPlayerState();
       setHudState(`Stage ${stage} 전투 시작`);
+    }
+
+    function startBattle(stage){
+      game.mode = "stage";
+      game.bossMapEntry = null;
+      baseBattleReset(stage);
+    }
+
+    function startBossMapBattle(entry){
+      game.mode = "bossmap";
+      game.bossMapEntry = entry;
+      baseBattleReset(entry.stage);
+      game.wave = entry.wave - 1;
+      game.nextWaveDelay = 0.8;
+      setHudState(`보스 체험: ${(BOSS_NAMES[entry.stage] || [])[entry.bossIndex] || "보스"}`);
     }
 
     function endBattle(reasonText="", clear=false){
@@ -1812,12 +2012,21 @@ P = 화력 강화 / S = 6발 강화샷</div>
       game.waveSpawned = false;
       resetPlayerState();
       game.player.invincible = 3.5;
+
+      if (game.mode === "bossmap") {
+        game.wave = (game.bossMapEntry?.wave || 10) - 1;
+      }
+
       setHudState("부활!");
     });
 
     restartBtn.addEventListener("click", () => {
       if (!playerProfile) return;
-      startBattle(game.currentStage || playerProfile.selectedStage || 1);
+      if (game.mode === "bossmap" && game.bossMapEntry) {
+        startBossMapBattle(game.bossMapEntry);
+      } else {
+        startBattle(game.currentStage || playerProfile.selectedStage || 1);
+      }
     });
 
     exitBtn.addEventListener("click", () => {
@@ -1876,8 +2085,15 @@ P = 화력 강화 / S = 6발 강화샷</div>
       ctx.moveTo(body[0][0], body[0][1]);
       for(let i=1;i<body.length;i++) ctx.lineTo(body[i][0], body[i][1]);
       ctx.closePath();
-      ctx.fillStyle = "#eef6ff";
-      ctx.strokeStyle = "#89b7ff";
+
+      if (currentShipMode() === "thunder") {
+        ctx.fillStyle = "#f0f7ff";
+        ctx.strokeStyle = "#8db6ff";
+      } else {
+        ctx.fillStyle = "#eef6ff";
+        ctx.strokeStyle = "#89b7ff";
+      }
+
       ctx.lineWidth = 3;
       ctx.fill();
       ctx.stroke();
@@ -1887,12 +2103,12 @@ P = 화력 강화 / S = 6발 강화샷</div>
       ctx.lineTo(p.x+6, p.y);
       ctx.lineTo(p.x-10, p.y+16);
       ctx.closePath();
-      ctx.fillStyle = "#8dc6ff";
+      ctx.fillStyle = currentShipMode() === "thunder" ? "#d8f2ff" : "#8dc6ff";
       ctx.fill();
 
       ctx.beginPath();
       ctx.arc(p.x-18, p.y+1, 4, 0, Math.PI*2);
-      ctx.fillStyle = "#ffd873";
+      ctx.fillStyle = currentShipMode() === "thunder" ? "#bff9ff" : "#ffd873";
       ctx.fill();
 
       ctx.fillStyle = "rgba(90,200,255,.85)";
@@ -1962,26 +2178,59 @@ P = 화력 강화 / S = 6발 강화샷</div>
       ctx.rotate(e.rot || 0);
 
       if (e.type === "boss") {
-        ctx.fillStyle = "#8c2030";
+        const pulse = 1 + Math.sin(game.time * 4.2) * 0.05;
+        ctx.scale(pulse, pulse);
+
+        ctx.fillStyle = e.mainColor || "#8c2030";
         ctx.beginPath();
-        ctx.moveTo(-60, 0);
-        ctx.lineTo(-20, -44);
-        ctx.lineTo(70, -12);
-        ctx.lineTo(70, 12);
-        ctx.lineTo(-20, 44);
+        ctx.moveTo(-70, 0);
+        ctx.lineTo(-32, -40);
+        ctx.lineTo(0, -56);
+        ctx.lineTo(64, -32);
+        ctx.lineTo(90, 0);
+        ctx.lineTo(64, 32);
+        ctx.lineTo(0, 56);
+        ctx.lineTo(-32, 40);
         ctx.closePath();
         ctx.fill();
 
-        ctx.fillStyle = "#c43b4f";
+        ctx.fillStyle = e.subColor || "#d84a5a";
         ctx.beginPath();
-        ctx.moveTo(-18, -20);
-        ctx.lineTo(34, 0);
-        ctx.lineTo(-18, 20);
+        ctx.moveTo(-18, -24);
+        ctx.lineTo(30, -18);
+        ctx.lineTo(52, 0);
+        ctx.lineTo(30, 18);
+        ctx.lineTo(-18, 24);
         ctx.closePath();
         ctx.fill();
 
-        ctx.fillStyle = "#ffd0d0";
-        ctx.fillRect(-56, -5, 18, 10);
+        ctx.fillStyle = "#e9f4ff";
+        ctx.beginPath();
+        ctx.ellipse(18, -10, 14, 8, 0, 0, Math.PI*2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.ellipse(18, 10, 14, 8, 0, 0, Math.PI*2);
+        ctx.fill();
+
+        ctx.fillStyle = "#ff9aa6";
+        ctx.beginPath();
+        ctx.arc(18, -10, 4, 0, Math.PI*2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(18, 10, 4, 0, Math.PI*2);
+        ctx.fill();
+
+        ctx.fillStyle = "#ffd86d";
+        ctx.fillRect(-66, -6, 18, 12);
+
+        ctx.fillStyle = "rgba(255,255,255,.18)";
+        ctx.beginPath();
+        ctx.moveTo(-50, -20);
+        ctx.lineTo(-10, -34);
+        ctx.lineTo(24, -28);
+        ctx.lineTo(-6, -10);
+        ctx.closePath();
+        ctx.fill();
       } else {
         ctx.fillStyle = "#cf4954";
         ctx.beginPath();
@@ -2001,7 +2250,7 @@ P = 화력 강화 / S = 6발 강화샷</div>
         const bw = e.type === "boss" ? 180 : 44;
         const bh = e.type === "boss" ? 12 : 6;
         const x = e.x - bw/2;
-        const y = e.y - (e.type === "boss" ? 64 : 32);
+        const y = e.y - (e.type === "boss" ? 78 : 32);
         ctx.fillStyle = "rgba(0,0,0,.42)";
         ctx.fillRect(x, y, bw, bh);
         ctx.fillStyle = e.type === "boss" ? "#ff8282" : "#ffc26a";
@@ -2088,7 +2337,7 @@ P = 화력 강화 / S = 6발 강화샷</div>
     function drawBackground(dt){
       ctx.clearRect(0,0,W,H);
       for(const s of game.stars){
-        s.y += s.s * dt;
+        if (game.touchDown) s.y += s.s * dt;
         if (s.y > H + 2) {
           s.y = -2;
           s.x = Math.random()*W;
@@ -2127,7 +2376,7 @@ P = 화력 강화 / S = 6발 강화샷</div>
     function firePlayerBullets(){
       const p = game.player;
       if (!p) return;
-      const bulletSpeed = -860;
+      const bulletSpeed = 820;
       const count = p.bulletCount;
       const spread = 18;
       const centerOffset = (count - 1) / 2;
@@ -2135,23 +2384,23 @@ P = 화력 강화 / S = 6발 강화샷</div>
       for (let i = 0; i < count; i++) {
         const offset = (i - centerOffset) * spread;
         game.bullets.push({
-          x: p.x + 18,
-          y: p.y + offset * 0.22,
-          vx: 0,
-          vy: bulletSpeed + Math.abs(offset)*-1.2,
-          damage: p.atk * (p.spreadLevel > 0 ? 0.8 : 1),
+          x: p.x + 24,
+          y: p.y + offset,
+          vx: bulletSpeed,
+          vy: offset * 1.8,
+          damage: p.atk * (count >= 6 ? 0.82 : 1),
           kind: "player",
-          color: p.spreadLevel > 0 ? "#ffe780" : "#9fe8ff",
+          color: count >= 6 ? "#ffe780" : "#9fe8ff",
           r: 4
         });
       }
 
       if (p.droneTimer > 0) {
         game.bullets.push({
-          x: p.x - 36,
+          x: p.x - 18,
           y: p.y - 8,
-          vx: 0,
-          vy: -720,
+          vx: 760,
+          vy: 0,
           damage: playerProfile.droneAttack || 30,
           kind: "player",
           color: "#a8ffd0",
@@ -2162,20 +2411,48 @@ P = 화력 강화 / S = 6발 강화샷</div>
 
     function firePlayerHomingMissiles(){
       const p = game.player;
-      if (!p) return;
+      if (!p || currentShipMode() !== "thunder") return;
       const count = 2;
       for (let i = 0; i < count; i++) {
         game.playerHomingMissiles.push({
-          x: p.x - 8,
+          x: p.x + 8,
           y: p.y + (i===0 ? -10 : 10),
-          vx: 560,
+          vx: 620,
           vy: i===0 ? -40 : 40,
-          speed: 760,
-          damage: Math.max(10, p.atk * 0.18),
-          life: 4.8,
-          turnRate: 5.6,
+          speed: 840,
+          damage: Math.max(8, p.atk * 0.16),
+          life: 5.0,
+          turnRate: 5.8,
           target: null,
           kind:"player_missile"
+        });
+      }
+    }
+
+    function maybeSpawnPowerups(wave){
+      const pChance = clamp(0.18 - (game.wavePowerDropCount * 0.03), 0.03, 0.18);
+      if (Math.random() < pChance) {
+        game.items.push({
+          x: W + 50,
+          y: rand(90, H - 90),
+          vx: -150,
+          vy: 0,
+          r: 14,
+          life: 9,
+          kind: "p"
+        });
+        game.wavePowerDropCount += 1;
+      }
+
+      if (Math.random() < 0.12) {
+        game.items.push({
+          x: W + 80,
+          y: rand(90, H - 90),
+          vx: -160,
+          vy: 0,
+          r: 14,
+          life: 9,
+          kind: "s"
         });
       }
     }
@@ -2189,25 +2466,26 @@ P = 화력 강화 / S = 6발 강화샷</div>
 
       const cfg = game.stageConfig || STAGE_CONFIG[1];
       const count = Math.min(3 + Math.floor(wave / 3), 8);
-      const laneGap = H / (count + 1);
+
       for (let i = 0; i < count; i++) {
         const hpBase = 36 + wave * 6;
-        const fireBase = clamp(2.9 - wave * 0.015, 1.6, 3.2);
+        const fireBase = clamp(2.5 - wave * 0.015, 1.15, 2.6);
         game.enemies.push({
-          x: W + i * 55 + rand(0, 35),
-          y: laneGap * (i + 1) + rand(-18, 18),
+          x: W + rand(60, 280),
+          y: (H / (count + 1)) * (i + 1) + rand(-18, 18),
+          targetX: W * rand(0.58, 0.88),
           r: 18,
           hp: hpBase * cfg.enemyHpMul,
           maxHp: hpBase * cfg.enemyHpMul,
-          speedX: rand(105, 145) * cfg.enemySpeedMul,
-          speedY: rand(-35, 35),
-          fireCooldown: rand(fireBase * 0.8, fireBase * 1.35) / cfg.enemyFireMul,
+          speedX: rand(180, 240) * cfg.enemySpeedMul,
+          driftY: rand(-28, 28),
+          fireCooldown: rand(fireBase * 0.8, fireBase * 1.2) / cfg.enemyFireMul,
           fireBase: fireBase / cfg.enemyFireMul,
           score: 10 + wave,
           rot: 0
         });
       }
-      maybeSpawnWaveItems(wave);
+      maybeSpawnPowerups(wave);
       addMessage(`WAVE ${wave}`);
     }
 
@@ -2217,72 +2495,38 @@ P = 화력 강화 / S = 6발 강화샷</div>
       const bossName = (BOSS_NAMES[game.currentStage] || BOSS_NAMES[1])[bossIndex] || "보스";
       const hpBase = 900 + wave * 120;
 
+      const palettes = [
+        { main:"#8c2030", sub:"#d84a5a" },
+        { main:"#6930c3", sub:"#9b5cff" },
+        { main:"#145d8c", sub:"#34a7ff" },
+        { main:"#7f3f16", sub:"#ff9e3d" },
+        { main:"#284b2b", sub:"#78e066" }
+      ];
+      const pal = palettes[bossIndex] || palettes[0];
+
       game.boss = {
         type:"boss",
         name: bossName,
-        x: W + 120,
+        x: W + 140,
         y: H * 0.5,
-        r: 58,
+        r: 64,
         hp: hpBase * cfg.bossHpMul,
         maxHp: hpBase * cfg.bossHpMul,
         score: 180 + wave * 4,
-        fireCooldown: 1.8 / cfg.bossFireMul,
-        burstCooldown: 5.3 / cfg.bossFireMul,
-        laserCooldown: 7.8 / cfg.bossFireMul,
+        fireCooldown: 1.7 / cfg.bossFireMul,
+        burstCooldown: 5.0 / cfg.bossFireMul,
+        laserCooldown: 7.2 / cfg.bossFireMul,
+        sweepCooldown: wave === 20 ? 3.6 : 6.8,
         moveTimer: 0,
         targetY: H * 0.5,
         enterSpeed: 90,
         vx: 0,
-        rot: 0
+        rot: 0,
+        mainColor: pal.main,
+        subColor: pal.sub
       };
-      maybeSpawnWaveItems(wave);
+      maybeSpawnPowerups(wave);
       addMessage(`${bossName} 등장!`, 2.2);
-    }
-
-    function maybeSpawnWaveItems(wave){
-      const p = game.player;
-      if (!p) return;
-
-      let chanceP;
-      if (game.wavePDropCount === 0) {
-        chanceP = 0.30;
-      } else if (game.wavePDropCount === 1) {
-        chanceP = 0.20;
-      } else if (game.wavePDropCount === 2) {
-        chanceP = 0.10;
-      } else if (game.wavePDropCount === 3) {
-        chanceP = 0.05;
-      } else if (game.wavePDropCount === 4) {
-        chanceP = 0.03;
-      } else {
-        chanceP = 0.01;
-      }
-
-      if (Math.random() < chanceP) {
-        game.items.push({
-          x: W + 50,
-          y: rand(90, H - 90),
-          vx: -160,
-          vy: 0,
-          r: 14,
-          life: 9,
-          kind: "p"
-        });
-        game.wavePDropCount += 1;
-      }
-
-      const sChance = p.spreadLevel > 0 ? 0.06 : 0.16;
-      if (Math.random() < sChance) {
-        game.items.push({
-          x: W + 80,
-          y: rand(90, H - 90),
-          vx: -170,
-          vy: 0,
-          r: 14,
-          life: 9,
-          kind: "s"
-        });
-      }
     }
 
     function updatePlayer(dt){
@@ -2309,13 +2553,15 @@ P = 화력 강화 / S = 6발 강화샷</div>
 
       if (p.fireCooldown <= 0) {
         firePlayerBullets();
-        p.fireCooldown = p.spreadLevel > 0 ? 0.12 : 0.16;
+        p.fireCooldown = p.bulletCount >= 6 ? 0.11 : 0.16;
       }
 
-      game.autoMissileTimer -= dt;
-      if (game.autoMissileTimer <= 0) {
-        firePlayerHomingMissiles();
-        game.autoMissileTimer = 0.42;
+      if (currentShipMode() === "thunder") {
+        game.autoMissileTimer -= dt;
+        if (game.autoMissileTimer <= 0) {
+          firePlayerHomingMissiles();
+          game.autoMissileTimer = 0.45;
+        }
       }
 
       updatePowerHUD();
@@ -2436,11 +2682,15 @@ P = 화력 강화 / S = 6발 강화샷</div>
 
       for (let i = game.enemies.length - 1; i >= 0; i--) {
         const e = game.enemies[i];
-        e.x -= e.speedX * dt;
-        e.y += e.speedY * dt;
-        e.rot = Math.sin(game.time * 4 + i) * 0.15;
 
-        if (e.y < 40 || e.y > H - 40) e.speedY *= -1;
+        if (e.x > e.targetX) {
+          e.x -= e.speedX * dt;
+        } else {
+          e.x += Math.sin(game.time * 1.8 + i) * 24 * dt;
+          e.y += Math.sin(game.time * 2.4 + i * 0.7) * 18 * dt;
+        }
+
+        e.rot = Math.sin(game.time * 4 + i) * 0.15;
 
         e.fireCooldown -= dt;
         if (e.fireCooldown <= 0) {
@@ -2490,6 +2740,7 @@ P = 화력 강화 / S = 6발 강화샷</div>
       b.fireCooldown -= dt;
       b.burstCooldown -= dt;
       b.laserCooldown -= dt;
+      b.sweepCooldown -= dt;
 
       if (b.fireCooldown <= 0) {
         const ang = Math.atan2(p.y - b.y, p.x - b.x);
@@ -2511,9 +2762,22 @@ P = 화력 강화 / S = 6발 강화샷</div>
         game.warningLines.push({
           x1:b.x-40, y1:b.y,
           x2:0, y2:b.y,
-          life:1.0
+          life:1.0,
+          type:"line"
         });
         b.laserCooldown = 7.6 / (game.stageConfig?.bossFireMul || 1);
+      }
+
+      if (game.wave === 20 && b.sweepCooldown <= 0) {
+        game.warningLines.push({
+          x1:b.x-40, y1:b.y-90,
+          x2:0, y2:b.y-90,
+          life:0.7,
+          type:"sweep",
+          startY:b.y-90,
+          endY:b.y+90
+        });
+        b.sweepCooldown = 5.5;
       }
 
       if (b.hp <= 0) {
@@ -2551,21 +2815,31 @@ P = 화력 강화 / S = 6발 강화샷</div>
     }
 
     function updateWarningLines(dt){
-      const p = game.player;
-      if (!p) return;
-
       for (let i = game.warningLines.length - 1; i >= 0; i--) {
         const w = game.warningLines[i];
         w.life -= dt;
         if (w.life <= 0) {
           if (!w.fired) {
             w.fired = true;
-            game.lasers.push({
-              y: w.y1,
-              x: 0,
-              life: 0.28,
-              damage: 34
-            });
+            if (w.type === "sweep") {
+              game.lasers.push({
+                type:"sweep",
+                y: w.startY,
+                startY: w.startY,
+                endY: w.endY,
+                x: 0,
+                life: 1.05,
+                damage: 40
+              });
+            } else {
+              game.lasers.push({
+                type:"line",
+                y: w.y1,
+                x: 0,
+                life: 0.28,
+                damage: 34
+              });
+            }
           }
           game.warningLines.splice(i, 1);
         }
@@ -2580,8 +2854,16 @@ P = 화력 강화 / S = 6발 강화샷</div>
         const l = game.lasers[i];
         l.life -= dt;
 
-        if (Math.abs(p.y - l.y) < 20 && p.x < (game.boss?.x || W)) {
-          damagePlayer(34 * dt * 3.4);
+        if (l.type === "sweep") {
+          const progress = 1 - Math.max(0, l.life / 1.05);
+          l.y = l.startY + (l.endY - l.startY) * progress;
+          if (Math.abs(p.y - l.y) < 24 && p.x < (game.boss?.x || W)) {
+            damagePlayer(70 * dt * 3.2);
+          }
+        } else {
+          if (Math.abs(p.y - l.y) < 20 && p.x < (game.boss?.x || W)) {
+            damagePlayer(34 * dt * 3.4);
+          }
         }
 
         if (l.life <= 0) {
@@ -2613,7 +2895,6 @@ P = 화력 강화 / S = 6발 강화샷</div>
               addMessage(`P 획득! 전투력 증가`, 1.4);
             }
           } else if (it.kind === "s") {
-            p.spreadLevel = Math.min(1, p.spreadLevel + 1);
             p.bulletCount = 6;
             addMessage("S 획득! 6발 강화샷", 1.6);
           }
@@ -2651,9 +2932,16 @@ P = 화력 강화 / S = 6발 강화샷</div>
       game.nextWaveDelay -= dt;
       if (game.nextWaveDelay > 0) return;
 
-      if (game.wave >= 50) {
-        endBattle("Stage Clear!", true);
-        return;
+      if (game.mode === "bossmap") {
+        if (game.wave >= (game.bossMapEntry?.wave || 10)) {
+          endBattle("보스 체험 클리어!", true);
+          return;
+        }
+      } else {
+        if (game.wave >= 50) {
+          endBattle("Stage Clear!", true);
+          return;
+        }
       }
 
       game.wave += 1;
@@ -2663,6 +2951,12 @@ P = 화력 강화 / S = 6발 강화샷</div>
 
     function updateGame(dt){
       if (!game.running) return;
+
+      if (!game.touchDown) {
+        return;
+      }
+
+      game.holdTime += dt;
       game.time += dt;
       game.hitFlash = Math.max(0, game.hitFlash - dt);
       game.shake = Math.max(0, game.shake - dt);
@@ -2700,8 +2994,8 @@ P = 화력 강화 / S = 6발 강화샷</div>
       for (const w of game.warningLines) {
         ctx.save();
         ctx.globalAlpha = 0.35 + Math.sin(game.time * 20) * 0.2;
-        ctx.strokeStyle = "#ff4444";
-        ctx.lineWidth = 4;
+        ctx.strokeStyle = w.type === "sweep" ? "#ff8a00" : "#ff4444";
+        ctx.lineWidth = w.type === "sweep" ? 8 : 4;
         ctx.beginPath();
         ctx.moveTo(w.x1, w.y1);
         ctx.lineTo(w.x2, w.y2);
@@ -2712,8 +3006,8 @@ P = 화력 강화 / S = 6발 강화샷</div>
       for (const l of game.lasers) {
         ctx.save();
         ctx.globalAlpha = 0.6;
-        ctx.strokeStyle = "#ff6f6f";
-        ctx.lineWidth = 16;
+        ctx.strokeStyle = l.type === "sweep" ? "#ff9e33" : "#ff6f6f";
+        ctx.lineWidth = l.type === "sweep" ? 24 : 16;
         ctx.beginPath();
         ctx.moveTo(0, l.y);
         ctx.lineTo(game.boss ? game.boss.x : W, l.y);
