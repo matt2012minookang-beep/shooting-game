@@ -1932,7 +1932,7 @@ owned
       const growth = getWaveGrowthMultiplier(wave, game.currentStage);
       const rows = Math.min(2 + Math.floor(wave / 10), 4);
       const cols = Math.min(4 + Math.floor(wave * 0.22), 7);
-      const hpBase = Math.max(2, Math.floor((2 + wave * 0.7) * Math.max(1, growth * 0.15)));
+      const hpBase = Math.max(2, Math.floor((2 + wave * 0.35) * Math.max(1, growth * 0.15)));
       const dmg = Math.max(1, Math.floor((1 + wave / 18) * Math.max(1, growth * 0.02)));
 
       const startX = W * 0.16;
