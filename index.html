@@ -921,12 +921,15 @@
             <button class="card-btn upgrade-btn" id="upgradeThunderBtn" style="display:none;">강화</button>
           </div>
 
-          <div class="item-card locked">
+                    <div class="item-card" data-ship="light_phantom">
             <div class="item-rank">3</div>
             <div class="item-preview" id="shipPreviewLight"></div>
             <div class="item-name">라이트팬텀</div>
-            <div class="item-stats">현재 선택 불가</div>
-            <button class="card-btn disabled-btn">선택 불가</button>
+            <div class="item-stats" id="shipTextLight">공격력: 100
+직선 연속형 레이저
+P마다 레이저 굵기 증가</div>
+            <div class="selected-badge" id="shipBadgeLight">선택됨</div>
+            <button class="card-btn select-btn" data-select-ship="light_phantom">선택</button>
           </div>
 
           <div class="item-card locked">
@@ -1120,9 +1123,10 @@
     const restartBtn = document.getElementById("restartBtn");
     const exitBtn = document.getElementById("exitBtn");
 
-    const SHIP_NAME_MAP = {
+        const SHIP_NAME_MAP = {
       blade: "브레이드",
-      thunder_blade: "썬더 블레이드"
+      thunder_blade: "썬더 블레이드",
+      light_phantom: "라이트팬텀"
     };
 
     const BOSS_NAMES = {
@@ -1271,7 +1275,7 @@ owned
       updateThunderUI();
       updateStageCards();
 
-      ["Blade","Thunder"].forEach(id => {
+           ["Blade","Thunder","Light"].forEach(id => {
         const el = document.getElementById("shipBadge" + id);
         if (el) el.style.display = "none";
       });
@@ -1279,7 +1283,8 @@ owned
 
       const badgeMap = {
         blade: "shipBadgeBlade",
-        thunder_blade: "shipBadgeThunder"
+        thunder_blade: "shipBadgeThunder",
+        light_phantom: "shipBadgeLight"
       };
       const badge = document.getElementById(badgeMap[playerProfile?.selectedShip || "blade"]);
       if (badge) badge.style.display = "block";
@@ -1512,6 +1517,14 @@ owned
       renderMainShip();
       showScreen(mainScreen);
     });
+    document.querySelector('[data-select-ship="light_phantom"]').addEventListener("click", (e) => {
+      e.stopPropagation();
+      playerProfile.selectedShip = "light_phantom";
+      savePlayer(playerProfile);
+      updateProfileUI();
+      renderMainShip();
+      showScreen(mainScreen);
+    });
 
     upgradeThunderBtn.addEventListener("click", (e) => {
       e.stopPropagation();
@@ -1680,12 +1693,14 @@ owned
       game.earnedGold = goldAmount;
     }
 
-    function currentShipMode(){
-      return playerProfile?.selectedShip === "thunder_blade" ? "thunder" : "blade";
+        function currentShipMode(){
+      if (playerProfile?.selectedShip === "thunder_blade") return "thunder";
+      if (playerProfile?.selectedShip === "light_phantom") return "light";
+      return "blade";
     }
 
     function currentShipAttackValue(){
-      return currentShipMode() === "thunder"
+      return playerProfile?.selectedShip === "thunder_blade"
         ? (playerProfile?.thunderAttack || 95)
         : (playerProfile?.shipAttack || 100);
     }
@@ -1759,6 +1774,7 @@ owned
         invincible: 0,
         droneActive: false,
         droneTimer: 0,
+        lightPowerCount: 0,
         droneAttack: Math.max(1, Math.round((playerProfile?.droneAttack || 30) / 10))
       };
 
@@ -2055,9 +2071,87 @@ owned
         lockedInitially: !!target
       });
     }
-
     function firePlayerBullets(){
       const p = game.player;
+      if (!p) return;
+
+      if (p.shipMode === "light") {
+        const power = p.lightPowerCount || 0;
+        const baseWidth = 12 + power * 2.2;
+
+        const pushLightShot = (angleDeg, colorMain, colorCore, xOffset=0) => {
+          const rad = angleDeg * Math.PI / 180;
+          const speed = 760;
+          game.bullets.push({
+            x: p.x + xOffset,
+            y: p.y - 28,
+            vx: Math.sin(rad) * speed,
+            vy: -Math.cos(rad) * speed,
+            width: baseWidth,
+            height: 38,
+            dmg: p.dmg,
+            colorMain,
+            colorCore
+          });
+        };
+
+        if (power >= 6) {
+          pushLightShot(0, "#b66cff", "#f3deff", -10);
+          pushLightShot(0, "#b66cff", "#f3deff", 10);
+
+          setTimeout(() => {
+            if (!game.player || !game.player.alive) return;
+            game.bullets.push({
+              x: p.x - 10,
+              y: p.y - 28,
+              vx: 0,
+              vy: -760,
+              width: baseWidth,
+              height: 38,
+              dmg: p.dmg,
+              colorMain: "#b66cff",
+              colorCore: "#f3deff"
+            });
+            game.bullets.push({
+              x: p.x + 10,
+              y: p.y - 28,
+              vx: 0,
+              vy: -760,
+              width: baseWidth,
+              height: 38,
+              dmg: p.dmg,
+              colorMain: "#b66cff",
+              colorCore: "#f3deff"
+            });
+          }, 10);
+        } else {
+          pushLightShot(0, "#ffd84d", "#fff6b0");
+
+          if (power >= 3) {
+            pushLightShot(-15, "#ffd84d", "#fff6b0");
+            pushLightShot(15, "#ffd84d", "#fff6b0");
+          }
+        }
+
+        if (p.droneActive && p.droneTimer > 0) {
+          const offsets = [-40, 40];
+          for (const dx of offsets) {
+            game.bullets.push({
+              x:p.x + dx,
+              y:p.y - 12,
+              vx:0,
+              vy:-650,
+              width:8,
+              height:24,
+              dmg:p.droneAttack,
+              colorMain:"#94e2ff",
+              colorCore:"#ffffff"
+            });
+          }
+        }
+        return;
+      }
+
       const n = p.bulletCount;
       const spread = Math.min(26, 10 + (n - 1) * 3.3);
 
@@ -2103,7 +2197,6 @@ owned
         }
       }
     }
-
     function explodeAt(x,y,power=1){
       const count = Math.floor(18 * power);
       for(let i=0;i<count;i++){
@@ -2145,18 +2238,24 @@ owned
       maybeDropItem(enemy.x, enemy.y);
     }
 
-    function applyItem(type){
+        function applyItem(type){
       const p = game.player;
       if(type === "power"){
         if(p.level < 15) p.level += 1;
         p.powerStacks += 1;
         p.dmg += 1;
-        if(p.powerStacks >= 3){
-          p.powerStacks = 0;
-          if(p.bulletCount < 5) p.bulletCount += 1;
-          showMessage("탄창 증가!", 0.8);
+
+        if (p.shipMode === "light") {
+          p.lightPowerCount += 1;
+          showMessage("LIGHT POWER!", 0.8);
         } else {
-          showMessage("POWER UP!", 0.8);
+          if(p.powerStacks >= 3){
+            p.powerStacks = 0;
+            if(p.bulletCount < 5) p.bulletCount += 1;
+            showMessage("탄창 증가!", 0.8);
+          } else {
+            showMessage("POWER UP!", 0.8);
+          }
         }
       }else if(type === "upgrade"){
         p.droneActive = true;
@@ -2168,7 +2267,8 @@ owned
           level: p.level,
           bulletCount: p.bulletCount,
           dmg: p.dmg,
-          powerStacks: p.powerStacks
+          powerStacks: p.powerStacks,
+          lightPowerCount: p.lightPowerCount
         };
         p.level = 16;
         p.bulletCount = 6;
@@ -2182,10 +2282,11 @@ owned
     function endSuperMode() {
       const p = game.player;
       if (!p || !p._prevState) return;
-      p.level = Math.min(p._prevState.level, 15);
+           p.level = Math.min(p._prevState.level, 15);
       p.bulletCount = p._prevState.bulletCount;
       p.dmg = p._prevState.dmg;
       p.powerStacks = p._prevState.powerStacks;
+      p.lightPowerCount = p._prevState.lightPowerCount ?? 0;
       p._prevState = null;
       game.superTimer = 0;
       updatePowerHUD();
