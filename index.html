@@ -237,6 +237,13 @@
       background:linear-gradient(180deg,#4d556d,#2a3041);
       box-shadow:0 8px 20px rgba(0,0,0,.25);
     }
+    .top-logout-btn{
+      height:44px;
+      border-radius:999px;
+      padding:0 14px;
+      font-size:14px;
+      box-shadow:var(--shadow);
+    }
 
     .opening-overlay{
       position:absolute;
@@ -633,6 +640,30 @@
       gap:10px;
       pointer-events:none;
     }
+    .hud-toggle{
+      width:48px;
+      height:44px;
+      border:none;
+      border-radius:14px;
+      background:rgba(12,16,28,.86);
+      border:1px solid rgba(255,255,255,.14);
+      box-shadow:var(--shadow);
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:center;
+      gap:5px;
+      cursor:pointer;
+      pointer-events:auto;
+      backdrop-filter:blur(8px);
+    }
+    .hud-toggle span{
+      width:23px;
+      height:3px;
+      border-radius:99px;
+      background:#f2f7ff;
+      display:block;
+    }
     .hud-left,.hud-right{
       display:flex;
       gap:10px;
@@ -646,6 +677,14 @@
       padding:10px 14px;
       backdrop-filter:blur(8px);
       box-shadow:var(--shadow);
+    }
+    .hud-wave-box{
+      min-width:122px;
+      text-align:center;
+    }
+    .hud.collapsed .hud-left .hud-box:not(.hud-wave-box),
+    .hud.collapsed .hud-right{
+      display:none;
     }
     .hud-title{
       font-size:12px;
@@ -849,6 +888,12 @@
             <div id="loadNickHint" class="hint">저장된 닉네임으로 이어서 들어갈 수 있어요.</div>
           </div>
 
+          <div id="devPassField" class="field" style="display:none;">
+            <label for="devPass">개발자 비밀번호</label>
+            <input id="devPass" type="password" maxlength="32" placeholder="비밀번호 입력" />
+            <div id="devPassHint" class="hint">고쓰비 개발자 계정 비밀번호를 입력하세요.</div>
+          </div>
+
           <div class="row">
             <button id="loadBtn" class="btn secondary">들어가기</button>
           </div>
@@ -866,6 +911,7 @@
         </div>
         <div class="topbar-right">
           <div class="chip">🏅 골드 <span id="goldChip">0</span></div>
+          <button id="logoutBtn" class="btn secondary top-logout-btn">로그아웃</button>
         </div>
       </div>
 
@@ -921,15 +967,18 @@
             <button class="card-btn upgrade-btn" id="upgradeThunderBtn" style="display:none;">강화</button>
           </div>
 
-                    <div class="item-card" data-ship="light_phantom">
+          <div class="item-card locked" data-ship="light_phantom">
             <div class="item-rank">3</div>
             <div class="item-preview" id="shipPreviewLight"></div>
             <div class="item-name">라이트팬텀</div>
-            <div class="item-stats" id="shipTextLight">공격력: 100
-직선 연속형 레이저
-P마다 레이저 굵기 증가</div>
+            <div class="item-stats" id="shipTextLight">구매: 350골드
+공격 방식: 직선 레이저
+P마다 레이저 굵기 증가
+S 사용 시 최대 굵기</div>
             <div class="selected-badge" id="shipBadgeLight">선택됨</div>
-            <button class="card-btn select-btn" data-select-ship="light_phantom">선택</button>
+            <button class="card-btn buy-btn" id="buyLightBtn">구매: 350골드</button>
+            <button class="card-btn select-btn" id="selectLightBtn" style="display:none;">선택</button>
+            <button class="card-btn upgrade-btn" id="upgradeLightBtn" style="display:none;">강화</button>
           </div>
 
           <div class="item-card locked">
@@ -1006,8 +1055,15 @@ P마다 레이저 굵기 증가</div>
     <section id="battleScreen" class="screen">
       <canvas id="gameCanvas"></canvas>
 
-      <div class="hud">
+      <div class="hud collapsed" id="gameHud">
+        <button id="hudToggleBtn" class="hud-toggle" title="상태창 열기/닫기" aria-label="상태창 열기/닫기">
+          <span></span><span></span><span></span>
+        </button>
         <div class="hud-left">
+          <div class="hud-box hud-wave-box">
+            <div class="hud-title">웨이브</div>
+            <div class="hud-main" id="hudWaveAlways">WAVE 1/50</div>
+          </div>
           <div class="hud-box">
             <div class="hud-title">파일럿</div>
             <div class="hud-main" id="hudNick">-</div>
@@ -1041,7 +1097,7 @@ P마다 레이저 굵기 증가</div>
         </div>
       </div>
 
-      <div class="pause-tip">화면을 누르고 드래그하면 시간이 흐릅니다. 떼면 즉시 멈춥니다.</div>
+      <div class="pause-tip">누르면 시간이 흐릅니다. 멀리 다시 눌러도 비행기는 순간이동하지 않고 드래그만 따라갑니다.</div>
 
       <div id="gameoverMenu" class="gameover-menu">
         <div class="gameover-card">
@@ -1077,6 +1133,9 @@ P마다 레이저 굵기 증가</div>
 
     const newNick = document.getElementById("newNick");
     const loadNick = document.getElementById("loadNick");
+    const devPassField = document.getElementById("devPassField");
+    const devPass = document.getElementById("devPass");
+    const devPassHint = document.getElementById("devPassHint");
     const newNickHint = document.getElementById("newNickHint");
     const loadNickHint = document.getElementById("loadNickHint");
     const startNewBtn = document.getElementById("startNewBtn");
@@ -1084,6 +1143,7 @@ P마다 레이저 굵기 증가</div>
 
     const nickChip = document.getElementById("nickChip");
     const goldChip = document.getElementById("goldChip");
+    const logoutBtn = document.getElementById("logoutBtn");
     const selectedShipChip = document.getElementById("selectedShipChip");
     const selectedDroneChip = document.getElementById("selectedDroneChip");
     const selectedStageChip = document.getElementById("selectedStageChip");
@@ -1095,6 +1155,9 @@ P마다 레이저 굵기 증가</div>
     const hudShipAtk = document.getElementById("hudShipAtk");
     const hudDroneAtk = document.getElementById("hudDroneAtk");
     const hudPowerState = document.getElementById("hudPowerState");
+    const gameHud = document.getElementById("gameHud");
+    const hudToggleBtn = document.getElementById("hudToggleBtn");
+    const hudWaveAlways = document.getElementById("hudWaveAlways");
 
     const playBtn = document.getElementById("playBtn");
     const stageBtn = document.getElementById("stageBtn");
@@ -1112,6 +1175,9 @@ P마다 레이저 굵기 증가</div>
     const buyThunderBtn = document.getElementById("buyThunderBtn");
     const selectThunderBtn = document.getElementById("selectThunderBtn");
     const upgradeThunderBtn = document.getElementById("upgradeThunderBtn");
+    const buyLightBtn = document.getElementById("buyLightBtn");
+    const selectLightBtn = document.getElementById("selectLightBtn");
+    const upgradeLightBtn = document.getElementById("upgradeLightBtn");
 
     const stageBackBtn = document.getElementById("stageBackBtn");
 
@@ -1175,6 +1241,30 @@ P마다 레이저 굵기 증가</div>
       return raw ? JSON.parse(raw) : null;
     }
 
+    function isDeveloperNick(nick){
+      return nick.trim() === "고쓰비";
+    }
+
+    function applyDeveloperBoost(data){
+      data.nickname = "고쓰비";
+      data.gold = 9999999;
+      data.thunderOwned = true;
+      data.lightOwned = true;
+      data.maxUnlockedStage = 5;
+      if(data.thunderAttack == null) data.thunderAttack = 95;
+      if(data.thunderUpgradeCost == null) data.thunderUpgradeCost = 120;
+      if(data.shipAttack == null) data.shipAttack = 100;
+      if(data.shipUpgradeCost == null) data.shipUpgradeCost = 100;
+      if(data.lightAttack == null) data.lightAttack = 150;
+      if(data.lightUpgradeCost == null) data.lightUpgradeCost = 150;
+      if(data.droneAttack == null) data.droneAttack = 30;
+      if(data.droneUpgradeCost == null) data.droneUpgradeCost = 30;
+      if(data.selectedShip == null) data.selectedShip = "blade";
+      if(data.selectedDrone == null) data.selectedDrone = "alien";
+      if(data.selectedStage == null) data.selectedStage = 1;
+      return data;
+    }
+
     function baseSave(nickname){
       return {
         nickname,
@@ -1183,8 +1273,11 @@ P마다 레이저 굵기 증가</div>
         shipAttack: 100,
         shipUpgradeCost: 100,
         thunderOwned: false,
+        lightOwned: false,
         thunderAttack: 95,
         thunderUpgradeCost: 120,
+        lightAttack: 150,
+        lightUpgradeCost: 150,
         droneAttack: 30,
         droneUpgradeCost: 30,
         selectedShip: "blade",
@@ -1200,9 +1293,9 @@ P마다 레이저 굵기 증가</div>
     }
 
     function getCurrentShipAttack(){
-      return playerProfile?.selectedShip === "thunder_blade"
-        ? (playerProfile?.thunderAttack || 95)
-        : (playerProfile?.shipAttack || 100);
+      if (playerProfile?.selectedShip === "thunder_blade") return playerProfile?.thunderAttack || 95;
+      if (playerProfile?.selectedShip === "light_phantom") return playerProfile?.lightAttack || 150;
+      return playerProfile?.shipAttack || 100;
     }
 
     function updateCurrencyUI(){
@@ -1252,6 +1345,31 @@ owned
       upgradeThunderBtn.textContent = `강화: ${playerProfile?.thunderUpgradeCost || 120}골드`;
     }
 
+    function updateLightUI(){
+      const owned = !!playerProfile?.lightOwned;
+      const selected = playerProfile?.selectedShip === "light_phantom";
+      const card = document.querySelector('[data-ship="light_phantom"]');
+      if (card) card.classList.toggle("locked", !owned);
+
+      document.getElementById("shipTextLight").textContent = owned
+        ? `공격력: ${playerProfile?.lightAttack || 150}
+강화 비용: ${playerProfile?.lightUpgradeCost || 150}골드
+공격 방식: 지지직 연속 직선 레이저
+P마다 레이저 굵기 증가
+S 사용 시 최대 굵기`
+        : `구매: 350골드
+기본 공격력: 150
+공격 방식: 지지직 연속 직선 레이저
+P마다 레이저 굵기 증가
+S 사용 시 최대 굵기`;
+
+      buyLightBtn.style.display = owned ? "none" : "block";
+      selectLightBtn.style.display = owned ? "block" : "none";
+      upgradeLightBtn.style.display = owned ? "block" : "none";
+      selectLightBtn.textContent = selected ? "선택됨" : "선택";
+      upgradeLightBtn.textContent = `강화: ${playerProfile?.lightUpgradeCost || 150}골드`;
+    }
+
     function updateProfileUI(){
       selectedShipChip.textContent = getSelectedShipName();
       selectedDroneChip.textContent = "에일리언";
@@ -1273,6 +1391,7 @@ owned
       document.querySelector('[data-upgrade-drone="alien"]').textContent = `강화: ${playerProfile?.droneUpgradeCost || 30}골드`;
 
       updateThunderUI();
+      updateLightUI();
       updateStageCards();
 
            ["Blade","Thunder","Light"].forEach(id => {
@@ -1305,7 +1424,10 @@ owned
         newNickHint.className = "hint";
         return;
       }
-      if(saveExists(name)){
+      if(isDeveloperNick(name)){
+        newNickHint.textContent = "고쓰비는 개발자 계정입니다. 아래 기존 닉네임에 입력하세요.";
+        newNickHint.className = "hint bad";
+      }else if(saveExists(name)){
         newNickHint.textContent = "이미 사용중인 닉네임";
         newNickHint.className = "hint bad";
       }else{
@@ -1315,11 +1437,25 @@ owned
     }
 
     newNick.addEventListener("input", updateNewNickHint);
+    loadNick.addEventListener("input", () => {
+      const isDev = isDeveloperNick(loadNick.value);
+      devPassField.style.display = isDev ? "block" : "none";
+      if (!isDev) {
+        devPass.value = "";
+        devPassHint.textContent = "고쓰비 개발자 계정 비밀번호를 입력하세요.";
+        devPassHint.className = "hint";
+      }
+    });
 
     startNewBtn.addEventListener("click", () => {
       const name = newNick.value.trim();
       if(!name){
         newNickHint.textContent = "닉네임을 입력해줘.";
+        newNickHint.className = "hint bad";
+        return;
+      }
+      if(isDeveloperNick(name)){
+        newNickHint.textContent = "고쓰비는 개발자 계정입니다. 기존 닉네임 입력칸으로 들어가줘.";
         newNickHint.className = "hint bad";
         return;
       }
@@ -1340,6 +1476,26 @@ owned
         loadNickHint.className = "hint bad";
         return;
       }
+
+      if(isDeveloperNick(name)){
+        devPassField.style.display = "block";
+        if(devPass.value !== "2012424!"){
+          devPassHint.textContent = "비밀번호가 틀렸습니다";
+          devPassHint.className = "hint bad";
+          loadNickHint.textContent = "개발자 계정은 비밀번호가 필요합니다";
+          loadNickHint.className = "hint bad";
+          return;
+        }
+        playerProfile = applyDeveloperBoost(loadPlayer("고쓰비") || baseSave("고쓰비"));
+        savePlayer(playerProfile);
+        devPassHint.textContent = "개발자 인증 완료";
+        devPassHint.className = "hint ok";
+        loadNickHint.textContent = "개발자 계정으로 들어갑니다";
+        loadNickHint.className = "hint ok";
+        enterMain();
+        return;
+      }
+
       const data = loadPlayer(name);
       if(!data){
         loadNickHint.textContent = "이미 사용중인 닉네임이 아닙니다";
@@ -1351,11 +1507,16 @@ owned
       if(playerProfile.shipAttack == null) playerProfile.shipAttack = 100;
       if(playerProfile.shipUpgradeCost == null) playerProfile.shipUpgradeCost = 100;
       if(playerProfile.thunderOwned == null) playerProfile.thunderOwned = false;
+      if(playerProfile.lightOwned == null) playerProfile.lightOwned = false;
       if(playerProfile.thunderAttack == null) playerProfile.thunderAttack = 95;
       if(playerProfile.thunderUpgradeCost == null) playerProfile.thunderUpgradeCost = 120;
+      if(playerProfile.lightAttack == null) playerProfile.lightAttack = 150;
+      if(playerProfile.lightUpgradeCost == null) playerProfile.lightUpgradeCost = 150;
       if(playerProfile.droneAttack == null) playerProfile.droneAttack = 30;
       if(playerProfile.droneUpgradeCost == null) playerProfile.droneUpgradeCost = 30;
       if(playerProfile.selectedShip == null) playerProfile.selectedShip = "blade";
+      if(playerProfile.selectedShip === "light_phantom" && !playerProfile.lightOwned) playerProfile.selectedShip = "blade";
+      if(playerProfile.selectedShip === "thunder_blade" && !playerProfile.thunderOwned) playerProfile.selectedShip = "blade";
       if(playerProfile.selectedDrone == null) playerProfile.selectedDrone = "alien";
       if(playerProfile.selectedStage == null) playerProfile.selectedStage = 1;
       if(playerProfile.maxUnlockedStage == null) playerProfile.maxUnlockedStage = 1;
@@ -1517,8 +1678,24 @@ owned
       renderMainShip();
       showScreen(mainScreen);
     });
-    document.querySelector('[data-select-ship="light_phantom"]').addEventListener("click", (e) => {
+    buyLightBtn.addEventListener("click", (e) => {
       e.stopPropagation();
+      if ((playerProfile.gold || 0) < 350) {
+        alert("골드가 부족해.");
+        return;
+      }
+      playerProfile.gold -= 350;
+      playerProfile.lightOwned = true;
+      if(playerProfile.lightAttack == null) playerProfile.lightAttack = 150;
+      if(playerProfile.lightUpgradeCost == null) playerProfile.lightUpgradeCost = 150;
+      savePlayer(playerProfile);
+      updateCurrencyUI();
+      updateProfileUI();
+    });
+
+    selectLightBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (!playerProfile.lightOwned) return;
       playerProfile.selectedShip = "light_phantom";
       savePlayer(playerProfile);
       updateProfileUI();
@@ -1534,8 +1711,8 @@ owned
         return;
       }
       playerProfile.gold -= cost;
-      playerProfile.thunderAttack += 10;
-      playerProfile.thunderUpgradeCost = Math.floor(cost * 1.45);
+      playerProfile.thunderAttack += 32;
+      playerProfile.thunderUpgradeCost = Math.floor(cost * 1.55);
       savePlayer(playerProfile);
       updateCurrencyUI();
       updateProfileUI();
@@ -1573,6 +1750,23 @@ owned
       playerProfile.gold -= cost;
       playerProfile.shipAttack += 18;
       playerProfile.shipUpgradeCost = Math.floor(cost * 1.55);
+      savePlayer(playerProfile);
+      updateCurrencyUI();
+      updateProfileUI();
+    });
+
+
+    upgradeLightBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (!playerProfile.lightOwned) return;
+      const cost = playerProfile.lightUpgradeCost || 150;
+      if ((playerProfile.gold || 0) < cost) {
+        alert("골드가 부족해.");
+        return;
+      }
+      playerProfile.gold -= cost;
+      playerProfile.lightAttack = (playerProfile.lightAttack || 150) + 24;
+      playerProfile.lightUpgradeCost = Math.floor(cost * 1.52);
       savePlayer(playerProfile);
       updateCurrencyUI();
       updateProfileUI();
@@ -1619,6 +1813,8 @@ owned
       pointerType:"mouse",
       targetX:0,
       targetY:0,
+      dragOffsetX:0,
+      dragOffsetY:0,
       phase:"idle",
       holdTime:0,
       time:0,
@@ -1649,7 +1845,8 @@ owned
       superTimer:0,
       endedByStage50:false,
       stageCleared:false,
-      currentStage:1
+      currentStage:1,
+      infoOpen:false
     };
 
     function getReviveCost(){
@@ -1700,9 +1897,9 @@ owned
     }
 
     function currentShipAttackValue(){
-      return playerProfile?.selectedShip === "thunder_blade"
-        ? (playerProfile?.thunderAttack || 95)
-        : (playerProfile?.shipAttack || 100);
+      if (playerProfile?.selectedShip === "thunder_blade") return playerProfile?.thunderAttack || 95;
+      if (playerProfile?.selectedShip === "light_phantom") return playerProfile?.lightAttack || 150;
+      return playerProfile?.shipAttack || 100;
     }
 
     function updatePowerHUD() {
@@ -1711,7 +1908,7 @@ owned
         hudPowerState.textContent = "기본";
         return;
       }
-      let text = `Lv${p.level} / 탄${p.bulletCount}`;
+      let text = p.shipMode === "thunder" ? `Lv${p.level} / 1줄` : `Lv${p.level} / 탄${p.bulletCount}`;
       if (game.superTimer > 0) text += " / SUPER";
       else if (p.droneActive) text += " / 드론";
       hudPowerState.textContent = text;
@@ -1719,10 +1916,14 @@ owned
 
     function resetBattle(){
       game.currentStage = playerProfile?.selectedStage || 1;
+      game.infoOpen = false;
+      gameHud.classList.add("collapsed");
       game.running = true;
       game.touchDown = false;
       game.pointerId = null;
       game.pointerType = "mouse";
+      game.dragOffsetX = 0;
+      game.dragOffsetY = 0;
       game.phase = "prestart";
       game.holdTime = 0;
       game.time = 0;
@@ -1763,7 +1964,7 @@ owned
         hp: 1,
         alive: true,
         level: 1,
-        dmg: Math.max(1, Math.round(shipAtk / 100)),
+        dmg: Math.max(1, shipMode === "light" ? shipAtk / 55 : shipMode === "thunder" ? shipAtk / 70 : Math.round(shipAtk / 100)),
         shipAttackDisplay: shipAtk,
         shipMode,
         bulletCount: 1,
@@ -1774,6 +1975,7 @@ owned
         invincible: 0,
         droneActive: false,
         droneTimer: 0,
+        droneShotCooldown: 0,
         lightPowerCount: 0,
         droneAttack: Math.max(1, Math.round((playerProfile?.droneAttack || 30) / 10))
       };
@@ -1782,6 +1984,7 @@ owned
       game.targetY = H - 120;
       game.playerName = playerProfile ? playerProfile.nickname : "파일럿";
       hudState.textContent = "대기 중";
+      hudWaveAlways.textContent = "WAVE 1/50";
       hudNick.textContent = game.playerName;
       hudStage.textContent = game.currentStage;
       hudShipAtk.textContent = shipAtk;
@@ -1800,6 +2003,22 @@ owned
         });
       }
     }
+
+    logoutBtn.addEventListener("click", () => {
+      if (playerProfile) savePlayer(playerProfile);
+      playerProfile = null;
+      game.running = false;
+      hideGameoverMenu();
+      newNick.value = "";
+      loadNick.value = "";
+      devPass.value = "";
+      devPassField.style.display = "none";
+      newNickHint.textContent = "사용 가능한 닉네임인지 확인해보세요.";
+      newNickHint.className = "hint";
+      loadNickHint.textContent = "저장된 닉네임으로 이어서 들어갈 수 있어요.";
+      loadNickHint.className = "hint";
+      showScreen(nicknameScreen);
+    });
 
     playBtn.addEventListener("click", () => {
       showScreen(battleScreen);
@@ -1831,8 +2050,10 @@ owned
       game.player.alive = true;
       game.player.hp = 1;
       game.player.invincible = 2;
-      game.player.x = W * 0.5;
-      game.player.y = H - 100;
+      game.player.x = Math.max(34, Math.min(W - 34, game.player.x || W * 0.5));
+      game.player.y = Math.max(36, Math.min(H - 60, game.player.y || H - 100));
+      game.targetX = game.player.x;
+      game.targetY = game.player.y;
       game.enemyBullets = [];
       game.warningLines = [];
       game.homingMissiles = [];
@@ -1841,6 +2062,7 @@ owned
       hideGameoverMenu();
       showMessage("부활!", 1.0);
       hudState.textContent = `Stage ${game.currentStage} · WAVE ${game.wave}`;
+        hudWaveAlways.textContent = `WAVE ${Math.max(1, game.wave)}/50`;
     });
 
     function getCanvasPos(e){
@@ -1856,24 +2078,45 @@ owned
       game.touchDown = true;
       game.pointerType = e.pointerType || "mouse";
       if(e.pointerId != null) game.pointerId = e.pointerId;
-      const p = getCanvasPos(e);
-      game.targetX = p.x;
-      game.targetY = p.y;
+
+      const pos = getCanvasPos(e);
+      const p = game.player;
+      const dist = Math.hypot(pos.x - p.x, pos.y - p.y);
+
+      // 비행기와 거의 같은 곳을 누르면 기존처럼 손/마우스 중앙에 맞춘다.
+      // 멀리 누르면 순간이동하지 않고, 현재 비행기 위치와 손가락 사이의 간격을 유지한 채 드래그만 따라간다.
+      if (dist <= 82) {
+        game.dragOffsetX = 0;
+        game.dragOffsetY = 0;
+        game.targetX = pos.x;
+        game.targetY = pos.y;
+      } else {
+        game.dragOffsetX = p.x - pos.x;
+        game.dragOffsetY = p.y - pos.y;
+        game.targetX = p.x;
+        game.targetY = p.y;
+      }
     }
 
     function moveTouch(e){
       if(!game.touchDown) return;
       if(game.pointerId != null && e.pointerId != null && game.pointerId !== e.pointerId) return;
       game.pointerType = e.pointerType || game.pointerType;
-      const p = getCanvasPos(e);
-      game.targetX = p.x;
-      game.targetY = p.y;
+      const pos = getCanvasPos(e);
+      game.targetX = pos.x + game.dragOffsetX;
+      game.targetY = pos.y + game.dragOffsetY;
     }
 
     function endTouch(e){
       if(game.pointerId != null && e.pointerId != null && game.pointerId !== e.pointerId) return;
       game.touchDown = false;
       game.pointerId = null;
+      game.dragOffsetX = 0;
+      game.dragOffsetY = 0;
+      if (game.player) {
+        game.targetX = game.player.x;
+        game.targetY = game.player.y;
+      }
     }
 
     canvas.addEventListener("pointerdown", (e) => {
@@ -1884,6 +2127,12 @@ owned
     canvas.addEventListener("pointerup", endTouch);
     canvas.addEventListener("pointercancel", endTouch);
 
+    hudToggleBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const collapsed = gameHud.classList.toggle("collapsed");
+      game.infoOpen = !collapsed;
+    });
+
     function rand(a,b){ return Math.random() * (b-a) + a; }
     function clamp(v,a,b){ return Math.max(a, Math.min(b, v)); }
 
@@ -1893,13 +2142,39 @@ owned
     }
 
     function getStageDifficulty(stage) {
-      return 1 + (stage - 1) * 0.85;
+      return 1 + (stage - 1) * 0.42;
+    }
+
+    function estimateSuperShipDps() {
+      // S 상태 기준: Lv16, 6발, 기본 발사 쿨타임 약 0.112초.
+      // 실제 전투에서는 빗나가는 탄도 있으니 보스/일반몹 체력은 이론 DPS보다 살짝 낮게 잡는다.
+      const baseShotCooldown = Math.max(0.08, 0.24 - Math.min(0.11, 16 * 0.008));
+      const superDmg = 18;
+      return (superDmg * 6) / baseShotCooldown;
     }
 
     function getWaveGrowthMultiplier(wave, stage) {
       const stageMul = getStageDifficulty(stage);
-      if (wave < 5) return stageMul;
-      return stageMul * Math.pow(1.55, wave - 4);
+      // 초반에는 체력 상승이 체감되고, 뒤로 갈수록 로그 성장으로 완만해진다.
+      const earlyBoost = 1 + 1.55 * (1 - Math.exp(-(wave - 1) / 9));
+      const lateSoft = 1 + Math.log1p(Math.max(0, wave - 1)) * 0.075;
+      return stageMul * earlyBoost * lateSoft;
+    }
+
+    function getNormalEnemyHpBase(wave, stage) {
+      if (wave <= 10) {
+        return Math.max(5, Math.floor(5 + wave * 2.6 + stage * 3));
+      }
+      const targetAfterBoss = estimateSuperShipDps() * 0.26; // S 상태에서 약 1.5초 체감: 분산탄 명중률 보정
+      const lateGrowth = 1 + Math.log1p(wave - 10) * 0.18 + (stage - 1) * 0.18;
+      return Math.floor(targetAfterBoss * lateGrowth);
+    }
+
+    function getBossHpForWave(wave, stage) {
+      const idx = Math.max(0, Math.floor(wave / 10) - 1);
+      const targetDps = estimateSuperShipDps() * 0.82; // 실제 명중률 보정
+      const secondsToKill = 9.2 + idx * 1.15 + (stage - 1) * 0.85;
+      return Math.floor(targetDps * secondsToKill);
     }
 
     function getBossName(stage, wave) {
@@ -1939,17 +2214,19 @@ owned
         spawnBoss(wave);
         showMessage(`${getBossName(game.currentStage, wave)} 등장!`, 1.8);
         hudState.textContent = `Stage ${game.currentStage} · 보스 WAVE ${wave}`;
+        hudWaveAlways.textContent = `WAVE ${Math.max(1, game.wave)}/50`;
         return;
       }
 
       showMessage(`WAVE ${wave}!`, 1.0);
       hudState.textContent = `Stage ${game.currentStage} · WAVE ${wave}`;
+        hudWaveAlways.textContent = `WAVE ${Math.max(1, game.wave)}/50`;
 
       const growth = getWaveGrowthMultiplier(wave, game.currentStage);
       const rows = Math.min(2 + Math.floor(wave / 10), 4);
       const cols = Math.min(4 + Math.floor(wave * 0.22), 7);
-      const hpBase = Math.max(2, Math.floor((2 + wave * 0.35) * Math.max(1, growth * 0.15)));
-      const dmg = Math.max(1, Math.floor((1 + wave / 18) * Math.max(1, growth * 0.02)));
+      const hpBase = getNormalEnemyHpBase(wave, game.currentStage);
+      const dmg = Math.max(1, Math.floor(1 + wave / 24 + game.currentStage * 0.18));
 
       const startX = W * 0.16;
       const endX = W * 0.84;
@@ -1974,8 +2251,8 @@ owned
             tx, ty,
             w: 34,
             h: 30,
-            hp: hpBase + Math.floor(r * growth * 0.03),
-            maxHp: hpBase + Math.floor(r * growth * 0.03),
+            hp: hpBase + Math.floor(r * Math.max(8, hpBase * 0.08)),
+            maxHp: hpBase + Math.floor(r * Math.max(8, hpBase * 0.08)),
             dmg,
             fireCooldown: rand(minCd, maxCd),
             fireBase: rand(minCd, maxCd),
@@ -1993,7 +2270,7 @@ owned
       const types = ["sentinel", "lancer", "oracle", "crusher", "dominator"];
       const phaseType = types[idx] || "sentinel";
       const sizeMap = {sentinel:180, lancer:170, oracle:185, crusher:220, dominator:230};
-      const hp = Math.floor((460 + game.currentStage * 220 + idx * 290 + wave * 16) * Math.max(1, growth * 0.15));
+      const hp = getBossHpForWave(wave, game.currentStage);
 
       game.boss = {
         name: getBossName(game.currentStage, wave),
@@ -2018,33 +2295,39 @@ owned
       };
 
       if (phaseType === "sentinel") {
-        game.boss.p1 = 1.8;
-        game.boss.p2 = 5.0;
-        game.boss.p3 = 3.8;
+        game.boss.p1 = 1.7;
+        game.boss.p2 = 4.7;
+        game.boss.p3 = 3.6;
+        game.boss.p6 = 5.6;
       } else if (phaseType === "lancer") {
-        game.boss.p1 = 2.0;
-        game.boss.p2 = 4.5;
-        game.boss.p3 = 5.5;
+        game.boss.p1 = 1.9;
+        game.boss.p2 = 4.2;
+        game.boss.p3 = 5.2;
+        game.boss.p6 = 6.0;
       } else if (phaseType === "oracle") {
-        game.boss.p1 = 2.6;
-        game.boss.p2 = 4.6;
-        game.boss.p3 = 6.2;
-        game.boss.p4 = 6.8;
+        game.boss.p1 = 2.5;
+        game.boss.p2 = 4.5;
+        game.boss.p3 = 5.8;
+        game.boss.p4 = 6.4;
+        game.boss.p6 = 5.4;
       } else if (phaseType === "crusher") {
-        game.boss.p1 = 2.4;
-        game.boss.p2 = 4.4;
-        game.boss.p3 = 6.0;
-        game.boss.p4 = 7.0;
+        game.boss.p1 = 2.3;
+        game.boss.p2 = 4.2;
+        game.boss.p3 = 5.7;
+        game.boss.p4 = 6.6;
+        game.boss.p6 = 5.8;
       } else if (phaseType === "dominator") {
-        game.boss.p1 = 2.0;
-        game.boss.p2 = 3.8;
-        game.boss.p3 = 5.0;
-        game.boss.p4 = 5.8;
-        game.boss.p5 = 6.6;
+        game.boss.p1 = 1.9;
+        game.boss.p2 = 3.7;
+        game.boss.p3 = 4.8;
+        game.boss.p4 = 5.6;
+        game.boss.p5 = 6.3;
+        game.boss.p6 = 5.2;
       }
     }
 
-    function spawnLaserSegment(x,y,width,height,dmg,colorMain="#79d8ff",colorCore="#ffffff"){
+    function spawnLaserSegment(x,y,width,height,dmg,colorMain="#79d8ff",colorCore="#dff7ff"){
+      if (game.lasers.length > 10) game.lasers.splice(0, game.lasers.length - 10);
       game.lasers.push({
         x,y,width,height,dmg,colorMain,colorCore,
         life:0.08,
@@ -2063,6 +2346,7 @@ owned
         x,y,target,
         vx:0,
         vy:-260,
+        // 유도탄은 예전 체감으로 유지한다.
         speed: 520,
         turn: 5.2,
         dmg: 0.35,
@@ -2071,88 +2355,118 @@ owned
         lockedInitially: !!target
       });
     }
+
+    const LIGHT_MAX_POWER = 8;
+    function getLightLaserWidth(p){
+      const power = Math.min(LIGHT_MAX_POWER, p.lightPowerCount || 0);
+      return 10 + power * 3.5;
+    }
+
+    function getLightLaserFirstHit(x, topY, bottomY, width){
+      let best = null;
+
+      function consider(target, kind){
+        if(!target) return;
+        const horizontalHit = Math.abs(x - target.x) * 2 < width + target.w;
+        if(!horizontalHit) return;
+
+        const targetTop = target.y - target.h / 2;
+        const targetBottom = target.y + target.h / 2;
+        if(targetBottom < topY || targetTop > bottomY) return;
+
+        // 플레이어에게서 위로 쏘는 레이저라서, 아래쪽 면에 가장 먼저 닿는 적이 레이저를 끊는다.
+        const hitY = clamp(targetBottom, topY, bottomY);
+        if(!best || hitY > best.hitY){
+          best = { target, kind, hitY };
+        }
+      }
+
+      if(game.boss) consider(game.boss, "boss");
+      for(const e of game.enemies) consider(e, "enemy");
+      return best;
+    }
+
+    function damageLightLaser(x, topY, bottomY, width, dmg){
+      const hit = getLightLaserFirstHit(x, topY, bottomY, width);
+      if(!hit) return { beamTopY: topY, hit:false };
+
+      if(hit.kind === "boss"){
+        const boss = hit.target;
+        boss.hp -= dmg;
+        if(boss.hp <= 0){
+          explodeAt(boss.x, boss.y, 2.4);
+          game.score += 600;
+          game.boss = null;
+          game.warningLines = [];
+          game.homingMissiles = [];
+          game.nextWaveDelay = 0.9;
+          showMessage("BOSS DOWN!", 1.2);
+        }
+      }else{
+        const e = hit.target;
+        e.hp -= dmg;
+        if(e.hp <= 0) killEnemy(e);
+      }
+
+      for(let i=0;i<2;i++) game.particles.push({
+        x:x + rand(-width * 0.48, width * 0.48),
+        y:hit.hitY + rand(-5,5),
+        vx:rand(-55,55), vy:rand(-95,22),
+        life:rand(0.10,0.24), maxLife:0.24,
+        color:i%2 ? "#bffcff" : "#ffffff",
+        size:rand(1.4,3.8)
+      });
+
+      // hitY에서 레이저가 끊기므로, 실제로 보이는 광선은 그 아래까지만 그린다.
+      return { beamTopY: hit.hitY, hit:true };
+    }
+
+    function fireDroneBullets(p){
+      if (!p || !p.droneActive || p.droneTimer <= 0) return;
+      p.droneShotCooldown -= Math.max(0.001, game.lastActiveDt || 1/60);
+      if (p.droneShotCooldown > 0) return;
+      p.droneShotCooldown = 0.16;
+      const offsets = [-40, 40];
+      for (const dx of offsets) {
+        game.bullets.push({
+          x:p.x + dx,
+          y:p.y - 12,
+          vx:0,
+          vy:-650,
+          width:8,
+          height:24,
+          dmg:p.droneAttack,
+          colorMain:"#94e2ff",
+          colorCore:"#ffffff",
+          fromDrone:true
+        });
+      }
+    }
+
     function firePlayerBullets(){
       const p = game.player;
       if (!p) return;
 
       if (p.shipMode === "light") {
-        const power = p.lightPowerCount || 0;
-        const baseWidth = 12 + power * 2.2;
+        const laserWidth = getLightLaserWidth(p);
+        const topY = -30;
+        const bottomY = p.y - 30;
+        const colorMain = game.superTimer > 0 ? "#9a72d8" : "#52b8d6";
+        const colorCore = game.superTimer > 0 ? "#e7dbff" : "#dff7ff";
+        const activeFrame = Math.max(0.016, Math.min(0.06, game.lastActiveDt || 1/60));
+        const dmgPerSecond = p.dmg * 38;
+        const result = damageLightLaser(p.x, topY, bottomY, laserWidth, dmgPerSecond * activeFrame);
+        const visibleTopY = result.beamTopY;
+        const beamHeight = Math.max(4, bottomY - visibleTopY);
+        const beamY = visibleTopY + beamHeight / 2;
 
-        const pushLightShot = (angleDeg, colorMain, colorCore, xOffset=0) => {
-          const rad = angleDeg * Math.PI / 180;
-          const speed = 760;
-          game.bullets.push({
-            x: p.x + xOffset,
-            y: p.y - 28,
-            vx: Math.sin(rad) * speed,
-            vy: -Math.cos(rad) * speed,
-            width: baseWidth,
-            height: 38,
-            dmg: p.dmg,
-            colorMain,
-            colorCore
-          });
-        };
-
-        if (power >= 6) {
-          pushLightShot(0, "#b66cff", "#f3deff", -10);
-          pushLightShot(0, "#b66cff", "#f3deff", 10);
-
-          setTimeout(() => {
-            if (!game.player || !game.player.alive) return;
-            game.bullets.push({
-              x: p.x - 10,
-              y: p.y - 28,
-              vx: 0,
-              vy: -760,
-              width: baseWidth,
-              height: 38,
-              dmg: p.dmg,
-              colorMain: "#b66cff",
-              colorCore: "#f3deff"
-            });
-            game.bullets.push({
-              x: p.x + 10,
-              y: p.y - 28,
-              vx: 0,
-              vy: -760,
-              width: baseWidth,
-              height: 38,
-              dmg: p.dmg,
-              colorMain: "#b66cff",
-              colorCore: "#f3deff"
-            });
-          }, 10);
-        } else {
-          pushLightShot(0, "#ffd84d", "#fff6b0");
-
-          if (power >= 3) {
-            pushLightShot(-15, "#ffd84d", "#fff6b0");
-            pushLightShot(15, "#ffd84d", "#fff6b0");
-          }
-        }
-
-        if (p.droneActive && p.droneTimer > 0) {
-          const offsets = [-40, 40];
-          for (const dx of offsets) {
-            game.bullets.push({
-              x:p.x + dx,
-              y:p.y - 12,
-              vx:0,
-              vy:-650,
-              width:8,
-              height:24,
-              dmg:p.droneAttack,
-              colorMain:"#94e2ff",
-              colorCore:"#ffffff"
-            });
-          }
-        }
+        // 라이트팬텀은 탄환 없이 계속 이어지는 지지직 직선 레이저다.
+        // 눈부심과 렉을 줄이기 위해 밝은 잔상은 빼고, 주 광선만 차분하게 유지한다.
+        spawnLaserSegment(p.x, beamY, laserWidth, beamHeight, 0, colorMain, colorCore);
         return;
       }
 
-      const n = p.bulletCount;
+      const n = p.shipMode === "thunder" ? 1 : p.bulletCount;
       const spread = Math.min(26, 10 + (n - 1) * 3.3);
 
       for(let i=0;i<n;i++){
@@ -2161,39 +2475,23 @@ owned
           x:p.x + off,
           y:p.y - 28,
           vx:0,
-          vy:-760,
-          width:12,
-          height:34,
-          dmg:p.dmg,
-          colorMain:"#66d5ff",
+          vy:p.shipMode === "thunder" ? -900 : -760,
+          width:p.shipMode === "thunder" ? 13 : 12,
+          height:p.shipMode === "thunder" ? 38 : 34,
+          dmg:p.shipMode === "thunder" ? Math.max(p.dmg * 1.35, p.dmg + 1.2) : p.dmg,
+          colorMain:p.shipMode === "thunder" ? "#85fff4" : "#66d5ff",
           colorCore:"#ffffff"
         });
       }
 
       if (p.shipMode === "thunder") {
-        p.thunderMissileCooldown -= Math.max(0.08, 0.24 - Math.min(0.11, p.level * 0.008));
+        // 유도탄은 속도/데미지는 예전 값 그대로 두고, 발사 빈도만 높인다.
+        p.thunderMissileCooldown -= Math.max(0.08, 0.18 - Math.min(0.08, p.level * 0.006));
         if (p.thunderMissileCooldown <= 0) {
           const target = game.boss || game.enemies[0] || null;
-          addPlayerHoming(p.x - 18, p.y - 8, target);
-          addPlayerHoming(p.x + 18, p.y - 8, target);
-          p.thunderMissileCooldown = 0.14;
-        }
-      }
-
-      if (p.droneActive && p.droneTimer > 0) {
-        const offsets = [-40, 40];
-        for (const dx of offsets) {
-          game.bullets.push({
-            x:p.x + dx,
-            y:p.y - 12,
-            vx:0,
-            vy:-650,
-            width:8,
-            height:24,
-            dmg:p.droneAttack,
-            colorMain:"#94e2ff",
-            colorCore:"#ffffff"
-          });
+          const offsets = game.superTimer > 0 ? [-36, -12, 12, 36] : [-18, 18];
+          for (const dx of offsets) addPlayerHoming(p.x + dx, p.y - 8, target);
+          p.thunderMissileCooldown = game.superTimer > 0 ? 0.055 : 0.075;
         }
       }
     }
@@ -2246,8 +2544,12 @@ owned
         p.dmg += 1;
 
         if (p.shipMode === "light") {
-          p.lightPowerCount += 1;
-          showMessage("LIGHT POWER!", 0.8);
+          p.lightPowerCount = Math.min(LIGHT_MAX_POWER, (p.lightPowerCount || 0) + 1);
+          showMessage(p.lightPowerCount >= LIGHT_MAX_POWER ? "레이저 최대 굵기!" : "LIGHT POWER!", 0.8);
+        } else if (p.shipMode === "thunder") {
+          p.bulletCount = 1;
+          p.dmg += 1.7;
+          showMessage("THUNDER POWER!", 0.8);
         } else {
           if(p.powerStacks >= 3){
             p.powerStacks = 0;
@@ -2272,6 +2574,7 @@ owned
         };
         p.level = 16;
         p.bulletCount = 6;
+        if (p.shipMode === "light") p.lightPowerCount = LIGHT_MAX_POWER;
         p.dmg = Math.max(p.dmg + 4, 18);
         game.superTimer = 7.0;
         showMessage("SUPER!! 7초", 1.2);
@@ -2455,8 +2758,28 @@ owned
       }
     }
 
+    function addDiagonalRain(b){
+      const count = 5 + Math.floor(b.waveIndex / 2);
+      for(let i=0;i<count;i++){
+        const fromLeft = i % 2 === 0;
+        const x = fromLeft ? -20 : W + 20;
+        const y = 80 + i * 34;
+        const vx = fromLeft ? 120 + b.stage * 7 : -120 - b.stage * 7;
+        addEnemyBullet(x, y, vx, 105 + b.waveIndex * 8, 5.2, "#ffc9f0", "normal", {life:8});
+      }
+    }
+
+    function addSplitFan(b){
+      const base = Math.atan2(game.player.y - b.y, game.player.x - b.x);
+      const spd = 150 + b.stage * 6 + b.waveIndex * 7;
+      for(let i=-2;i<=2;i++){
+        const ang = base + i * 0.18;
+        addEnemyBullet(b.x, b.y + 10, Math.cos(ang) * spd, Math.sin(ang) * spd, 4.8, "#ffe0a8");
+      }
+    }
+
     function addSniperBurst(b){
-      aimedShot(b.x, b.y, game.player.x, game.player.y, 280 + b.stage * 10 + b.waveIndex * 12, 0.08, "#ff6f6f", 5.5, 3);
+      aimedShot(b.x, b.y, game.player.x, game.player.y, 260 + b.stage * 9 + b.waveIndex * 10, 0.08, "#ff6f6f", 5.5, 3);
     }
 
     function addFastLance(b){
@@ -2504,6 +2827,7 @@ owned
 
       const p = game.player;
       if(!p) return;
+      game.lastActiveDt = activeDt;
       if(p.invincible > 0) p.invincible -= dt;
 
       if (game.superTimer > 0) {
@@ -2517,6 +2841,8 @@ owned
           p.droneTimer = 0;
           p.droneActive = false;
           updatePowerHUD();
+        } else {
+          fireDroneBullets(p);
         }
       }
 
@@ -2529,13 +2855,8 @@ owned
       }
 
       if(game.touchDown && p.alive){
-        if (game.pointerType === "mouse") {
-          p.x = game.targetX;
-          p.y = game.targetY;
-        } else {
-          p.x += (game.targetX - p.x) * Math.min(1, activeDt * 12);
-          p.y += (game.targetY - p.y) * Math.min(1, activeDt * 12);
-        }
+        p.x += (game.targetX - p.x) * Math.min(1, activeDt * 14);
+        p.y += (game.targetY - p.y) * Math.min(1, activeDt * 14);
       }
 
       p.x = clamp(p.x, 34, W - 34);
@@ -2565,7 +2886,7 @@ owned
         p.shotCooldown -= activeDt;
         if(p.shotCooldown <= 0){
           firePlayerBullets();
-          p.shotCooldown = Math.max(0.08, 0.24 - Math.min(0.11, p.level * 0.008));
+          p.shotCooldown = p.shipMode === "light" ? 0.045 : (p.shipMode === "thunder" ? 0.065 : Math.max(0.08, 0.24 - Math.min(0.11, p.level * 0.008)));
         }
 
         for(let i = game.playerHomingMissiles.length - 1; i >= 0; i--){
@@ -2747,9 +3068,10 @@ owned
               b.x = W * 0.5 + Math.sin(b.t * 0.55) * 140;
               b.y = 120 + Math.sin(b.t * 1.1) * 10;
 
-              b.p1 -= activeDt; b.p2 -= activeDt; b.p3 -= activeDt;
+              b.p1 -= activeDt; b.p2 -= activeDt; b.p3 -= activeDt; b.p6 -= activeDt;
               if (b.p1 <= 0) { addSniperBurst(b); b.p1 = 1.8; }
               if (b.p2 <= 0) { telegraphFromBossToPlayer(b, "direct"); b.p2 = 5.0; }
+              if (b.p6 <= 0) { addSplitFan(b); b.p6 = 5.6; }
               if (b.p3 <= 0) {
                 aimedShot(b.x - 60, b.y, p.x, p.y, 190, 0.12, "#ff8f8f", 5.5, 2);
                 aimedShot(b.x + 60, b.y, p.x, p.y, 190, 0.12, "#ff8f8f", 5.5, 2);
@@ -2760,8 +3082,9 @@ owned
               b.x = W * 0.5 + Math.sin(b.t * 1.0) * 210;
               b.y = 135 + Math.cos(b.t * 0.8) * 14;
 
-              b.p1 -= activeDt; b.p2 -= activeDt; b.p3 -= activeDt;
+              b.p1 -= activeDt; b.p2 -= activeDt; b.p3 -= activeDt; b.p6 -= activeDt;
               if (b.p1 <= 0) { addFastLance(b); b.p1 = 2.0; }
+              if (b.p6 <= 0) { addDiagonalRain(b); b.p6 = 6.0; }
               if (b.p2 <= 0) {
                 for(let i=0;i<6;i++){
                   const offset = (i - 2.5) * 14;
@@ -2778,8 +3101,9 @@ owned
               b.x = W * 0.5 + Math.sin(b.t * 0.9) * 160;
               b.y = 145 + Math.cos(b.t * 1.3) * 28;
 
-              b.p1 -= activeDt; b.p2 -= activeDt; b.p3 -= activeDt; b.p4 -= activeDt;
+              b.p1 -= activeDt; b.p2 -= activeDt; b.p3 -= activeDt; b.p4 -= activeDt; b.p6 -= activeDt;
               if (b.p1 <= 0) { addWobbleSpread(b); b.p1 = 2.6; }
+              if (b.p6 <= 0) { addSplitFan(b); b.p6 = 5.4; }
               if (b.p2 <= 0) { addSpiral(b); b.p2 = 4.6; }
               if (b.p3 <= 0) { telegraphFromBossToPlayer(b, "direct"); b.p3 = 6.2; }
               if (b.p4 <= 0) { addBossHoming(b, 2); b.p4 = 6.8; }
@@ -2788,8 +3112,9 @@ owned
               b.x = W * 0.5 + Math.sin(b.t * 0.4) * 95;
               b.y = 115 + Math.sin(b.t * 0.8) * 9;
 
-              b.p1 -= activeDt; b.p2 -= activeDt; b.p3 -= activeDt; b.p4 -= activeDt;
+              b.p1 -= activeDt; b.p2 -= activeDt; b.p3 -= activeDt; b.p4 -= activeDt; b.p6 -= activeDt;
               if (b.p1 <= 0) { addRing(b, 2); b.p1 = 2.4; }
+              if (b.p6 <= 0) { addDiagonalRain(b); b.p6 = 5.8; }
               if (b.p2 <= 0) { addWideWall(b); b.p2 = 4.4; }
               if (b.p3 <= 0) { telegraphFromBossToPlayer(b, "direct"); b.p3 = 6.0; }
               if (b.p4 <= 0) { addSummonAdds(b); b.p4 = 7.0; }
@@ -2798,7 +3123,8 @@ owned
               b.x = W * 0.5 + Math.sin(b.t * 0.75) * 180;
               b.y = 135 + Math.cos(b.t * 0.95) * 22;
 
-              b.p1 -= activeDt; b.p2 -= activeDt; b.p3 -= activeDt; b.p4 -= activeDt; b.p5 -= activeDt;
+              b.p1 -= activeDt; b.p2 -= activeDt; b.p3 -= activeDt; b.p4 -= activeDt; b.p5 -= activeDt; b.p6 -= activeDt;
+              if (b.p6 <= 0) { addSplitFan(b); b.p6 = 5.2; }
               if (b.p1 <= 0) {
                 aimedShot(b.x, b.y, p.x, p.y, 205, 0.15, "#ff7a7a", 5.6, 3);
                 b.p1 = 2.0;
@@ -2932,6 +3258,7 @@ owned
             game.waveSpawned = false;
             game.nextWaveDelay = 0.8;
             hudState.textContent = `Stage ${game.currentStage} · WAVE ${game.wave}`;
+        hudWaveAlways.textContent = `WAVE ${Math.max(1, game.wave)}/50`;
           }
         }
       }
@@ -3226,13 +3553,26 @@ owned
 
     function drawLaserTrail(l){
       const alpha = Math.max(0, l.life / l.maxLife);
+      const y1 = l.y - l.height / 2;
+      const y2 = l.y + l.height / 2;
       ctx.save();
-      ctx.globalAlpha = alpha * 0.85;
-      ctx.fillStyle = l.colorMain;
-      ctx.fillRect(l.x - l.width/2, l.y - l.height/2, l.width, l.height);
-      ctx.globalAlpha = alpha;
-      ctx.fillStyle = l.colorCore;
-      ctx.fillRect(l.x - (l.width * 0.38)/2, l.y - l.height/2, l.width * 0.38, l.height);
+      ctx.globalCompositeOperation = "source-over";
+      ctx.globalAlpha = alpha * 0.38;
+      ctx.strokeStyle = l.colorMain;
+      ctx.lineWidth = l.width;
+      ctx.lineCap = "round";
+      ctx.beginPath();
+      ctx.moveTo(l.x, y1);
+      ctx.lineTo(l.x, y2);
+      ctx.stroke();
+
+      ctx.globalAlpha = alpha * 0.62;
+      ctx.strokeStyle = l.colorCore;
+      ctx.lineWidth = Math.max(1.5, l.width * 0.22);
+      ctx.beginPath();
+      ctx.moveTo(l.x, y1);
+      ctx.lineTo(l.x, y2);
+      ctx.stroke();
       ctx.restore();
     }
 
@@ -3349,31 +3689,40 @@ owned
       ctx.globalAlpha = 1;
       ctx.restore();
 
-      ctx.fillStyle = "rgba(10,12,18,0.55)";
-      ctx.fillRect(12, H - 150, 570, 134);
-      ctx.strokeStyle = "rgba(255,255,255,0.12)";
-      ctx.strokeRect(12, H - 150, 570, 134);
+      ctx.fillStyle = "rgba(10,12,18,0.62)";
+      ctx.fillRect(12, H - 72, 160, 54);
+      ctx.strokeStyle = "rgba(255,255,255,0.13)";
+      ctx.strokeRect(12, H - 72, 160, 54);
       ctx.fillStyle = "#f2f7ff";
-      ctx.font = "bold 16px Malgun Gothic";
-      ctx.fillText(`Stage ${game.currentStage}`, 24, H - 114);
-      ctx.fillText(`WAVE ${Math.max(1, game.wave)}/50`, 24, H - 90);
-      ctx.fillText(`점수 ${game.score}`, 24, H - 66);
-      ctx.fillText(`골드 ${playerProfile?.gold || 0}`, 24, H - 42);
+      ctx.font = "bold 18px Malgun Gothic";
+      ctx.fillText(`WAVE ${Math.max(1, game.wave)}/50`, 24, H - 38);
 
-      ctx.font = "14px Malgun Gothic";
-      const p = game.player;
-      if(p){
-        ctx.fillText(`우주선 공격력 ${getCurrentShipAttack()}`, 210, H - 90);
-        ctx.fillText(`드론 공격력 ${playerProfile?.droneAttack || 30}`, 210, H - 66);
-        ctx.fillText(`탄수 ${p.bulletCount}`, 210, H - 42);
-        ctx.fillText(`강화 레벨 ${p.level}`, 210, H - 18);
-        if (p.droneActive && p.droneTimer > 0) {
-          ctx.fillText(`드론 남은시간 ${p.droneTimer.toFixed(1)}초`, 390, H - 66);
+      if(game.infoOpen){
+        ctx.fillStyle = "rgba(10,12,18,0.55)";
+        ctx.fillRect(12, H - 210, 570, 130);
+        ctx.strokeStyle = "rgba(255,255,255,0.12)";
+        ctx.strokeRect(12, H - 210, 570, 130);
+        ctx.fillStyle = "#f2f7ff";
+        ctx.font = "bold 16px Malgun Gothic";
+        ctx.fillText(`Stage ${game.currentStage}`, 24, H - 176);
+        ctx.fillText(`점수 ${game.score}`, 24, H - 150);
+        ctx.fillText(`골드 ${playerProfile?.gold || 0}`, 24, H - 124);
+
+        ctx.font = "14px Malgun Gothic";
+        const p = game.player;
+        if(p){
+          ctx.fillText(`우주선 공격력 ${getCurrentShipAttack()}`, 210, H - 176);
+          ctx.fillText(`드론 공격력 ${playerProfile?.droneAttack || 30}`, 210, H - 150);
+          ctx.fillText(p.shipMode === "light" ? `레이저 굵기 ${Math.round(getLightLaserWidth(p))}` : `탄수 ${p.bulletCount}`, 210, H - 124);
+          ctx.fillText(`강화 레벨 ${p.level}`, 210, H - 98);
+          if (p.droneActive && p.droneTimer > 0) {
+            ctx.fillText(`드론 남은시간 ${p.droneTimer.toFixed(1)}초`, 390, H - 150);
+          }
+          if (game.superTimer > 0) {
+            ctx.fillText(`SUPER ${game.superTimer.toFixed(1)}초`, 390, H - 124);
+          }
+          ctx.fillText(`P드롭 수 ${game.wavePowerDropCount}`, 390, H - 98);
         }
-        if (game.superTimer > 0) {
-          ctx.fillText(`SUPER ${game.superTimer.toFixed(1)}초`, 390, H - 42);
-        }
-        ctx.fillText(`P드롭 수 ${game.wavePowerDropCount}`, 390, H - 18);
       }
 
       if(game.messageTimer > 0 && game.message){
@@ -3396,7 +3745,7 @@ owned
         ctx.textAlign = "center";
         ctx.fillText("누르고 있는 동안만 시간이 흐릅니다", W * 0.5, H * 0.5 - 12);
         ctx.font = "16px Malgun Gothic";
-        ctx.fillText("손/마우스로 드래그해 비행기를 움직여", W * 0.5, H * 0.5 + 22);
+        ctx.fillText("다시 누르면 현재 위치를 유지한 채 드래그로 움직입니다", W * 0.5, H * 0.5 + 22);
         ctx.textAlign = "left";
       }
     }
