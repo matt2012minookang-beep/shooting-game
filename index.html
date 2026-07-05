@@ -1122,12 +1122,18 @@ S 사용 시 최대 굵기</div>
             <button class="card-btn upgrade-btn" id="upgradeLightBtn" style="display:none;">강화</button>
           </div>
 
-          <div class="item-card locked">
+          <div class="item-card locked" data-ship="phantom_assassin">
             <div class="item-rank">4</div>
             <div class="item-preview" id="shipPreviewAssassin"></div>
             <div class="item-name">팬텀 어쌔신</div>
-            <div class="item-stats">현재 선택 불가</div>
-            <button class="card-btn disabled-btn">선택 불가</button>
+            <div class="item-stats" id="shipTextAssassin">구매: 1000골드
+공격 방식: 스프레이 산탄
+1발 데미지는 낮지만 넓게 흩뿌림
+강화 비용: 300골드부터</div>
+            <div class="selected-badge" id="shipBadgeAssassin">선택됨</div>
+            <button class="card-btn buy-btn" id="buyAssassinBtn">구매: 1000골드</button>
+            <button class="card-btn select-btn" id="selectAssassinBtn" style="display:none;">선택</button>
+            <button class="card-btn upgrade-btn" id="upgradeAssassinBtn" style="display:none;">강화</button>
           </div>
 
           <div class="item-card locked">
@@ -1369,6 +1375,9 @@ S 사용 시 최대 굵기</div>
     const buyLightBtn = document.getElementById("buyLightBtn");
     const selectLightBtn = document.getElementById("selectLightBtn");
     const upgradeLightBtn = document.getElementById("upgradeLightBtn");
+    const buyAssassinBtn = document.getElementById("buyAssassinBtn");
+    const selectAssassinBtn = document.getElementById("selectAssassinBtn");
+    const upgradeAssassinBtn = document.getElementById("upgradeAssassinBtn");
 
     const buyBotEtaBtn = document.getElementById("buyBotEtaBtn");
     const selectBotEtaBtn = document.getElementById("selectBotEtaBtn");
@@ -1396,7 +1405,8 @@ S 사용 시 최대 굵기</div>
         const SHIP_NAME_MAP = {
       blade: "브레이드",
       thunder_blade: "썬더 블레이드",
-      light_phantom: "라이트팬텀"
+      light_phantom: "라이트팬텀",
+      phantom_assassin: "팬텀 어쌔신"
     };
 
     const BOSS_NAMES = {
@@ -1454,6 +1464,7 @@ S 사용 시 최대 굵기</div>
       data.gold = 9999999;
       data.thunderOwned = true;
       data.lightOwned = true;
+      data.phantomOwned = true;
       data.maxUnlockedStage = 5;
       if(data.thunderAttack == null) data.thunderAttack = 95;
       if(data.thunderUpgradeCost == null) data.thunderUpgradeCost = 120;
@@ -1461,6 +1472,8 @@ S 사용 시 최대 굵기</div>
       if(data.shipUpgradeCost == null) data.shipUpgradeCost = 100;
       if(data.lightAttack == null) data.lightAttack = 150;
       if(data.lightUpgradeCost == null) data.lightUpgradeCost = 150;
+      if(data.phantomAttack == null) data.phantomAttack = 120;
+      if(data.phantomUpgradeCost == null) data.phantomUpgradeCost = 300;
       if(data.droneAttack == null) data.droneAttack = 30;
       if(data.droneUpgradeCost == null) data.droneUpgradeCost = 30;
       data.botEtaOwned = true;
@@ -1488,10 +1501,13 @@ S 사용 시 최대 굵기</div>
         shipUpgradeCost: 100,
         thunderOwned: false,
         lightOwned: false,
+        phantomOwned: false,
         thunderAttack: 95,
         thunderUpgradeCost: 120,
         lightAttack: 150,
         lightUpgradeCost: 150,
+        phantomAttack: 120,
+        phantomUpgradeCost: 300,
         droneAttack: 30,
         droneUpgradeCost: 30,
         botEtaOwned: false,
@@ -1519,6 +1535,7 @@ S 사용 시 최대 굵기</div>
     function getCurrentShipAttack(){
       if (playerProfile?.selectedShip === "thunder_blade") return playerProfile?.thunderAttack || 95;
       if (playerProfile?.selectedShip === "light_phantom") return playerProfile?.lightAttack || 150;
+      if (playerProfile?.selectedShip === "phantom_assassin") return playerProfile?.phantomAttack || 120;
       return playerProfile?.shipAttack || 100;
     }
 
@@ -1604,6 +1621,29 @@ S 사용 시 최대 굵기`;
       upgradeLightBtn.textContent = `강화: ${playerProfile?.lightUpgradeCost || 150}골드`;
     }
 
+    function updateAssassinUI(){
+      const owned = !!playerProfile?.phantomOwned;
+      const selected = playerProfile?.selectedShip === "phantom_assassin";
+      const card = document.querySelector('[data-ship="phantom_assassin"]');
+      if (card) card.classList.toggle("locked", !owned);
+
+      document.getElementById("shipTextAssassin").textContent = owned
+        ? `공격력: ${playerProfile?.phantomAttack || 120}
+강화 비용: ${playerProfile?.phantomUpgradeCost || 300}골드
+공격 방식: 스프레이 산탄
+넓게 흩뿌려 근접/대형 보스에게 강함`
+        : `구매: 1000골드
+기본 공격력: 120
+공격 방식: 스프레이 산탄
+강화 비용: 300골드부터`;
+
+      buyAssassinBtn.style.display = owned ? "none" : "block";
+      selectAssassinBtn.style.display = owned ? "block" : "none";
+      upgradeAssassinBtn.style.display = owned ? "block" : "none";
+      selectAssassinBtn.textContent = selected ? "선택됨" : "선택";
+      upgradeAssassinBtn.textContent = `강화: ${playerProfile?.phantomUpgradeCost || 300}골드`;
+    }
+
     function updateBotEtaUI(){
       const owned = !!playerProfile?.botEtaOwned;
       const selected = playerProfile?.selectedDrone === "bot_eta";
@@ -1647,10 +1687,11 @@ S 사용 시 최대 굵기`;
 
       updateThunderUI();
       updateLightUI();
+      updateAssassinUI();
       updateBotEtaUI();
       updateStageCards();
 
-      ["Blade","Thunder","Light"].forEach(id => {
+      ["Blade","Thunder","Light","Assassin"].forEach(id => {
         const el = document.getElementById("shipBadge" + id);
         if (el) el.style.display = "none";
       });
@@ -1662,7 +1703,8 @@ S 사용 시 최대 굵기`;
       const badgeMap = {
         blade: "shipBadgeBlade",
         thunder_blade: "shipBadgeThunder",
-        light_phantom: "shipBadgeLight"
+        light_phantom: "shipBadgeLight",
+        phantom_assassin: "shipBadgeAssassin"
       };
       const badge = document.getElementById(badgeMap[playerProfile?.selectedShip || "blade"]);
       if (badge) badge.style.display = "block";
@@ -1786,14 +1828,18 @@ S 사용 시 최대 굵기`;
       if(playerProfile.shipUpgradeCost == null) playerProfile.shipUpgradeCost = 100;
       if(playerProfile.thunderOwned == null) playerProfile.thunderOwned = false;
       if(playerProfile.lightOwned == null) playerProfile.lightOwned = false;
+      if(playerProfile.phantomOwned == null) playerProfile.phantomOwned = false;
       if(playerProfile.thunderAttack == null) playerProfile.thunderAttack = 95;
       if(playerProfile.thunderUpgradeCost == null) playerProfile.thunderUpgradeCost = 120;
       if(playerProfile.lightAttack == null) playerProfile.lightAttack = 150;
       if(playerProfile.lightUpgradeCost == null) playerProfile.lightUpgradeCost = 150;
+      if(playerProfile.phantomAttack == null) playerProfile.phantomAttack = 120;
+      if(playerProfile.phantomUpgradeCost == null) playerProfile.phantomUpgradeCost = 300;
       if(playerProfile.droneAttack == null) playerProfile.droneAttack = 30;
       if(playerProfile.droneUpgradeCost == null) playerProfile.droneUpgradeCost = 30;
       if(playerProfile.selectedShip == null) playerProfile.selectedShip = "blade";
       if(playerProfile.selectedShip === "light_phantom" && !playerProfile.lightOwned) playerProfile.selectedShip = "blade";
+      if(playerProfile.selectedShip === "phantom_assassin" && !playerProfile.phantomOwned) playerProfile.selectedShip = "blade";
       if(playerProfile.selectedShip === "thunder_blade" && !playerProfile.thunderOwned) playerProfile.selectedShip = "blade";
       if(playerProfile.selectedDrone == null) playerProfile.selectedDrone = "alien";
       if(playerProfile.selectedStage == null) playerProfile.selectedStage = 1;
@@ -1993,6 +2039,8 @@ S 사용 시 최대 굵기`;
       playerProfile.lightOwned = true;
       if(playerProfile.lightAttack == null) playerProfile.lightAttack = 150;
       if(playerProfile.lightUpgradeCost == null) playerProfile.lightUpgradeCost = 150;
+      if(playerProfile.phantomAttack == null) playerProfile.phantomAttack = 120;
+      if(playerProfile.phantomUpgradeCost == null) playerProfile.phantomUpgradeCost = 300;
       savePlayer(playerProfile);
       updateCurrencyUI();
       updateProfileUI();
@@ -2002,6 +2050,31 @@ S 사용 시 최대 굵기`;
       e.stopPropagation();
       if (!playerProfile.lightOwned) return;
       playerProfile.selectedShip = "light_phantom";
+      savePlayer(playerProfile);
+      updateProfileUI();
+      renderMainShip();
+      showScreen(mainScreen);
+    });
+
+    buyAssassinBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if ((playerProfile.gold || 0) < 1000) {
+        alert("골드가 부족해.");
+        return;
+      }
+      playerProfile.gold -= 1000;
+      playerProfile.phantomOwned = true;
+      if(playerProfile.phantomAttack == null) playerProfile.phantomAttack = 120;
+      if(playerProfile.phantomUpgradeCost == null) playerProfile.phantomUpgradeCost = 300;
+      savePlayer(playerProfile);
+      updateCurrencyUI();
+      updateProfileUI();
+    });
+
+    selectAssassinBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (!playerProfile.phantomOwned) return;
+      playerProfile.selectedShip = "phantom_assassin";
       savePlayer(playerProfile);
       updateProfileUI();
       renderMainShip();
@@ -2018,6 +2091,22 @@ S 사용 시 최대 굵기`;
       playerProfile.gold -= cost;
       playerProfile.thunderAttack += 32;
       playerProfile.thunderUpgradeCost = Math.floor(cost * 1.55);
+      savePlayer(playerProfile);
+      updateCurrencyUI();
+      updateProfileUI();
+    });
+
+    upgradeAssassinBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (!playerProfile.phantomOwned) return;
+      const cost = playerProfile.phantomUpgradeCost || 300;
+      if ((playerProfile.gold || 0) < cost) {
+        alert("골드가 부족해.");
+        return;
+      }
+      playerProfile.gold -= cost;
+      playerProfile.phantomAttack = (playerProfile.phantomAttack || 120) + 28;
+      playerProfile.phantomUpgradeCost = Math.floor(cost * 1.54);
       savePlayer(playerProfile);
       updateCurrencyUI();
       updateProfileUI();
@@ -2247,12 +2336,14 @@ S 사용 시 최대 굵기`;
         function currentShipMode(){
       if (playerProfile?.selectedShip === "thunder_blade") return "thunder";
       if (playerProfile?.selectedShip === "light_phantom") return "light";
+      if (playerProfile?.selectedShip === "phantom_assassin") return "assassin";
       return "blade";
     }
 
     function currentShipAttackValue(){
       if (playerProfile?.selectedShip === "thunder_blade") return playerProfile?.thunderAttack || 95;
       if (playerProfile?.selectedShip === "light_phantom") return playerProfile?.lightAttack || 150;
+      if (playerProfile?.selectedShip === "phantom_assassin") return playerProfile?.phantomAttack || 120;
       return playerProfile?.shipAttack || 100;
     }
 
@@ -2262,23 +2353,33 @@ S 사용 시 최대 굵기`;
         hudPowerState.textContent = "기본";
         return;
       }
-      let text = p.shipMode === "thunder" ? `Lv${p.level} / 1줄` : (p.shipMode === "light" ? `Lv${p.level} / 레이저` : `Lv${p.level} / 탄${p.bulletCount}`);
+      let text = p.shipMode === "thunder" ? `Lv${p.level} / 1줄` : (p.shipMode === "light" ? `Lv${p.level} / 레이저` : (p.shipMode === "assassin" ? `Lv${p.level} / 스프레이` : `Lv${p.level} / 탄${p.bulletCount}`));
       text += p.droneType === "bot_eta" ? " / 봇-ETA" : " / 에일리언";
       if (game.superTimer > 0) text += " / SUPER";
       else if (p.droneActive) text += " / 드론";
       hudPowerState.textContent = text;
     }
 
-    const SPECIAL_REWARD_TIERS = [
-      [1000, 100],
-      [3000, 400],
-      [7000, 1000],
-      [15000, 2500],
-      [30000, 5500],
-      [60000, 12000],
-      [120000, 26000],
-      [250000, 60000]
-    ];
+    const SPECIAL_REWARD_TIERS = (() => {
+      const tiers = [
+        [1000, 100],
+        [3000, 400],
+        [7000, 1000],
+        [15000, 2500],
+        [30000, 5500],
+        [60000, 12000],
+        [120000, 26000],
+        [250000, 60000]
+      ];
+      let need = 500000;
+      let gold = 135000;
+      for (let i = 0; i < 18; i++) {
+        tiers.push([Math.round(need / 1000) * 1000, Math.round(gold / 1000) * 1000]);
+        need *= 1.85;
+        gold *= 1.95;
+      }
+      return tiers;
+    })();
 
     function getSpecialRewardForDamage(damage){
       let reward = 0;
@@ -2568,7 +2669,7 @@ S 사용 시 최대 굵기`;
         hp: 1,
         alive: true,
         level: 1,
-        dmg: Math.max(1, shipMode === "light" ? shipAtk / 55 : shipMode === "thunder" ? shipAtk / 70 : Math.round(shipAtk / 100)),
+        dmg: Math.max(1, shipMode === "light" ? shipAtk / 55 : shipMode === "thunder" ? shipAtk / 70 : shipMode === "assassin" ? shipAtk / 95 : Math.round(shipAtk / 100)),
         shipAttackDisplay: shipAtk,
         shipMode,
         bulletCount: 1,
@@ -2581,6 +2682,7 @@ S 사용 시 최대 굵기`;
         droneTimer: 0,
         droneShotCooldown: 0,
         lightPowerCount: 0,
+        assassinSprayLevel: 0,
         droneType: selectedDrone,
         droneAttackDisplay: droneDisplayAtk,
         droneAttack: droneCombatAtk
@@ -3133,6 +3235,33 @@ S 사용 시 최대 굵기`;
         return;
       }
 
+      if (p.shipMode === "assassin") {
+        const level = p.assassinSprayLevel || 0;
+        const count = Math.min(23, (game.superTimer > 0 ? 17 : 11) + level);
+        // 팬텀 어쌔신은 넓게 흩뿌리는 산탄이 아니라, 전방 약 5도 부채꼴 안에 촘촘히 뿌린다.
+        // maxAngle은 좌우 반각이라 전체 범위는 약 5도다.
+        const maxAngle = Math.PI / 72;
+        for (let i = 0; i < count; i++) {
+          const t = count === 1 ? 0.5 : i / (count - 1);
+          const angle = -maxAngle + t * maxAngle * 2 + rand(-0.004, 0.004);
+          const speed = 690 + rand(-35, 35);
+          const side = (t - 0.5) * 7;
+          game.bullets.push({
+            x:p.x + side,
+            y:p.y - 28,
+            vx:Math.sin(angle) * speed,
+            vy:-Math.cos(angle) * speed,
+            width:7,
+            height:22,
+            dmg:Math.max(0.65, p.dmg * 0.62),
+            colorMain:"#d47bff",
+            colorCore:"#fff0ff",
+            spray:true
+          });
+        }
+        return;
+      }
+
       const n = p.shipMode === "thunder" ? 1 : p.bulletCount;
       const spread = Math.min(26, 10 + (n - 1) * 3.3);
 
@@ -3217,6 +3346,10 @@ S 사용 시 최대 굵기`;
           p.bulletCount = 1;
           p.dmg += 1.7;
           showMessage("THUNDER POWER!", 0.8);
+        } else if (p.shipMode === "assassin") {
+          p.assassinSprayLevel = Math.min(8, (p.assassinSprayLevel || 0) + 1);
+          p.dmg += 0.55;
+          showMessage("SPRAY POWER!", 0.8);
         } else {
           if(p.powerStacks >= 3){
             p.powerStacks = 0;
@@ -3239,12 +3372,14 @@ S 사용 시 최대 굵기`;
           bulletCount: p.bulletCount,
           dmg: p.dmg,
           powerStacks: p.powerStacks,
-          lightPowerCount: p.lightPowerCount
+          lightPowerCount: p.lightPowerCount,
+          assassinSprayLevel: p.assassinSprayLevel
         };
         p.level = 16;
         p.bulletCount = 6;
         if (p.shipMode === "light") p.lightPowerCount = LIGHT_MAX_POWER;
-        p.dmg = Math.max(p.dmg + 4, 18);
+        if (p.shipMode === "assassin") p.assassinSprayLevel = 8;
+        p.dmg = Math.max(p.dmg + 4, p.shipMode === "assassin" ? 10 : 18);
         game.superTimer = 7.0;
         showMessage("SUPER!! 7초", 1.2);
       }
@@ -3259,6 +3394,7 @@ S 사용 시 최대 굵기`;
       p.dmg = p._prevState.dmg;
       p.powerStacks = p._prevState.powerStacks;
       p.lightPowerCount = p._prevState.lightPowerCount ?? 0;
+      p.assassinSprayLevel = p._prevState.assassinSprayLevel ?? 0;
       p._prevState = null;
       game.superTimer = 0;
       updatePowerHUD();
@@ -3570,7 +3706,7 @@ S 사용 시 최대 굵기`;
         p.shotCooldown -= activeDt;
         if(p.shotCooldown <= 0){
           firePlayerBullets();
-          p.shotCooldown = p.shipMode === "light" ? 0.045 : (p.shipMode === "thunder" ? 0.065 : Math.max(0.08, 0.24 - Math.min(0.11, p.level * 0.008)));
+          p.shotCooldown = p.shipMode === "light" ? 0.045 : (p.shipMode === "assassin" ? (game.superTimer > 0 ? 0.085 : 0.115) : (p.shipMode === "thunder" ? 0.065 : Math.max(0.08, 0.24 - Math.min(0.11, p.level * 0.008))));
         }
 
         for(let i = game.playerHomingMissiles.length - 1; i >= 0; i--){
