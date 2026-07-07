@@ -1171,6 +1171,21 @@ S 사용 시 최대 굵기</div>
             <button class="card-btn select-btn" id="selectBotEtaBtn" data-select-drone="bot_eta" style="display:none;">선택</button>
             <button class="card-btn upgrade-btn" id="upgradeBotEtaBtn" style="display:none;">강화</button>
           </div>
+
+          <div class="item-card locked" data-drone="rta">
+            <div class="item-rank">3</div>
+            <div class="item-preview" id="dronePreviewRta"></div>
+            <div class="item-name">RTA</div>
+            <div class="item-stats" id="droneTextRta">구매: 150골드
+공격력: 300
+0.1초 텀 유도탄 5발
+5발 후 3초 대기
+강화 비용: 70골드</div>
+            <div class="selected-badge" id="droneBadgeRta">선택됨</div>
+            <button class="card-btn buy-btn" id="buyRtaBtn">구매: 150골드</button>
+            <button class="card-btn select-btn" id="selectRtaBtn" data-select-drone="rta" style="display:none;">선택</button>
+            <button class="card-btn upgrade-btn" id="upgradeRtaBtn" style="display:none;">강화</button>
+          </div>
         </div>
       </div>
     </section>
@@ -1382,6 +1397,9 @@ S 사용 시 최대 굵기</div>
     const buyBotEtaBtn = document.getElementById("buyBotEtaBtn");
     const selectBotEtaBtn = document.getElementById("selectBotEtaBtn");
     const upgradeBotEtaBtn = document.getElementById("upgradeBotEtaBtn");
+    const buyRtaBtn = document.getElementById("buyRtaBtn");
+    const selectRtaBtn = document.getElementById("selectRtaBtn");
+    const upgradeRtaBtn = document.getElementById("upgradeRtaBtn");
 
     const stageBackBtn = document.getElementById("stageBackBtn");
     const specialBackBtn = document.getElementById("specialBackBtn");
@@ -1479,6 +1497,9 @@ S 사용 시 최대 굵기</div>
       data.botEtaOwned = true;
       if(data.botEtaAttack == null) data.botEtaAttack = 90;
       if(data.botEtaUpgradeCost == null) data.botEtaUpgradeCost = 50;
+      data.rtaOwned = true;
+      if(data.rtaAttack == null) data.rtaAttack = 300;
+      if(data.rtaUpgradeCost == null) data.rtaUpgradeCost = 70;
       if(data.specialBossMaxHp == null) data.specialBossMaxHp = 0;
       if(data.specialBossHp == null) data.specialBossHp = data.specialBossMaxHp;
       if(data.specialBossPaidEntries == null) data.specialBossPaidEntries = data.specialBossEntries || 0;
@@ -1513,6 +1534,9 @@ S 사용 시 최대 굵기</div>
         botEtaOwned: false,
         botEtaAttack: 90,
         botEtaUpgradeCost: 50,
+        rtaOwned: false,
+        rtaAttack: 300,
+        rtaUpgradeCost: 70,
         specialBossMaxHp: 0,
         specialBossHp: 0,
         specialBossEntries: 0,
@@ -1540,13 +1564,17 @@ S 사용 시 최대 굵기</div>
     }
 
     function getSelectedDroneName(){
-      return (playerProfile?.selectedDrone || "alien") === "bot_eta" ? "봇-ETA" : "에일리언";
+      const d = playerProfile?.selectedDrone || "alien";
+      if (d === "bot_eta") return "봇-ETA";
+      if (d === "rta") return "RTA";
+      return "에일리언";
     }
 
     function getCurrentDroneAttack(){
-      return (playerProfile?.selectedDrone || "alien") === "bot_eta"
-        ? (playerProfile?.botEtaAttack || 90)
-        : (playerProfile?.droneAttack || 30);
+      const d = playerProfile?.selectedDrone || "alien";
+      if (d === "bot_eta") return playerProfile?.botEtaAttack || 90;
+      if (d === "rta") return playerProfile?.rtaAttack || 300;
+      return playerProfile?.droneAttack || 30;
     }
 
     function updateCurrencyUI(){
@@ -1665,6 +1693,29 @@ S 사용 시 최대 굵기`;
       upgradeBotEtaBtn.textContent = `강화: ${playerProfile?.botEtaUpgradeCost || 50}골드`;
     }
 
+    function updateRtaUI(){
+      const owned = !!playerProfile?.rtaOwned;
+      const selected = playerProfile?.selectedDrone === "rta";
+      const card = document.querySelector('[data-drone="rta"]');
+      if (card) card.classList.toggle("locked", !owned);
+      document.getElementById("droneTextRta").textContent = owned
+        ? `공격력: ${playerProfile?.rtaAttack || 300}
+강화 비용: ${playerProfile?.rtaUpgradeCost || 70}골드
+0.1초 텀 유도탄 5발
+5발 후 3초 대기
+인게임 지속시간: 10초`
+        : `구매: 150골드
+공격력: 300
+0.1초 텀 유도탄 5발
+5발 후 3초 대기
+강화 비용: 70골드`;
+      buyRtaBtn.style.display = owned ? "none" : "block";
+      selectRtaBtn.style.display = owned ? "block" : "none";
+      upgradeRtaBtn.style.display = owned ? "block" : "none";
+      selectRtaBtn.textContent = selected ? "선택됨" : "선택";
+      upgradeRtaBtn.textContent = `강화: ${playerProfile?.rtaUpgradeCost || 70}골드`;
+    }
+
     function updateProfileUI(){
       selectedShipChip.textContent = getSelectedShipName();
       selectedDroneChip.textContent = getSelectedDroneName();
@@ -1689,13 +1740,14 @@ S 사용 시 최대 굵기`;
       updateLightUI();
       updateAssassinUI();
       updateBotEtaUI();
+      updateRtaUI();
       updateStageCards();
 
       ["Blade","Thunder","Light","Assassin"].forEach(id => {
         const el = document.getElementById("shipBadge" + id);
         if (el) el.style.display = "none";
       });
-      ["Alien","BotEta"].forEach(id => {
+      ["Alien","BotEta","Rta"].forEach(id => {
         const el = document.getElementById("droneBadge" + id);
         if (el) el.style.display = "none";
       });
@@ -1711,7 +1763,8 @@ S 사용 시 최대 굵기`;
 
       const droneBadgeMap = {
         alien: "droneBadgeAlien",
-        bot_eta: "droneBadgeBotEta"
+        bot_eta: "droneBadgeBotEta",
+        rta: "droneBadgeRta"
       };
       const droneBadge = document.getElementById(droneBadgeMap[playerProfile?.selectedDrone || "alien"]);
       if (droneBadge) droneBadge.style.display = "block";
@@ -1837,11 +1890,19 @@ S 사용 시 최대 굵기`;
       if(playerProfile.phantomUpgradeCost == null) playerProfile.phantomUpgradeCost = 300;
       if(playerProfile.droneAttack == null) playerProfile.droneAttack = 30;
       if(playerProfile.droneUpgradeCost == null) playerProfile.droneUpgradeCost = 30;
+      if(playerProfile.botEtaOwned == null) playerProfile.botEtaOwned = false;
+      if(playerProfile.botEtaAttack == null) playerProfile.botEtaAttack = 90;
+      if(playerProfile.botEtaUpgradeCost == null) playerProfile.botEtaUpgradeCost = 50;
+      if(playerProfile.rtaOwned == null) playerProfile.rtaOwned = false;
+      if(playerProfile.rtaAttack == null) playerProfile.rtaAttack = 300;
+      if(playerProfile.rtaUpgradeCost == null) playerProfile.rtaUpgradeCost = 70;
       if(playerProfile.selectedShip == null) playerProfile.selectedShip = "blade";
       if(playerProfile.selectedShip === "light_phantom" && !playerProfile.lightOwned) playerProfile.selectedShip = "blade";
       if(playerProfile.selectedShip === "phantom_assassin" && !playerProfile.phantomOwned) playerProfile.selectedShip = "blade";
       if(playerProfile.selectedShip === "thunder_blade" && !playerProfile.thunderOwned) playerProfile.selectedShip = "blade";
       if(playerProfile.selectedDrone == null) playerProfile.selectedDrone = "alien";
+      if(playerProfile.selectedDrone === "bot_eta" && !playerProfile.botEtaOwned) playerProfile.selectedDrone = "alien";
+      if(playerProfile.selectedDrone === "rta" && !playerProfile.rtaOwned) playerProfile.selectedDrone = "alien";
       if(playerProfile.selectedStage == null) playerProfile.selectedStage = 1;
       if(playerProfile.maxUnlockedStage == null) playerProfile.maxUnlockedStage = 1;
       loadNickHint.textContent = "불러오기 성공";
@@ -1920,6 +1981,18 @@ S 사용 시 최대 굵기`;
 
     function droneSVG({ small=false, type="alien" } = {}){
       const s = small ? 180 : 240;
+      if (type === "rta") {
+        return `
+        <svg viewBox="0 0 ${s} ${s}" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+          <g>
+            <path d="M ${s*0.5} ${s*0.16} L ${s*0.68} ${s*0.46} L ${s*0.6} ${s*0.78} L ${s*0.5} ${s*0.64} L ${s*0.4} ${s*0.78} L ${s*0.32} ${s*0.46} Z" fill="#ff3d3d" stroke="#5a0f0f" stroke-width="6"/>
+            <circle cx="${s*0.5}" cy="${s*0.44}" r="${s*0.095}" fill="#ffd1d1" stroke="#8a1a1a" stroke-width="4"/>
+            <path d="M ${s*0.27} ${s*0.52} L ${s*0.1} ${s*0.4} L ${s*0.18} ${s*0.62} Z" fill="#ff7777" stroke="#5a0f0f" stroke-width="5"/>
+            <path d="M ${s*0.73} ${s*0.52} L ${s*0.9} ${s*0.4} L ${s*0.82} ${s*0.62} Z" fill="#ff7777" stroke="#5a0f0f" stroke-width="5"/>
+            <circle cx="${s*0.5}" cy="${s*0.44}" r="${s*0.035}" fill="#ffffff"/>
+          </g>
+        </svg>`;
+      }
       if (type === "bot_eta") {
         return `
         <svg viewBox="0 0 ${s} ${s}" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
@@ -1960,6 +2033,7 @@ S 사용 시 최대 굵기`;
     document.getElementById("shipPreviewPirate").innerHTML = planeSVG({ glow:true, small:true, styleType:"pirate_king" });
     document.getElementById("dronePreviewAlien").innerHTML = droneSVG({ small:true, type:"alien" });
     document.getElementById("dronePreviewBotEta").innerHTML = droneSVG({ small:true, type:"bot_eta" });
+    document.getElementById("dronePreviewRta").innerHTML = droneSVG({ small:true, type:"rta" });
 
     planeTabBtn.addEventListener("click", openPlaneScreen);
     heroPlane.addEventListener("click", openPlaneScreen);
@@ -2167,6 +2241,39 @@ S 사용 시 최대 굵기`;
       showScreen(mainScreen);
     });
 
+    buyRtaBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if ((playerProfile.gold || 0) < 150) {
+        alert("골드가 부족해.");
+        return;
+      }
+      playerProfile.gold -= 150;
+      playerProfile.rtaOwned = true;
+      if (playerProfile.rtaAttack == null) playerProfile.rtaAttack = 300;
+      if (playerProfile.rtaUpgradeCost == null) playerProfile.rtaUpgradeCost = 70;
+      savePlayer(playerProfile);
+      updateCurrencyUI();
+      updateProfileUI();
+    });
+
+    selectRtaBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (!playerProfile.rtaOwned) return;
+      playerProfile.selectedDrone = "rta";
+      savePlayer(playerProfile);
+      updateProfileUI();
+      showScreen(mainScreen);
+    });
+
+    document.querySelector('[data-select-drone="rta"]').addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (!playerProfile.rtaOwned) return;
+      playerProfile.selectedDrone = "rta";
+      savePlayer(playerProfile);
+      updateProfileUI();
+      showScreen(mainScreen);
+    });
+
     document.querySelector('[data-upgrade-ship="blade"]').addEventListener("click", (e) => {
       e.stopPropagation();
       const cost = playerProfile.shipUpgradeCost || 100;
@@ -2225,6 +2332,22 @@ S 사용 시 최대 굵기`;
       playerProfile.gold -= cost;
       playerProfile.botEtaAttack = (playerProfile.botEtaAttack || 90) + 15;
       playerProfile.botEtaUpgradeCost = Math.floor(cost * 1.48);
+      savePlayer(playerProfile);
+      updateCurrencyUI();
+      updateProfileUI();
+    });
+
+    upgradeRtaBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (!playerProfile.rtaOwned) return;
+      const cost = playerProfile.rtaUpgradeCost || 70;
+      if ((playerProfile.gold || 0) < cost) {
+        alert("골드가 부족해.");
+        return;
+      }
+      playerProfile.gold -= cost;
+      playerProfile.rtaAttack = (playerProfile.rtaAttack || 300) + 45;
+      playerProfile.rtaUpgradeCost = Math.floor(cost * 1.5);
       savePlayer(playerProfile);
       updateCurrencyUI();
       updateProfileUI();
@@ -2656,10 +2779,12 @@ S 사용 시 최대 굵기`;
       const shipAtk = currentShipAttackValue();
       const shipMode = currentShipMode();
       const selectedDrone = playerProfile?.selectedDrone || "alien";
-      const droneDisplayAtk = selectedDrone === "bot_eta" ? (playerProfile?.botEtaAttack || 90) : (playerProfile?.droneAttack || 30);
-      const droneCombatAtk = selectedDrone === "bot_eta"
-        ? Math.max(1, Math.round((playerProfile?.botEtaAttack || 90) / 30))
-        : Math.max(1, Math.round((playerProfile?.droneAttack || 30) / 10));
+      const droneDisplayAtk = selectedDrone === "rta" ? (playerProfile?.rtaAttack || 300) : (selectedDrone === "bot_eta" ? (playerProfile?.botEtaAttack || 90) : (playerProfile?.droneAttack || 30));
+      const droneCombatAtk = selectedDrone === "rta"
+        ? Math.max(1, Math.round((playerProfile?.rtaAttack || 300) / 5))
+        : selectedDrone === "bot_eta"
+          ? Math.max(1, Math.round((playerProfile?.botEtaAttack || 90) / 30))
+          : Math.max(1, Math.round((playerProfile?.droneAttack || 30) / 10));
 
       game.player = {
         x: W * 0.5,
@@ -2681,6 +2806,9 @@ S 사용 시 최대 굵기`;
         droneActive: false,
         droneTimer: 0,
         droneShotCooldown: 0,
+        rtaBurstLeft: 5,
+        rtaBurstGap: 0,
+        rtaCycleCooldown: 0,
         lightPowerCount: 0,
         assassinSprayLevel: 0,
         droneType: selectedDrone,
@@ -3114,6 +3242,33 @@ S 사용 시 최대 굵기`;
       });
     }
 
+    function addRtaHoming(x,y,target,dmg){
+      const speed = 760; // 우주선 일반 총알 속도급
+      let vx = 0;
+      let vy = -speed;
+      if (target) {
+        const dx = target.x - x;
+        const dy = target.y - y;
+        const len = Math.hypot(dx, dy) || 1;
+        vx = (dx / len) * speed;
+        vy = (dy / len) * speed;
+      }
+      game.playerHomingMissiles.push({
+        x,y,target,
+        vx,
+        vy,
+        speed,
+        turn: 0,
+        turnRate: (Math.PI / 18) / 0.1, // 0.1초마다 최대 10도 회전
+        dmg,
+        life: 3.4,
+        rta:true,
+        normalHpRatio:0.52,
+        color:"#ff3d3d",
+        lockedInitially: !!target
+      });
+    }
+
     const LIGHT_MAX_POWER = 8;
     function getLightLaserWidth(p){
       const power = Math.min(LIGHT_MAX_POWER, p.lightPowerCount || 0);
@@ -3172,7 +3327,30 @@ S 사용 시 최대 굵기`;
 
     function fireDroneBullets(p){
       if (!p || !p.droneActive || p.droneTimer <= 0) return;
-      p.droneShotCooldown -= Math.max(0.001, game.lastActiveDt || 1/60);
+      const dt = Math.max(0.001, game.lastActiveDt || 1/60);
+      if (p.droneType === "rta") {
+        p.rtaCycleCooldown = Math.max(0, (p.rtaCycleCooldown || 0) - dt);
+        p.rtaBurstGap = Math.max(0, (p.rtaBurstGap || 0) - dt);
+        if ((p.rtaBurstLeft || 0) <= 0) {
+          if (p.rtaCycleCooldown <= 0) {
+            p.rtaBurstLeft = 5;
+            p.rtaBurstGap = 0;
+          }
+          return;
+        }
+        if (p.rtaBurstGap > 0) return;
+        const target = game.boss || game.enemies[0] || null;
+        // RTA는 오른쪽 드론 한 기에서만 발사한다.
+        addRtaHoming(p.x + 42, p.y - 8, target, p.droneAttack);
+        p.rtaBurstLeft -= 1;
+        if (p.rtaBurstLeft <= 0) {
+          p.rtaCycleCooldown = 3.0;
+        } else {
+          p.rtaBurstGap = 0.1;
+        }
+        return;
+      }
+      p.droneShotCooldown -= dt;
       if (p.droneShotCooldown > 0) return;
       p.droneShotCooldown = p.droneType === "bot_eta" ? 0.24 : 0.16;
       const offsets = [-40, 40];
@@ -3362,9 +3540,14 @@ S 사용 시 최대 굵기`;
       }else if(type === "upgrade"){
         p.droneActive = true;
         p.droneTimer = 10.0;
-        p.droneAttack = p.droneType === "bot_eta"
-          ? Math.max(1, Math.round((playerProfile?.botEtaAttack || 90) / 30))
-          : Math.max(1, Math.round((playerProfile?.droneAttack || 30) / 10));
+        p.droneAttack = p.droneType === "rta"
+          ? Math.max(1, Math.round((playerProfile?.rtaAttack || 300) / 5))
+          : p.droneType === "bot_eta"
+            ? Math.max(1, Math.round((playerProfile?.botEtaAttack || 90) / 30))
+            : Math.max(1, Math.round((playerProfile?.droneAttack || 30) / 10));
+        p.rtaBurstLeft = 5;
+        p.rtaBurstGap = 0;
+        p.rtaCycleCooldown = 0;
         showMessage("드론 10초 갱신!", 1.0);
       }else if(type === "super"){
         p._prevState = {
@@ -3721,18 +3904,33 @@ S 사용 시 최대 굵기`;
             const dx = target.x - m.x;
             const dy = target.y - m.y;
             const len = Math.hypot(dx,dy) || 1;
-            const desiredX = (dx/len) * m.speed;
-            const desiredY = (dy/len) * m.speed;
-            m.vx += (desiredX - m.vx) * Math.min(1, activeDt * m.turn);
-            m.vy += (desiredY - m.vy) * Math.min(1, activeDt * m.turn);
+            const desiredAngle = Math.atan2(dy, dx);
+
+            if (m.rta) {
+              // RTA는 처음에는 적 방향으로 나가지만, 이후에는 0.1초마다 최대 10도만 꺾인다.
+              const currentAngle = Math.atan2(m.vy, m.vx);
+              let diff = desiredAngle - currentAngle;
+              while (diff > Math.PI) diff -= Math.PI * 2;
+              while (diff < -Math.PI) diff += Math.PI * 2;
+              const maxTurn = (m.turnRate || (Math.PI / 18)) * activeDt;
+              const nextAngle = currentAngle + clamp(diff, -maxTurn, maxTurn);
+              m.vx = Math.cos(nextAngle) * m.speed;
+              m.vy = Math.sin(nextAngle) * m.speed;
+            } else {
+              const desiredX = (dx/len) * m.speed;
+              const desiredY = (dy/len) * m.speed;
+              m.vx += (desiredX - m.vx) * Math.min(1, activeDt * m.turn);
+              m.vy += (desiredY - m.vy) * Math.min(1, activeDt * m.turn);
+            }
           } else {
-            // 감지 적 없으면 그냥 직진해서 화면 밖으로
+            // 감지 적 없으면 현재 방향 그대로 장외로 나가 사라진다.
           }
 
           m.x += m.vx * activeDt;
           m.y += m.vy * activeDt;
 
-          if(m.life <= 0 || m.x < -80 || m.x > W + 80 || m.y < -80 || m.y > H + 80){
+          const outMargin = m.rta ? 20 : 80;
+          if(m.life <= 0 || m.x < -outMargin || m.x > W + outMargin || m.y < -outMargin || m.y > H + outMargin){
             game.playerHomingMissiles.splice(i,1);
             continue;
           }
@@ -3745,7 +3943,8 @@ S 사용 시 최대 굵기`;
             for (let j = game.enemies.length - 1; j >= 0; j--) {
               const e = game.enemies[j];
               if (rectCircleHit(m.x, m.y, 8, e.x, e.y, e.w, e.h)) {
-                e.hp -= m.dmg;
+                const normalDamage = m.rta ? Math.max(m.dmg, Math.ceil((e.maxHp || e.hp || 1) * (m.normalHpRatio || 0.52))) : m.dmg;
+                e.hp -= normalDamage;
                 hit = true;
                 if(e.hp <= 0) killEnemy(e);
                 break;
@@ -4214,7 +4413,31 @@ S 사용 시 최대 굵기`;
       ctx.save();
       ctx.translate(x, y);
 
-      if (droneType === "bot_eta") {
+      if (droneType === "rta") {
+        ctx.fillStyle = "#ff3d3d";
+        ctx.strokeStyle = "#5a0f0f";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(0,-18);
+        ctx.lineTo(14,12);
+        ctx.lineTo(5,8);
+        ctx.lineTo(0,17);
+        ctx.lineTo(-5,8);
+        ctx.lineTo(-14,12);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = "#ffd1d1";
+        ctx.beginPath();
+        ctx.arc(0,-1,6,0,Math.PI*2);
+        ctx.fill();
+        ctx.strokeStyle = "rgba(255,90,90,.25)";
+        ctx.lineWidth = 5;
+        ctx.beginPath();
+        ctx.arc(0, 0, 22, -Math.PI / 2, Math.PI * 1.5);
+        ctx.stroke();
+        ctx.strokeStyle = "#ff8b8b";
+      } else if (droneType === "bot_eta") {
         ctx.fillStyle = "#6f46ff";
         ctx.strokeStyle = "#24125b";
         ctx.lineWidth = 2;
@@ -4315,8 +4538,12 @@ S 사용 시 최대 굵기`;
       ctx.restore();
 
       if (p.droneActive && p.droneTimer > 0) {
-        drawDroneAt(p.x - 42, p.y + 8, p.droneTimer);
-        drawDroneAt(p.x + 42, p.y + 8, p.droneTimer);
+        if (p.droneType === "rta") {
+          drawDroneAt(p.x + 42, p.y + 8, p.droneTimer);
+        } else {
+          drawDroneAt(p.x - 42, p.y + 8, p.droneTimer);
+          drawDroneAt(p.x + 42, p.y + 8, p.droneTimer);
+        }
       }
     }
 
@@ -4526,7 +4753,7 @@ S 사용 시 최대 굵기`;
         ctx.translate(m.x, m.y);
         const ang = Math.atan2(m.vy, m.vx);
         ctx.rotate(ang + Math.PI / 2);
-        ctx.fillStyle = "#5cff6f";
+        ctx.fillStyle = m.color || "#5cff6f";
         ctx.beginPath();
         ctx.moveTo(0, -10);
         ctx.lineTo(6, 8);
@@ -4622,7 +4849,7 @@ S 사용 시 최대 굵기`;
         const p = game.player;
         if(p){
           ctx.fillText(`우주선 공격력 ${getCurrentShipAttack()}`, 210, H - 176);
-          ctx.fillText(`드론 공격력 ${playerProfile?.droneAttack || 30}`, 210, H - 150);
+          ctx.fillText(`드론 공격력 ${getCurrentDroneAttack()}`, 210, H - 150);
           ctx.fillText(p.shipMode === "light" ? `레이저 굵기 ${Math.round(getLightLaserWidth(p))}` : `탄수 ${p.bulletCount}`, 210, H - 124);
           ctx.fillText(`강화 레벨 ${p.level}`, 210, H - 98);
           if (p.droneActive && p.droneTimer > 0) {
